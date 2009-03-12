@@ -1,8 +1,8 @@
-/* tab1.c */
-#include "tab1.h"
+/* tab3.c */
+#include "tab3.h"
 
 //Template for function
-GtkWidget* tab1()
+GtkWidget* tab3()
 {
     GtkWidget* label;
 
