@@ -1,7 +1,7 @@
 /* tab1.c */
 #include "tab1.h"
 
-//Template for function
+//Template for function for tab1
 GtkWidget* tab1()
 {
     GtkWidget* label;
