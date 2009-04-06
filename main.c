@@ -3,6 +3,9 @@
 #include <gtk/gtk.h>
 #include "tab1.h"
 #include "tab2.h"
+#include <sqlite3.h>
+
+sqlite3 *db;
 
 int main(int argc, char *argv[])
 {
@@ -14,8 +17,17 @@ int main(int argc, char *argv[])
   
   char *nameLabel[2] = { "Вкладка 1", "Вкладка 2"};
   int i=0;
+  int rc;
+//sqlite addon:
+        rc = sqlite3_open("base.db", &db);
 
-  //initiating gtk
+        if( rc ){
+        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        exit(1);
+        }
+//-------
+    
   gtk_init(&argc, &argv);
 
   //initiating window, hbox and tabs
