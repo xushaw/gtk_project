@@ -7,6 +7,8 @@
 
 sqlite3 *db;
 
+static void menuitem_response (gchar *);
+
 int main(int argc, char *argv[])
 {
   GtkWidget *window;
@@ -14,8 +16,10 @@ int main(int argc, char *argv[])
   GtkWidget *vbox;
   GtkWidget *table;
   GtkWidget *label;
+  GtkWidget *menu, *menu_bar, *root_menu, *menu_items;
   
   char *nameLabel[2] = { "Вкладка 1", "Вкладка 2"};
+  char buf[512]; // скока надо точно,я не знаю
   int i=0;
   int rc;
 //sqlite addon:
@@ -32,9 +36,29 @@ int main(int argc, char *argv[])
 
   //initiating window, hbox and tabs
   window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-  vbox = gtk_vbox_new(TRUE, 10);
+  vbox = gtk_vbox_new(FALSE, 0);//true, 10
   notebook = gtk_notebook_new();
+  menu = gtk_menu_new();
 
+    for (i=0; i<3; i++)
+    {
+    sprintf(buf, "Подменю-%d", i);
+    menu_items = gtk_menu_item_new_with_label (buf);
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_items);
+
+    g_signal_connect_swapped (G_OBJECT (menu_items), "activate",
+                              G_CALLBACK (menuitem_response),  (gpointer) g_strdup (buf));
+    gtk_widget_show (menu_items);
+    }
+
+    root_menu = gtk_menu_item_new_with_label ("Файл");
+    gtk_widget_show (root_menu);
+    gtk_menu_item_set_submenu (GTK_MENU_ITEM (root_menu), menu);
+    menu_bar = gtk_menu_bar_new ();
+
+    gtk_box_pack_start (GTK_BOX (vbox), menu_bar, TRUE, FALSE, 2);
+    gtk_widget_show (menu_bar);
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu_bar), root_menu);
 
   for(i=0; i<2; i++)  {
     label = gtk_label_new(nameLabel[i]);
@@ -61,4 +85,9 @@ int main(int argc, char *argv[])
   gtk_main(); 
 
   return 0;
+}
+
+static void menuitem_response( gchar *string )
+{
+            printf ("%s\n", string);
 }
