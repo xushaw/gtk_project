@@ -43,14 +43,16 @@ GtkWidget* tab1 ()
     GtkWidget *table;
     GtkWidget *entry;
     GtkWidget *sch_button, *clr_button;
-/*    int rc; 
+    GtkWidget *scrolled_window, *clist;
+    
+    scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
 
-    rc = sqlite3_open("base.db", &db);
-    if( rc ){
-                  fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
-                                sqlite3_close(db);
-                                exit(1);
-    }*/
+/*    clist = gtk_clist_new_with_titles (2, titles);
+    gtk_clist_set_shadow_type (GTK_CLIST (clist), GTK_SHADOW_OUT);
+    gtk_clist_set_column_width (GTK_CLIST (clist), 0, 150);
+    gtk_container_add (GTK_CONTAINER (scrolled_window), clist);
+    GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);*/
 
     int i,j;
     sch_button = gtk_button_new_with_label ("Поиск"); 
