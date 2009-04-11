@@ -40,6 +40,7 @@ int main(int argc, char *argv[])
   notebook = gtk_notebook_new();
   menu = gtk_menu_new();
 
+
     for (i=0; i<3; i++)
     {
     sprintf(buf, "Подменю-%d", i);
@@ -59,7 +60,7 @@ int main(int argc, char *argv[])
     gtk_box_pack_start (GTK_BOX (vbox), menu_bar, TRUE, FALSE, 2);
     gtk_widget_show (menu_bar);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu_bar), root_menu);
-
+/*******************************************************************/
   for(i=0; i<2; i++)  {
     label = gtk_label_new(nameLabel[i]);
     //Твой таб.
@@ -69,11 +70,10 @@ int main(int argc, char *argv[])
     else if (i == 1)
         table = tab2();
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), table, label);
-
   }
  
-  g_signal_connect_swapped(G_OBJECT(window), "destroy",
-      G_CALLBACK(gtk_main_quit), NULL);
+    g_signal_connect_swapped(G_OBJECT(window), "destroy",
+    G_CALLBACK(gtk_main_quit), NULL);
 
   //let's show them all
   gtk_container_add(GTK_CONTAINER(vbox), notebook);
