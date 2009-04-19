@@ -43,19 +43,10 @@ GtkWidget* tab1 ()
     GtkWidget *table;
     GtkWidget *entry;
     GtkWidget *sch_button, *clr_button;
-<<<<<<< HEAD:tab1.c
-    GtkWidget *scrolled_window, *clist;
-=======
 //    GtkWidget *scrolled_window, *clist;
->>>>>>> 3f1bff366916a59063563f0997c93c93c89c27d9:tab1.c
     
-<<<<<<< HEAD:tab1.c
-    scrolled_window = gtk_scrolled_window_new (NULL, NULL);
-    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
-=======
 //    scrolled_window = gtk_scrolled_window_new (NULL, NULL);
 //    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
->>>>>>> 3f1bff366916a59063563f0997c93c93c89c27d9:tab1.c
 
 /*    clist = gtk_clist_new_with_titles (2, titles);
     gtk_clist_set_shadow_type (GTK_CLIST (clist), GTK_SHADOW_OUT);
