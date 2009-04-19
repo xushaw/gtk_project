@@ -16,12 +16,15 @@ int main(int argc, char *argv[])
   GtkWidget *vbox;
   GtkWidget *table;
   GtkWidget *label;
-  GtkWidget *menu, *menu_bar, *root_menu, *menu_items;
+  GtkWidget *menu_f, *menu_e, *menu_h, *menu_bar, *file_menu, *edit_menu, *help_menu, *menu_items_f, *menu_items_e, *menu_items_h;
   
   char *nameLabel[2] = { "Вкладка 1", "Вкладка 2"};
   char buf[512]; // скока надо точно,я не знаю
   int i=0;
   int rc;
+  char *label_f[4] = {"сохранить","сохранить как...","печать","выход"};
+  char *label_e[6] = {"отменить","вернуть","вырезать","копировать", "вставить", "удалить"};
+  char *label_h[3] = {"1", "2", "3"};
 //sqlite addon:
         rc = sqlite3_open("base.db", &db);
 
@@ -38,28 +41,64 @@ int main(int argc, char *argv[])
   window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   vbox = gtk_vbox_new(FALSE, 0);//true, 10
   notebook = gtk_notebook_new();
-  menu = gtk_menu_new();
+  menu_f = gtk_menu_new();
+  menu_e = gtk_menu_new();
+  menu_h = gtk_menu_new();
+
+    for (i=0; i<4; i++)
+    {
+    sprintf(buf, label_f[i], i);
+    menu_items_f = gtk_menu_item_new_with_label (buf);
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu_f), menu_items_f);
+
+    g_signal_connect_swapped (G_OBJECT (menu_items_f), "activate",
+                              G_CALLBACK (menuitem_response),  (gpointer) g_strdup (buf));
+    gtk_widget_show (menu_items_f);
+    }
+
+    for (i=0; i<6; i++)
+    {
+    sprintf(buf, label_e[i], i);
+    menu_items_e = gtk_menu_item_new_with_label (buf);
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu_e), menu_items_e);
+
+    g_signal_connect_swapped (G_OBJECT (menu_items_e), "activate",
+                              G_CALLBACK (menuitem_response),  (gpointer) g_strdup (buf));
+    gtk_widget_show (menu_items_e);
+    }
 
 
     for (i=0; i<3; i++)
     {
-    sprintf(buf, "Подменю-%d", i);
-    menu_items = gtk_menu_item_new_with_label (buf);
-    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_items);
+    sprintf(buf, label_h[i], i);
+    menu_items_h = gtk_menu_item_new_with_label (buf);
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu_h), menu_items_h);
 
-    g_signal_connect_swapped (G_OBJECT (menu_items), "activate",
+    g_signal_connect_swapped (G_OBJECT (menu_items_h), "activate",
                               G_CALLBACK (menuitem_response),  (gpointer) g_strdup (buf));
-    gtk_widget_show (menu_items);
+    gtk_widget_show (menu_items_h);
     }
 
-    root_menu = gtk_menu_item_new_with_label ("Файл");
-    gtk_widget_show (root_menu);
-    gtk_menu_item_set_submenu (GTK_MENU_ITEM (root_menu), menu);
+    file_menu = gtk_menu_item_new_with_label ("Файл");
+    edit_menu = gtk_menu_item_new_with_label ("Правка");
+    help_menu = gtk_menu_item_new_with_label ("Справка");
+    gtk_widget_show (file_menu);
+    gtk_widget_show (edit_menu);
+    gtk_widget_show (help_menu);
+    gtk_menu_item_set_submenu (GTK_MENU_ITEM (file_menu), menu_f);
+    gtk_menu_item_set_submenu (GTK_MENU_ITEM (edit_menu), menu_e);
+    gtk_menu_item_set_submenu (GTK_MENU_ITEM (help_menu), menu_h);
     menu_bar = gtk_menu_bar_new ();
-
     gtk_box_pack_start (GTK_BOX (vbox), menu_bar, TRUE, FALSE, 2);
     gtk_widget_show (menu_bar);
+<<<<<<< HEAD:main.c
     gtk_menu_shell_append (GTK_MENU_SHELL (menu_bar), root_menu);
+=======
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu_bar), file_menu);
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu_bar), edit_menu);
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu_bar), help_menu);
+
+>>>>>>> 3f1bff366916a59063563f0997c93c93c89c27d9:main.c
 /*******************************************************************/
   for(i=0; i<2; i++)  {
     label = gtk_label_new(nameLabel[i]);
