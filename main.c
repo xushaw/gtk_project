@@ -66,10 +66,7 @@ int main(int argc, char *argv[])
                               G_CALLBACK (menuitem_response),  (gpointer) g_strdup (buf));
     gtk_widget_show (menu_items_e);
     }
-<<<<<<< HEAD:main.c
 
-=======
->>>>>>> 3231d261ba3a8861efeabfcb54ac269c92a3be07:main.c
 
     for (i=0; i<3; i++)
     {
@@ -94,20 +91,10 @@ int main(int argc, char *argv[])
     menu_bar = gtk_menu_bar_new ();
     gtk_box_pack_start (GTK_BOX (vbox), menu_bar, TRUE, FALSE, 2);
     gtk_widget_show (menu_bar);
-<<<<<<< HEAD:main.c
-<<<<<<< HEAD:main.c
-    gtk_menu_shell_append (GTK_MENU_SHELL (menu_bar), root_menu);
-=======
-=======
->>>>>>> 3231d261ba3a8861efeabfcb54ac269c92a3be07:main.c
     gtk_menu_shell_append (GTK_MENU_SHELL (menu_bar), file_menu);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu_bar), edit_menu);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu_bar), help_menu);
 
-<<<<<<< HEAD:main.c
->>>>>>> 3f1bff366916a59063563f0997c93c93c89c27d9:main.c
-=======
->>>>>>> 3231d261ba3a8861efeabfcb54ac269c92a3be07:main.c
 /*******************************************************************/
   for(i=0; i<2; i++)  {
     label = gtk_label_new(nameLabel[i]);
