@@ -16,15 +16,14 @@ int main(int argc, char *argv[])
   GtkWidget *vbox;
   GtkWidget *table;
   GtkWidget *label;
-  GtkWidget *menu_f, *menu_e, *menu_h, *menu_bar, *file_menu, *edit_menu, *help_menu, *menu_items_f, *menu_items_e, *menu_items_h;
+  GtkWidget *menu_f, *menu_h, *menu_bar, *file_menu, *help_menu, *menu_items_f, *menu_items_h;
   
   char *nameLabel[2] = { "Вкладка 1", "Вкладка 2"};
   char buf[512]; // скока надо точно,я не знаю
   int i=0;
   int rc;
-  char *label_f[4] = {"сохранить","сохранить как...","печать","выход"};
-  char *label_e[6] = {"отменить","вернуть","вырезать","копировать", "вставить", "удалить"};
-  char *label_h[3] = {"1", "2", "3"};
+  char *label_f[3] = {"сохранить","сохранить как...","выход"};
+  char *label_h[1] = {"о программе"};
 //sqlite addon:
         rc = sqlite3_open("base.db", &db);
 
@@ -42,10 +41,9 @@ int main(int argc, char *argv[])
   vbox = gtk_vbox_new(FALSE, 0);//true, 10
   notebook = gtk_notebook_new();
   menu_f = gtk_menu_new();
-  menu_e = gtk_menu_new();
   menu_h = gtk_menu_new();
 
-    for (i=0; i<4; i++)
+    for (i=0; i<3; i++)
     {
     sprintf(buf, label_f[i], i);
     menu_items_f = gtk_menu_item_new_with_label (buf);
@@ -80,19 +78,15 @@ int main(int argc, char *argv[])
     }
 
     file_menu = gtk_menu_item_new_with_label ("Файл");
-    edit_menu = gtk_menu_item_new_with_label ("Правка");
     help_menu = gtk_menu_item_new_with_label ("Справка");
     gtk_widget_show (file_menu);
-    gtk_widget_show (edit_menu);
     gtk_widget_show (help_menu);
     gtk_menu_item_set_submenu (GTK_MENU_ITEM (file_menu), menu_f);
-    gtk_menu_item_set_submenu (GTK_MENU_ITEM (edit_menu), menu_e);
     gtk_menu_item_set_submenu (GTK_MENU_ITEM (help_menu), menu_h);
     menu_bar = gtk_menu_bar_new ();
     gtk_box_pack_start (GTK_BOX (vbox), menu_bar, TRUE, FALSE, 2);
     gtk_widget_show (menu_bar);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu_bar), file_menu);
-    gtk_menu_shell_append (GTK_MENU_SHELL (menu_bar), edit_menu);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu_bar), help_menu);
 
 /*******************************************************************/

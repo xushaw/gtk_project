@@ -16,4 +16,3 @@ void set_table_info(GtkTreeStore *store,const char *names[], gboolean flag);
 GtkWidget* setup_table(GtkTreeStore *store, const char *labelColumn[]);
  
 #endif
-
