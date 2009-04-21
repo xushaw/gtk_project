@@ -54,23 +54,7 @@ int main(int argc, char *argv[])
     gtk_widget_show (menu_items_f);
     }
 
-<<<<<<< HEAD:main.c
     for (i=0; i<1; i++)
-=======
-    for (i=0; i<6; i++)
-    {
-    sprintf(buf, label_e[i], i);
-    menu_items_e = gtk_menu_item_new_with_label (buf);
-    gtk_menu_shell_append (GTK_MENU_SHELL (menu_e), menu_items_e);
-
-    g_signal_connect_swapped (G_OBJECT (menu_items_e), "activate",
-                              G_CALLBACK (menuitem_response),  (gpointer) g_strdup (buf));
-    gtk_widget_show (menu_items_e);
-    }
-
-
-    for (i=0; i<3; i++)
->>>>>>> d5742d2516a74c6ca8789b2dab41918ea5ddecd4:main.c
     {
     sprintf(buf, label_h[i], i);
     menu_items_h = gtk_menu_item_new_with_label (buf);
