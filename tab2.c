@@ -1,10 +1,32 @@
 #include "tab2.h"
 #include <gtk/gtk.h>
+#include <sqlite3.h>
 /* garfeild.c */
 
+sqlite3 *db;
+
+static int callback(void *NotUsed, int argc, char **argv, char **azColName)
+{
+     int i;
+     NotUsed=0;
+
+    for(i=0; i<argc; i++){
+    printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+    }
+    printf("\n");
+    return 0;
+}
+
 void entry_print(GtkWidget *gw, GtkWidget *entry)
-{  
-  g_print ("%s\n", gtk_entry_get_text(GTK_ENTRY(entry)));
+{ 
+    char *zErrMsg = 0;
+    int rc;
+    g_print ("%s\n", gtk_entry_get_text(GTK_ENTRY(entry)));
+    rc = sqlite3_exec(db, "SELECT ALL * FROM garfeild;", callback, 0, &zErrMsg);
+    if( rc!=SQLITE_OK )
+                            {
+    fprintf(stderr, "SQL error: %s\n", zErrMsg);
+    }
 }
 
 void entry_clear(GtkWidget *gw, GtkWidget *entry)
