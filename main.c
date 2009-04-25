@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
   char *label_f[3] = {"сохранить","сохранить как...","выход"};
   char *label_h[1] = {"о программе"};
 //sqlite addon:
-        rc = sqlite3_open("base.db", &db);
+        rc = sqlite3_open("123.db", &db);
 
         if( rc ){
         fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
