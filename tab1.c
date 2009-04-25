@@ -40,7 +40,7 @@ static void clr_callback( GtkWidget *widget, GtkWidget *entry )
 GtkWidget* tab1 ()
 {   
     GtkWidget *table; //таблица для frame`ов
-    GtkWidget *table_in; //для widget`a включающего entries+checkbutton+entry_label
+    GtkWidget *table_in; 
     GtkWidget *entry;
     GtkWidget *sch_button, *clr_button;
     GtkWidget *all, *none, *input, *output, *work, *defend; //checkbuttons for param-s
@@ -50,9 +50,13 @@ GtkWidget* tab1 ()
     GtkWidget *ch_bbox1, *ch_bbox2; //for checkbuttons
     GtkWidget *checkbutton; //enable\disable entries
     GtkWidget *hbox; //for ch_boxes
+    GtkWidget *ehbox, *evbox;
     int i,j,k;
     char *frame_name[4] = {"Входные параметры", "Выходные параметры", "Рабочие функции", "Защитные фунции"};
-
+    char *input_entry_name[3] = {"число фаз", "напряжение питающией сети,В", "частота питающей сети,Гц"};
+/*    char *entry_name1[N] = {""};
+    char *entry_name1[N] = {""};
+    char *entry_name1[N] = {""};*/
     table = gtk_table_new (3, 2, TRUE);
 
 /*  table_int = gtk_table_new (1, 3, TRUE); //input
@@ -67,21 +71,19 @@ for (j=0; j<2; j++)
         frame = gtk_frame_new(NULL);
         gtk_frame_set_label (GTK_FRAME (frame), frame_name[k]);
         gtk_table_attach_defaults (GTK_TABLE (table), frame, 0+i, 1+i, 0+j, 1+j);
+        table_in = gtk_table_new (k+1, 3, TRUE);
+        gtk_container_add (GTK_CONTAINER(frame), table_in);
         gtk_widget_show(frame);
         k++;
     }
 }
-/*    for(i=0; i<4; i++)
-    {
-        table_in = gtk_table_new (i, 3, TRUE);
-        gtk_container_add (GTK_CONTAINER(frame), table_in);
-        gtk_widget_show(table_in);
-    }*/
+       // table_in = gtk_table_new (k+1, 3, TRUE);
+       // gtk_container_add (GTK_CONTAINER(frame), table_in);
 
     sch_button = gtk_button_new_with_label ("Поиск"); 
-    gtk_widget_set_size_request (sch_button, 70, 35);
+//    gtk_widget_set_size_request (sch_button, 70, 35);
     clr_button = gtk_button_new_with_label ("Сброс"); 
-    gtk_widget_set_size_request (clr_button, 70, 35);
+//    gtk_widget_set_size_request (clr_button, 70, 35);
 //пока по-нубски
     ch_bbox1 = gtk_vbutton_box_new();
     ch_bbox2 = gtk_vbutton_box_new();
@@ -118,6 +120,22 @@ for (j=0; j<2; j++)
 
 //запихать entries в один виджет(комбо-бокс?)
 //и задать labels. +checkbuttons. сделать акт/неактивн entry.
+
+    ehbox = gtk_hbox_new (TRUE, 0);
+    evbox = gtk_vbox_new (TRUE, 0);
+    
+/*for (i=0; i<3; i++)
+{
+    entry = gtk_entry_new_with_label (input_entry_name[i]);
+    gtk_container_add (GTK_CONTAINER (ehbox), entry);
+    g_signal_connect (G_OBJECT (sch_button), "clicked",
+                      G_CALLBACK (sch_callback), (gpointer) entry); 
+    g_signal_connect (G_OBJECT (clr_button), "clicked",
+                      G_CALLBACK (clr_callback), (gpointer) entry);
+    gtk_widget_show(entry);
+}*/
+
+
 
 /*for (i=0; i<2; i++)
     for (j=0; j<3; j++)
