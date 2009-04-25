@@ -1,6 +1,8 @@
 #include "tab2.h"
 #include <gtk/gtk.h>
 #include <sqlite3.h>
+#include <string.h>
+#include <stdlib.h>
 /* garfeild.c */
 
 sqlite3 *db;
@@ -21,11 +23,18 @@ void entry_print(GtkWidget *gw, GtkWidget *entry)
 { 
     char *zErrMsg = 0;
     int rc;
-    g_print ("%s\n", gtk_entry_get_text(GTK_ENTRY(entry)));
-    rc = sqlite3_exec(db, "SELECT ALL * FROM garfeild;", callback, 0, &zErrMsg);
+    char *str;
+
+    str = (char*) malloc(sizeof("SELECT id FROM garfeild WHERE hello=\"") + sizeof(gtk_entry_get_text(GTK_ENTRY(entry))) + sizeof("\""));
+    strcat(str, "SELECT id FROM garfeild WHERE hello=\"");
+    strcat(str, (char*)gtk_entry_get_text(GTK_ENTRY(entry)));
+    strcat(str, "\"");
+    //g_print ("%s\n", gtk_entry_get_text(GTK_ENTRY(entry)));
+    g_print ("%s\n", str);
+    //rc = sqlite3_exec(db, str, callback, 0, &zErrMsg);
     if( rc!=SQLITE_OK )
-                            {
-    fprintf(stderr, "SQL error: %s\n", zErrMsg);
+    {
+        printf(stderr, "SQL error: %s\n", zErrMsg);
     }
 }
 
@@ -50,8 +59,8 @@ GtkWidget* tab2()
   GtkWidget *buttonBox;
   int j;
 
-  char *nameButton[2] = { "Clear", "Print" };
-  char *nameInput[13] = { "Input 2.1", "Input 2.2" };
+  char *nameButton[2] = { "Сброс", "Поиск" };
+  char *nameInput[13] = { "Данные 1", "Данные 2" };
 
   //initiating buttons and labels
    buttonBox = gtk_hbutton_box_new();
