@@ -8,7 +8,16 @@
 #include <glib/gprintf.h>
 /* garfeild.c */
 
+//Индекс ID
+#define ID 0
+//Индекс TEXT
+#define TEXT 1
+
 sqlite3 *db;
+//Названия кнопок
+const gchar *nameButton[2] = { "Сброс", "Поиск" };
+//Названия для GtkLabel и GtkEntry
+const gchar *nameInput[2] = { "id", "text" };
 
 static int callback(void *NotUsed, int argc, char **argv, char **azColName)
 {
@@ -26,27 +35,99 @@ void entry_print(GtkWidget *gw, GtkWidget *entry)
 { 
     char *zErrMsg = 0;
     int rc;
+    //Массив частей запроса 'SELECT что-то FROM garfeild что-то-еще="значение";'
+    const gchar *selectSubStr[4] = { "SELECT ", " FROM garfeild WHERE ", "=\"", "\";" };
+    int k = 0;
     
-    int k = sizeof("SELECT ALL * FROM garfeild WHERE id=\"") + sizeof(gtk_entry_get_text(GTK_ENTRY(entry))) + sizeof("\";"); 
-    //g_print("%d\n", k*sizeof(char));
-    char *str = (char*)malloc(k*sizeof(char));
-    //g_print("MALLOC!\n");
     
+    //DEBUG: Проверяем, действительно ли можно вычислить длинну.
+    //g_fprintf(stderr, "%d\n",strlen(selectSubStr[0]));
+    //g_fprintf(stderr, "%d\n",strlen(nameInput[TEXT]));
+    //g_fprintf(stderr, "%d\n",strlen(selectSubStr[1]));
+    //g_fprintf(stderr, "%d\n",strlen(gtk_widget_get_name(GTK_WIDGET(entry))));
+    //g_fprintf(stderr, "%d\n",strlen(selectSubStr[2]));
+    //g_fprintf(stderr, "%d\n",strlen(gtk_entry_get_text(GTK_ENTRY(entry))));
+    //g_fprintf(stderr, "%d\n",strlen(selectSubStr[3])); 
+    
+    //k = длинна строки 'SELECT text FROM garfeild WHERE id="число";'
+    //Сравниваем названия виджета entry с элементом массива nameInput, соответствующего ID.
+    if ( g_strcmp0(gtk_widget_get_name(GTK_WIDGET(entry)),nameInput[ID]) == 0 )
+    {
+        //DEBUG: Проверка вхождения в цикл для первого if
+        //g_fprintf(stderr, "ID!\n");
+        k = strlen(selectSubStr[0]) + 
+            strlen(nameInput[TEXT]) + 
+            strlen(selectSubStr[1]) + 
+            strlen(gtk_widget_get_name(GTK_WIDGET(entry))) + 
+            strlen(selectSubStr[2]) + 
+            strlen(gtk_entry_get_text(GTK_ENTRY(entry))) + 
+            strlen(selectSubStr[3]); 
+    }
+    //Сравниваем названия виджета entry с элементом массива nameInput, соответствующего TEXT.
+    else if ( g_strcmp0(gtk_widget_get_name(GTK_WIDGET(entry)),nameInput[TEXT]) == 0 )
+    {
+        //DEBUG
+        //g_fprintf(stderr, "TEXT!\n");
+        k = strlen(selectSubStr[0]) + 
+            strlen(nameInput[ID]) + 
+            strlen(selectSubStr[1]) + 
+            strlen(gtk_widget_get_name(GTK_WIDGET(entry))) + 
+            strlen(selectSubStr[2]) + 
+            strlen(gtk_entry_get_text(GTK_ENTRY(entry))) + 
+            strlen(selectSubStr[3]); 
+    }
+    //DEBUG: Проверяем, посчиталась ли длинна конечно строки.
+    //g_fprintf(stderr, "%d\n", k);
+    
+    //Создаем указатель str на gchar длинной k. sizeof(gchar) для определения размера памяти под один элемент gchar.
+    gchar *str = (gchar*)malloc(k*sizeof(gchar));
+    //DEBUG: Проверка на падение после вызова malloc.
+    //g_fprintf(stderr, "MALLOC!\n");
+    
+    //Устанавливаем нулевой размер для всех элементов str.
     memset(str, 0, k*sizeof(char));
-    //g_print("MEMSET\n");
-    strcat(str, "SELECT ALL * FROM garfeild WHERE id=\"");
-    //g_print("CAT1\n");
-    //g_print("%s\n", str);
-    //g_print("%d\n", strlen(str));
-    strcat(str, gtk_entry_get_text(GTK_ENTRY(entry)));
-    //g_print("CAT2\n");
-    //g_print("%s\n", str);
-    //g_print("%d\n", strlen(str));
-    strcat(str, "\";");
-    //g_print("CAT3\n");
-    //g_print("%s\n", str);
-    //g_print("%d\n", strlen(str));
+    //DEBUG: Проверка на выполнение memset.
+    //g_fprintf(stderr, "MEMSET\n");
+    
+    //Копируем первую часть запроса в конечную строку str.
+    strcat(str, selectSubStr[0]);
+    //DEBUG: Вывод полученной строки.
+    //g_fprintf(stderr, "CAT1: %s\n", str);
 
+    //Проеверяем, какой виджет entry используется, и копируем название другого виджета в str.
+    if ( g_strcmp0(gtk_widget_get_name(GTK_WIDGET(entry)),nameInput[ID]) == 0 )
+        strcat(str, nameInput[TEXT]);
+    else if ( g_strcmp0(gtk_widget_get_name(GTK_WIDGET(entry)),nameInput[TEXT]) == 0 )
+        strcat(str, nameInput[ID]);
+    //DEBUG: Вывод полученной строки.
+    //g_fprintf(stderr, "CAT2: %s\n", str);
+    
+    //Копируем вторую часть запроса в str.
+    strcat(str, selectSubStr[1]);
+    //DEBUG: Вывод полученной строки.
+    //g_fprintf(stderr, "CAT3: %s\n", str);
+    
+    //Копируем название entry в запрос str.
+    strcat(str, gtk_widget_get_name(GTK_WIDGET(entry)));
+    //DEBUG: Вывод полученной строки.
+    //g_fprintf(stderr, "CAT4: %s\n", str);
+    
+    //Копируем третью часть запроса в str.
+    strcat(str, selectSubStr[2]);
+    //DEBUG: Вывод полученной строки.
+    //g_fprintf(stderr, "CAT5: %s\n", str);
+    
+    //Копируем текст из entry, который используем в качестве параметра запроса.
+    strcat(str, gtk_entry_get_text(GTK_ENTRY(entry)));
+    //DEBUG: Вывод полученной строки.
+    //g_fprintf(stderr, "CAT6: %s\n", str);
+    
+    //Копируем четвертую, последнюю часть запроса в str.
+    strcat(str, selectSubStr[3]);
+    //DEBUG: Вывод полученной строки.
+    //g_fprintf(stderr, "CAT7: %s\n", str);
+    
+    //Проверочный вывод полученно строки.
     g_print ("%s\n", str);
     rc = sqlite3_exec(db, str, callback, 0, &zErrMsg);
     if( rc!=SQLITE_OK )
@@ -76,8 +157,6 @@ GtkWidget* tab2()
   GtkWidget *buttonBox;
   int j;
 
-  char *nameButton[2] = { "Сброс", "Поиск" };
-  char *nameInput[13] = { "Данные 1", "Данные 2" };
 
   //initiating buttons and labels
    buttonBox = gtk_hbutton_box_new();
@@ -93,6 +172,8 @@ GtkWidget* tab2()
        
        labelInput[j] = gtk_label_new(nameInput[j]);
        input[j] = gtk_entry_new();
+       //Задаем имя для виджета GtkEntry таким же, как и текст соседнего GtkLabel. 
+       gtk_widget_set_name(input[j], nameInput[j]);
        
        rightAlignment[j] = gtk_alignment_new(1, 0.5, 0.1, 0);
        
