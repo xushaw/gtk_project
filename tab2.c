@@ -3,6 +3,9 @@
 #include <sqlite3.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <glib.h>
+#include <glib/gprintf.h>
 /* garfeild.c */
 
 sqlite3 *db;
@@ -23,18 +26,32 @@ void entry_print(GtkWidget *gw, GtkWidget *entry)
 { 
     char *zErrMsg = 0;
     int rc;
-    char *str;
+    
+    int k = sizeof("SELECT ALL * FROM garfeild WHERE id=\"") + sizeof(gtk_entry_get_text(GTK_ENTRY(entry))) + sizeof("\";"); 
+    //g_print("%d\n", k*sizeof(char));
+    char *str = (char*)malloc(k*sizeof(char));
+    //g_print("MALLOC!\n");
+    
+    memset(str, 0, k*sizeof(char));
+    //g_print("MEMSET\n");
+    strcat(str, "SELECT ALL * FROM garfeild WHERE id=\"");
+    //g_print("CAT1\n");
+    //g_print("%s\n", str);
+    //g_print("%d\n", strlen(str));
+    strcat(str, gtk_entry_get_text(GTK_ENTRY(entry)));
+    //g_print("CAT2\n");
+    //g_print("%s\n", str);
+    //g_print("%d\n", strlen(str));
+    strcat(str, "\";");
+    //g_print("CAT3\n");
+    //g_print("%s\n", str);
+    //g_print("%d\n", strlen(str));
 
-    str = (char*) malloc(sizeof("SELECT id FROM garfeild WHERE hello=\"") + sizeof(gtk_entry_get_text(GTK_ENTRY(entry))) + sizeof("\""));
-    strcat(str, "SELECT id FROM garfeild WHERE hello=\"");
-    strcat(str, (char*)gtk_entry_get_text(GTK_ENTRY(entry)));
-    strcat(str, "\"");
-    //g_print ("%s\n", gtk_entry_get_text(GTK_ENTRY(entry)));
     g_print ("%s\n", str);
-    //rc = sqlite3_exec(db, str, callback, 0, &zErrMsg);
+    rc = sqlite3_exec(db, str, callback, 0, &zErrMsg);
     if( rc!=SQLITE_OK )
     {
-        printf(stderr, "SQL error: %s\n", zErrMsg);
+        g_fprintf(stderr,"SQL error: %s\n", zErrMsg);
     }
 }
 
