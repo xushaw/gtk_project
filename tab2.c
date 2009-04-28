@@ -12,12 +12,15 @@
 #define ID 0
 //Индекс TEXT
 #define TEXT 1
+#define NUMBER 0
 
 sqlite3 *db;
 //Названия кнопок
 const gchar *nameButton[2] = { "Сброс", "Поиск" };
 //Названия для GtkLabel и GtkEntry
-const gchar *nameInput[2] = { "id", "text" };
+const gchar *nameInput[2] = { "number", "text" };
+
+GtkWidget *input[2];
 
 static int callback(void *NotUsed, int argc, char **argv, char **azColName)
 {
@@ -136,6 +139,84 @@ void entry_print(GtkWidget *gw, GtkWidget *entry)
     }
 }
 
+void entry_print2(GtkWidget *gw, GtkWidget *entry[])
+{ 
+    char *zErrMsg = 0;
+    int rc;
+    //Массив частей запроса 'SELECT что-то FROM garfeild что-то-еще="значение";'
+    //                                             
+    const gchar *selectSubStr[4] = { 
+        "SELECT id FROM garfeild WHERE ",   //0
+        "=\"",                              //1
+        "\" AND ",                          //2
+        "\";"};                             //3
+    int k = 0;
+    
+    entry = input;
+    
+    //DEBUG: Проверяем, действительно ли можно вычислить длинну.
+    g_fprintf(stderr, "%d\n",strlen(selectSubStr[0]));
+    g_fprintf(stderr, "%d\n",strlen(selectSubStr[1]));
+    g_fprintf(stderr, "%d\n",strlen(selectSubStr[2]));
+    g_fprintf(stderr, "%d\n",strlen(selectSubStr[3])); 
+    g_fprintf(stderr, "%d\n",strlen(gtk_widget_get_name(GTK_WIDGET(entry[NUMBER]))));
+    g_fprintf(stderr, "%d\n",strlen(gtk_entry_get_text(GTK_ENTRY(entry[NUMBER]))));
+    g_fprintf(stderr, "%d\n",strlen(gtk_widget_get_name(GTK_WIDGET(entry[TEXT]))));
+    g_fprintf(stderr, "%d\n",strlen(gtk_entry_get_text(GTK_ENTRY(entry[TEXT]))));
+    
+    //k = длинна строки 'SELECT id FROM garfeild WHERE number="число" AND text="текст";'
+    //Сравниваем названия виджета entry с элементом массива nameInput, соответствующего ID.
+        //DEBUG: Проверка вхождения в цикл для первого if
+        //g_fprintf(stderr, "ID!\n");
+        k = strlen(selectSubStr[0]) + 
+            strlen(gtk_widget_get_name(GTK_WIDGET(entry[NUMBER]))) + 
+            2*strlen(selectSubStr[1]) + 
+            strlen(gtk_entry_get_text(GTK_ENTRY(entry[NUMBER]))) + 
+            strlen(selectSubStr[2]) +
+            strlen(gtk_widget_get_name(GTK_WIDGET(entry[TEXT]))) +
+            strlen(selectSubStr[3]);
+    //DEBUG: Проверяем, посчиталась ли длинна конечно строки.
+    g_fprintf(stderr, "%d\n", k);
+    
+    //Создаем указатель str на gchar длинной k. sizeof(gchar) для определения размера памяти под один элемент gchar.
+    gchar *str = (gchar*)malloc(k*sizeof(gchar));
+    //DEBUG: Проверка на падение после вызова malloc.
+    //g_fprintf(stderr, "MALLOC!\n");
+    
+    //Устанавливаем нулевой размер для всех элементов str.
+    memset(str, 0, k*sizeof(char));
+    //DEBUG: Проверка на выполнение memset.
+    //g_fprintf(stderr, "MEMSET\n");
+    
+    //Копируем первую часть запроса в конечную строку str.
+    strcat(str, selectSubStr[0]);
+    
+    strcat(str, gtk_widget_get_name(GTK_WIDGET(entry[NUMBER])));
+
+    strcat(str, selectSubStr[1]);
+
+    strcat(str, gtk_entry_get_text(GTK_ENTRY(entry[NUMBER])));
+
+    strcat(str, selectSubStr[2]);
+
+    strcat(str, gtk_widget_get_name(GTK_WIDGET(entry[TEXT])));
+
+    strcat(str, selectSubStr[1]);
+
+    strcat(str, gtk_entry_get_text(GTK_ENTRY(entry[TEXT])));
+
+    strcat(str, selectSubStr[3]);
+    
+    
+    //Проверочный вывод полученно строки.
+    g_print ("%s\n", str);
+    rc = sqlite3_exec(db, str, callback, 0, &zErrMsg);
+    if( rc!=SQLITE_OK )
+    {
+        g_fprintf(stderr,"SQL error: %s\n", zErrMsg);
+    }
+}
+
 void entry_clear(GtkWidget *gw, GtkWidget *entry)
 { 
   gtk_entry_set_text(GTK_ENTRY(entry), "");
@@ -146,12 +227,13 @@ void entry_enter(GtkWidget *gw, GtkWidget *button)
   g_signal_emit_by_name(G_OBJECT(button), "clicked");
 }
 
+//gchar *createSelectQuery(gchar)
+
 GtkWidget* tab2()
 {
   GtkWidget *hboxs[2];
   GtkWidget *tableBox;
   GtkWidget *button[2];
-  GtkWidget *input[2];
   GtkWidget *labelInput[2];
   GtkWidget *rightAlignment[2];
   GtkWidget *buttonBox;
@@ -197,13 +279,19 @@ GtkWidget* tab2()
        g_signal_connect(G_OBJECT(button[0]), "clicked", 
                G_CALLBACK(entry_clear), (gpointer) input[j]);
        
-       g_signal_connect(G_OBJECT(button[1]), "clicked", 
-               G_CALLBACK(entry_print), (gpointer) input[j]);
+       //g_signal_connect(G_OBJECT(button[1]), "clicked", 
+       //        G_CALLBACK(entry_print), (gpointer) input[j]);
        
        g_signal_connect(G_OBJECT(input[j]), "activate",
                G_CALLBACK(entry_enter), (gpointer) button[1]);
    }
+    g_signal_connect(G_OBJECT(button[1]), "clicked", 
+            G_CALLBACK(entry_print2), (gpointer)input);
    
+    g_fprintf(stderr, "%d\n",strlen(gtk_widget_get_name(GTK_WIDGET(input[NUMBER]))));
+    g_fprintf(stderr, "%d\n",strlen(gtk_entry_get_text(GTK_ENTRY(input[NUMBER]))));
+    g_fprintf(stderr, "%d\n",strlen(gtk_widget_get_name(GTK_WIDGET(input[TEXT]))));
+    g_fprintf(stderr, "%d\n",strlen(gtk_entry_get_text(GTK_ENTRY(input[TEXT]))));
    gtk_container_set_border_width(GTK_CONTAINER(tableBox), 5);
    return tableBox;
 }
