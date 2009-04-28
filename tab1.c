@@ -44,25 +44,28 @@ GtkWidget* tab1 ()
     GtkWidget *entry;
     GtkWidget *sch_button, *clr_button;
     GtkWidget *all, *none, *input, *output, *work, *defend; //checkbuttons for param-s
-    GtkWidget *label;
+    GtkWidget *input_label;
     GtkWidget *frame;
     GtkWidget *bbox; //button box
     GtkWidget *ch_bbox1, *ch_bbox2; //for checkbuttons
     GtkWidget *checkbutton; //enable\disable entries
     GtkWidget *hbox; //for ch_boxes
-    GtkWidget *ehbox, *evbox;
-    int i,j,k;
+    int i,j,k,m,n;
     char *frame_name[4] = {"Входные параметры", "Выходные параметры", "Рабочие функции", "Защитные фунции"};
     char *input_entry_name[3] = {"число фаз", "напряжение питающией сети,В", "частота питающей сети,Гц"};
 /*    char *entry_name1[N] = {""};
     char *entry_name1[N] = {""};
     char *entry_name1[N] = {""};*/
-    table = gtk_table_new (3, 2, TRUE);
+    table = gtk_table_new (3, 2, FALSE);
 
 /*  table_int = gtk_table_new (1, 3, TRUE); //input
     table_int = gtk_table_new (2, 3, TRUE); //work funcs
     table_int = gtk_table_new (3, 3, TRUE); //defend funcs 
     table_int = gtk_table_new (4, 3, TRUE); //output */
+    sch_button = gtk_button_new_with_label ("Поиск"); 
+//    gtk_widget_set_size_request (sch_button, 70, 35);
+    clr_button = gtk_button_new_with_label ("Сброс"); 
+//    gtk_widget_set_size_request (clr_button, 70, 35);
 k=0;
 while (k<4){
 for (i=0; i<2; i++)
@@ -71,19 +74,73 @@ for (j=0; j<2; j++)
         frame = gtk_frame_new(NULL);
         gtk_frame_set_label (GTK_FRAME (frame), frame_name[k]);
         gtk_table_attach_defaults (GTK_TABLE (table), frame, 0+i, 1+i, 0+j, 1+j);
-        table_in = gtk_table_new (k+1, 3, TRUE);
+        table_in = gtk_table_new (k+1, 3, FALSE);
+            if (k==0)
+            {
+                for(m=0; m<3; m++)
+                {
+                entry = gtk_entry_new ();
+        //        input_label = gtk_label_new (input_entry_name[m]);
+        //        gtk_container_add (GTK_CONTAINER(entry), input_label);
+                gtk_table_attach_defaults (GTK_TABLE (table_in), entry, 0+m, 1+m, 0, 1);
+                g_signal_connect (G_OBJECT (sch_button), "clicked",
+                      G_CALLBACK (sch_callback), (gpointer) entry); 
+                g_signal_connect (G_OBJECT (clr_button), "clicked",
+                      G_CALLBACK (clr_callback), (gpointer) entry);
+                }
+            }
+
+            if (k==1)
+            {
+                for(m=0; m<3; m++)
+                for(n=0; n<4; n++)
+                {
+                entry = gtk_entry_new ();
+        //        input_label = gtk_label_new (input_entry_name[m]);
+        //        gtk_container_add (GTK_CONTAINER(entry), input_label);
+                gtk_table_attach_defaults (GTK_TABLE (table_in), entry, 0+m, 1+m, 0+n, 1+n);
+                g_signal_connect (G_OBJECT (sch_button), "clicked",
+                      G_CALLBACK (sch_callback), (gpointer) entry); 
+                g_signal_connect (G_OBJECT (clr_button), "clicked",
+                      G_CALLBACK (clr_callback), (gpointer) entry);
+                }
+            }
+
+            if (k==2)
+            {
+                for(m=0; m<3; m++)
+                for(n=0; n<2; n++)
+                {
+                entry = gtk_entry_new ();
+        //        input_label = gtk_label_new (input_entry_name[m]);
+        //        gtk_container_add (GTK_CONTAINER(entry), input_label);
+                gtk_table_attach_defaults (GTK_TABLE (table_in), entry, 0+m, 1+m, 0+n, 1+n);
+                g_signal_connect (G_OBJECT (sch_button), "clicked",
+                      G_CALLBACK (sch_callback), (gpointer) entry); 
+                g_signal_connect (G_OBJECT (clr_button), "clicked",
+                      G_CALLBACK (clr_callback), (gpointer) entry);
+                }
+            }
+            if (k==3)
+            {
+                for(m=0; m<3; m++)
+                for(n=0; n<3; n++)
+                {
+                entry = gtk_entry_new ();
+        //        input_label = gtk_label_new (input_entry_name[m]);
+        //        gtk_container_add (GTK_CONTAINER(entry), input_label);
+                gtk_table_attach_defaults (GTK_TABLE (table_in), entry, 0+m, 1+m, 0+n, 1+n);
+                g_signal_connect (G_OBJECT (sch_button), "clicked",
+                      G_CALLBACK (sch_callback), (gpointer) entry); 
+                g_signal_connect (G_OBJECT (clr_button), "clicked",
+                      G_CALLBACK (clr_callback), (gpointer) entry);
+                }
+            }
+
         gtk_container_add (GTK_CONTAINER(frame), table_in);
-        gtk_widget_show(frame);
         k++;
     }
 }
-       // table_in = gtk_table_new (k+1, 3, TRUE);
-       // gtk_container_add (GTK_CONTAINER(frame), table_in);
-
-    sch_button = gtk_button_new_with_label ("Поиск"); 
-//    gtk_widget_set_size_request (sch_button, 70, 35);
-    clr_button = gtk_button_new_with_label ("Сброс"); 
-//    gtk_widget_set_size_request (clr_button, 70, 35);
 //пока по-нубски
     ch_bbox1 = gtk_vbutton_box_new();
     ch_bbox2 = gtk_vbutton_box_new();
@@ -106,7 +163,7 @@ for (j=0; j<2; j++)
     defend = gtk_check_button_new_with_label ("защитные ф-ции");
     gtk_container_add (GTK_CONTAINER (ch_bbox2), defend);
 
-    hbox = gtk_hbox_new(TRUE, 0);
+    hbox = gtk_hbox_new(FALSE, 0);
 
     gtk_container_add (GTK_CONTAINER (hbox), ch_bbox1);
     gtk_container_add (GTK_CONTAINER (hbox), ch_bbox2);
@@ -121,24 +178,9 @@ for (j=0; j<2; j++)
 //запихать entries в один виджет(комбо-бокс?)
 //и задать labels. +checkbuttons. сделать акт/неактивн entry.
 
-    ehbox = gtk_hbox_new (TRUE, 0);
-    evbox = gtk_vbox_new (TRUE, 0);
     
-/*for (i=0; i<3; i++)
-{
-    entry = gtk_entry_new_with_label (input_entry_name[i]);
-    gtk_container_add (GTK_CONTAINER (ehbox), entry);
-    g_signal_connect (G_OBJECT (sch_button), "clicked",
-                      G_CALLBACK (sch_callback), (gpointer) entry); 
-    g_signal_connect (G_OBJECT (clr_button), "clicked",
-                      G_CALLBACK (clr_callback), (gpointer) entry);
-    gtk_widget_show(entry);
-}*/
-
-
-
-/*for (i=0; i<2; i++)
-    for (j=0; j<3; j++)
+/*for (i=0; i<4; i++)
+    for (j=0; j<4; j++)
     {    
     entry = gtk_entry_new ();
     gtk_table_attach_defaults (GTK_TABLE (table_in), entry, 0+i, 1+i, 0+j, 1+j);
