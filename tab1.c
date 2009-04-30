@@ -49,14 +49,14 @@ GtkWidget* tab1 ()
     GtkWidget *bbox; //button box
     GtkWidget *ch_bbox1, *ch_bbox2; //for checkbuttons
     GtkWidget *checkbutton; //enable\disable entries
-    GtkWidget *hbox; //for ch_boxes
+    GtkWidget *hbox, *vbox; //for ch_boxes
     int i,j,k,m,n;
-    char *frame_name[4] = {"Входные параметры", "Выходные параметры", "Рабочие функции", "Защитные фунции"};
-    char *input_entry_name[3] = {"число фаз", "напряжение питающией сети,В", "частота питающей сети,Гц"};
+    gchar *frame_name[4] = {"Входные параметры", "Выходные параметры", "Рабочие функции", "Защитные фунции"};
+    gchar *input_entry_name[3] = {"число фаз", "напряжение питающией сети,В", "частота питающей сети,Гц"};
 /*    char *entry_name1[N] = {""};
     char *entry_name1[N] = {""};
     char *entry_name1[N] = {""};*/
-    table = gtk_table_new (3, 2, FALSE);
+    table = gtk_table_new (4, 2, FALSE);
 
 /*  table_int = gtk_table_new (1, 3, TRUE); //input
     table_int = gtk_table_new (2, 3, TRUE); //work funcs
@@ -72,7 +72,8 @@ for (i=0; i<2; i++)
 for (j=0; j<2; j++)
     {
         frame = gtk_frame_new(NULL);
-        gtk_frame_set_label (GTK_FRAME (frame), frame_name[k]);
+        checkbutton = gtk_check_button_new_with_label (frame_name[k]);
+        gtk_frame_set_label_widget(GTK_FRAME(frame), checkbutton);
         gtk_table_attach_defaults (GTK_TABLE (table), frame, 0+i, 1+i, 0+j, 1+j);
         table_in = gtk_table_new (k+1, 3, FALSE);
             if (k==0)
@@ -80,9 +81,15 @@ for (j=0; j<2; j++)
                 for(m=0; m<3; m++)
                 {
                 entry = gtk_entry_new ();
-        //        input_label = gtk_label_new (input_entry_name[m]);
-        //        gtk_container_add (GTK_CONTAINER(entry), input_label);
-                gtk_table_attach_defaults (GTK_TABLE (table_in), entry, 0+m, 1+m, 0, 1);
+                vbox = gtk_vbox_new (FALSE, 0);
+                hbox = gtk_hbox_new (FALSE, 0);
+                checkbutton = gtk_check_button_new ();
+                input_label = gtk_label_new (input_entry_name[m]);
+                gtk_container_add (GTK_CONTAINER(vbox), input_label);
+                gtk_container_add (GTK_CONTAINER(vbox), hbox);
+                gtk_container_add (GTK_CONTAINER(hbox), checkbutton);
+                gtk_container_add (GTK_CONTAINER(hbox), entry);
+                gtk_table_attach_defaults (GTK_TABLE (table_in), vbox, 0+m, 1+m, 0, 1);
                 g_signal_connect (G_OBJECT (sch_button), "clicked",
                       G_CALLBACK (sch_callback), (gpointer) entry); 
                 g_signal_connect (G_OBJECT (clr_button), "clicked",
@@ -141,6 +148,10 @@ for (j=0; j<2; j++)
         k++;
     }
 }
+if (k==4)
+{
+
+}
 //пока по-нубски
     ch_bbox1 = gtk_vbutton_box_new();
     ch_bbox2 = gtk_vbutton_box_new();
@@ -174,22 +185,6 @@ for (j=0; j<2; j++)
     gtk_container_add (GTK_CONTAINER (bbox), sch_button);
     gtk_container_add (GTK_CONTAINER (bbox), clr_button);
     gtk_table_attach_defaults (GTK_TABLE (table), bbox, 1, 2, 2, 3);
-
-//запихать entries в один виджет(комбо-бокс?)
-//и задать labels. +checkbuttons. сделать акт/неактивн entry.
-
     
-/*for (i=0; i<4; i++)
-    for (j=0; j<4; j++)
-    {    
-    entry = gtk_entry_new ();
-    gtk_table_attach_defaults (GTK_TABLE (table_in), entry, 0+i, 1+i, 0+j, 1+j);
-    g_signal_connect (G_OBJECT (sch_button), "clicked",
-                      G_CALLBACK (sch_callback), (gpointer) entry); 
-    g_signal_connect (G_OBJECT (clr_button), "clicked",
-                      G_CALLBACK (clr_callback), (gpointer) entry);
-
-    gtk_widget_show(entry);
-    }*/
 return table;
 }
