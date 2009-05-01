@@ -17,6 +17,7 @@ int main(int argc, char *argv[])
   GtkWidget *table;
   GtkWidget *label;
   GtkWidget *menu_f, *menu_h, *menu_bar, *file_menu, *help_menu, *menu_items_f, *menu_items_h;
+  GtkWidget *scr_window;
   
   char *nameLabel[2] = { "Вкладка 1", "Вкладка 2"};
   char buf[512]; // скока надо точно,я не знаю
@@ -38,6 +39,14 @@ int main(int argc, char *argv[])
 
   //initiating window, hbox and tabs
   window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_widget_set_size_request(window, 1000, 400);
+    scr_window = gtk_scrolled_window_new (NULL, NULL);
+    gtk_container_add (GTK_CONTAINER(window), scr_window);
+//    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scr_window),
+//                  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+//    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scr_window),
+  //                        GTK_SHADOW_IN);
+
   vbox = gtk_vbox_new(FALSE, 0);//true, 10
   notebook = gtk_notebook_new();
   menu_f = gtk_menu_new();
@@ -94,8 +103,9 @@ int main(int argc, char *argv[])
 
   //let's show them all
   gtk_container_add(GTK_CONTAINER(vbox), notebook);
-  gtk_container_add(GTK_CONTAINER(window), vbox);
-  gtk_container_set_border_width(GTK_CONTAINER(window), 5);
+  gtk_scrolled_window_add_with_viewport (
+                     GTK_SCROLLED_WINDOW (scr_window), vbox);
+  gtk_container_set_border_width(GTK_CONTAINER(window), 5);//vbox to win
   gtk_widget_show_all(window);
   
   //let's run main loop
