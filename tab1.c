@@ -174,15 +174,18 @@ for (j=0; j<11; j++)
         gtk_container_add (GTK_CONTAINER(frame), table_in);
                 for(m=0; m<2; m++)
                 {
-                vbox = gtk_vbox_new (FALSE, 0);
+                hbox = gtk_hbox_new (FALSE, 0);
+                combo = gtk_combo_box_new_text();
+                gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "есть");
+                gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "нет");
                 checkbutton = gtk_check_button_new_with_label (defend1_name[m]);
-                gtk_container_add (GTK_CONTAINER(vbox), checkbutton);
-                gtk_table_attach_defaults (GTK_TABLE (table_in), vbox, 0+m, 1+m, 0, 1);
+                gtk_container_add (GTK_CONTAINER(hbox), checkbutton);
+                gtk_container_add (GTK_CONTAINER(hbox), combo);
+                gtk_table_attach_defaults (GTK_TABLE (table_in), hbox, 0+m, 1+m, 0, 1);
                 }
             }
             if (j==9)
             {
-
         frame = gtk_frame_new(NULL);
         checkbutton = gtk_check_button_new_with_label (defend_title[1]);
         gtk_frame_set_label_widget(GTK_FRAME(frame), checkbutton);
@@ -191,13 +194,16 @@ for (j=0; j<11; j++)
         gtk_container_add (GTK_CONTAINER(frame), table_in);
                 for(m=0; m<4; m++)
                 {
-                vbox = gtk_vbox_new (FALSE, 0);
+                hbox = gtk_hbox_new (FALSE, 0);
+                combo = gtk_combo_box_new_text();
+                gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "есть");
+                gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "нет");
                 checkbutton = gtk_check_button_new_with_label (defend2_name[m]);
-                gtk_container_add (GTK_CONTAINER(vbox), checkbutton);
-                gtk_table_attach_defaults (GTK_TABLE (table_in), vbox, 0+m, 1+m, 0, 1);
+                gtk_container_add (GTK_CONTAINER(hbox), checkbutton);
+                gtk_container_add (GTK_CONTAINER(hbox), combo);
+                gtk_table_attach_defaults (GTK_TABLE (table_in), hbox, 0+m, 1+m, 0, 1);
                 }
             }
-
 }
 //checkbuttons
     hbox = gtk_hbox_new(FALSE, 0);
