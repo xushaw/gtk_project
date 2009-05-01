@@ -39,9 +39,9 @@ int main(int argc, char *argv[])
 
   //initiating window, hbox and tabs
   window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_widget_set_size_request(window, 1000, 400);
-    scr_window = gtk_scrolled_window_new (NULL, NULL);
-    gtk_container_add (GTK_CONTAINER(window), scr_window);
+    gtk_widget_set_size_request(window, 800, 400);
+//    scr_window = gtk_scrolled_window_new (NULL, NULL);
+//    gtk_container_add (GTK_CONTAINER(window), scr_window);
 //    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scr_window),
 //                  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 //    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scr_window),
@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
     gtk_menu_item_set_submenu (GTK_MENU_ITEM (file_menu), menu_f);
     gtk_menu_item_set_submenu (GTK_MENU_ITEM (help_menu), menu_h);
     menu_bar = gtk_menu_bar_new ();
-    gtk_box_pack_start (GTK_BOX (vbox), menu_bar, TRUE, FALSE, 2);
+    gtk_box_pack_start (GTK_BOX (vbox), menu_bar, FALSE, FALSE, 0);//true false
     gtk_widget_show (menu_bar);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu_bar), file_menu);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu_bar), help_menu);
@@ -89,13 +89,17 @@ int main(int argc, char *argv[])
 /*******************************************************************/
   for(i=0; i<2; i++)  {
     label = gtk_label_new(nameLabel[i]);
+    scr_window = gtk_scrolled_window_new (NULL, NULL);
     //Твой таб.
     if (i == 0)
         table = tab1();
     //Мой таб.
     else if (i == 1)
         table = tab2();
-    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), table, label);
+
+  gtk_scrolled_window_add_with_viewport (
+                     GTK_SCROLLED_WINDOW (scr_window), table);
+    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), scr_window, label);
   }
  
     g_signal_connect_swapped(G_OBJECT(window), "destroy",
@@ -103,8 +107,7 @@ int main(int argc, char *argv[])
 
   //let's show them all
   gtk_container_add(GTK_CONTAINER(vbox), notebook);
-  gtk_scrolled_window_add_with_viewport (
-                     GTK_SCROLLED_WINDOW (scr_window), vbox);
+  gtk_container_add(GTK_CONTAINER(window), vbox);
   gtk_container_set_border_width(GTK_CONTAINER(window), 5);//vbox to win
   gtk_widget_show_all(window);
   
