@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 
   //initiating window, hbox and tabs
   window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_widget_set_size_request(window, 800, 400);
+    gtk_widget_set_size_request(window, 1000, 400);
 //    scr_window = gtk_scrolled_window_new (NULL, NULL);
 //    gtk_container_add (GTK_CONTAINER(window), scr_window);
 //    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scr_window),
