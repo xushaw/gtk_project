@@ -96,6 +96,7 @@ GtkWidget* createFrame(GPtrArray *entries, GPtrArray *checkButtons, const gchar 
     _frame = gtk_frame_new(NULL);
     _vbox = gtk_vbox_new(FALSE, 5);
     _label = gtk_check_button_new_with_label(name);
+    g_ptr_array_add(checkButtons, _label);
     gtk_frame_set_label_widget(GTK_FRAME(_frame), GTK_WIDGET(_label));
     for ( i=0; i<size; i++ )
     {
@@ -391,7 +392,7 @@ void input_clear(GtkWidget *gw, GPtrArray *input)
 
 void entry_enter(GtkWidget *gw, GtkWidget *button)
 {
-  g_signal_emit_by_name(G_OBJECT(button), "clicked");
+    g_signal_emit_by_name(G_OBJECT(button), "clicked");
 }
 
 GtkWidget* tab2()
