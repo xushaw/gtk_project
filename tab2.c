@@ -14,28 +14,112 @@
 #define TEXT 1
 #define NUMBER 0
 
+#define ROWS 6
+#define COLUMNS 3
+
+#define AVIABLE 0
+#define UNAVIABLE 1
+
 sqlite3 *db;
 //Названия кнопок
 const gchar *nameButton[2] = { "Сброс", "Поиск" };
 //Названия для GtkLabel и GtkEntry
-const gchar *nameInput[2] = { "number", "text" };
+const gchar *textForCombobox[2] = { "Есть", "Нет" };
 
+
+//////////////////////////////////////////////////////////////////////////////
 /* old stuff
  * GtkWidget *input[2];
  */
+/////////////////////////////////////////////////////////////////////////////
+
+
+GtkWidget* createEntry(GPtrArray *entries, GPtrArray *checkButtons, const gchar *name)
+{
+    GtkWidget *_entry;
+    GtkWidget *_label;
+    GtkWidget *_leftAlign;
+    GtkWidget *_vbox;
+    
+    _entry = gtk_entry_new();
+    g_ptr_array_add(entries, _entry);
+    
+    _label = gtk_check_button_new_with_label(name);
+    g_ptr_array_add(checkButtons, _label);
+
+    _leftAlign = gtk_alignment_new(0, 0.5, 0.1, 0);
+    
+    _vbox = gtk_vbox_new(FALSE, 5);
+    
+    gtk_container_add(GTK_CONTAINER(_leftAlign), GTK_WIDGET(_label));
+    
+    gtk_box_pack_start(GTK_BOX(_vbox), _leftAlign, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(_vbox), _entry, FALSE, FALSE, 0);
+
+    return _vbox;
+}
+
+GtkWidget* createComboBox(GPtrArray *comboboxes, GPtrArray *checkButtons, const gchar* name)
+{
+    GtkWidget *_combobox;
+    GtkWidget *_label;
+    GtkWidget *_leftAlign;
+    GtkWidget *_vbox;
+    
+    _combobox = gtk_combo_box_new_text();
+    gtk_combo_box_append_text(GTK_COMBO_BOX(_combobox), textForCombobox[0]); 
+    gtk_combo_box_append_text(GTK_COMBO_BOX(_combobox), textForCombobox[1]); 
+    g_ptr_array_add(comboboxes, _combobox);
+    
+    _label = gtk_check_button_new_with_label(name);
+    g_ptr_array_add(checkButtons, _label);
+
+    _leftAlign = gtk_alignment_new(0, 0.5, 0.1, 0);
+    
+    _vbox = gtk_vbox_new(FALSE, 5);
+    
+    gtk_container_add(GTK_CONTAINER(_leftAlign), GTK_WIDGET(_label));
+    
+    gtk_box_pack_start(GTK_BOX(_vbox), _leftAlign, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(_vbox), _combobox, FALSE, FALSE, 0);
+
+    return _vbox;
+}
+
+GtkWidget* createFrame(GPtrArray *entries, GPtrArray *checkButtons, const gchar name[], const gchar *names[], const int size)
+{
+    GtkWidget *_frame;
+    GtkWidget *_label;
+    GtkWidget *_vbox;
+    int i;
+
+    _frame = gtk_frame_new(NULL);
+    _vbox = gtk_vbox_new(FALSE, 5);
+    _label = gtk_check_button_new_with_label(name);
+    gtk_frame_set_label_widget(GTK_FRAME(_frame), GTK_WIDGET(_label));
+    for ( i=0; i<size; i++ )
+    {
+        gtk_container_add(GTK_CONTAINER(_vbox), createEntry(entries, checkButtons, names[i]));
+
+    }
+
+    gtk_container_add(GTK_CONTAINER(_frame), GTK_WIDGET(_vbox));
+    return _frame;
+}
 
 static int callback(void *NotUsed, int argc, char **argv, char **azColName)
 {
-     int i;
-     NotUsed=0;
-
+    int i;
+    NotUsed=0;
+    
     for(i=0; i<argc; i++){
-    printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+        printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
     }
     printf("\n");
     return 0;
 }
 
+/*
 void entry_print(GtkWidget *gw, GtkWidget *entry)
 { 
     char *zErrMsg = 0;
@@ -140,7 +224,10 @@ void entry_print(GtkWidget *gw, GtkWidget *entry)
         g_fprintf(stderr,"SQL error: %s\n", zErrMsg);
     }
 }
+*/
 
+
+/////////////////////////////////////////////////////////////////////////////
 /* old stuff
 void entry_print2(GtkWidget *gw, gpointer array)
 { 
@@ -240,46 +327,22 @@ void entry_print2(GtkWidget *gw, gpointer array)
     g_free(str);
 }
 */
+/////////////////////////////////////////////////////////////////////////////
+
 
 void entry_print2(GtkWidget *gw, GPtrArray *array)
 { 
     char *zErrMsg = 0;
     int rc;
     //Массив частей запроса 'SELECT что-то FROM garfeild что-то-еще="значение";'
-    //                                             
     const gchar *selectSubStr[4] = { 
         "SELECT id FROM garfeild WHERE ",   //0
         "=\"",                              //1
         "\" AND ",                          //2
         "\";"};                             //3
-    int k = 0;
-    
-    //DEBUG: Проверяем, действительно ли можно вычислить длинну.
-    //g_fprintf(stderr, "%d\n",strlen(selectSubStr[0]));
-    //g_fprintf(stderr, "%d\n",strlen(selectSubStr[1]));
-    //g_fprintf(stderr, "%d\n",strlen(selectSubStr[2]));
-    //g_fprintf(stderr, "%d\n",strlen(selectSubStr[3])); 
-    //g_fprintf(stderr, "%d\n",strlen(gtk_widget_get_name(GTK_WIDGET(g_ptr_array_index(array, NUMBER)))));
-    //g_fprintf(stderr, "%d\n",strlen(gtk_entry_get_text(GTK_ENTRY(g_ptr_array_index(array,NUMBER)))));
-    //g_fprintf(stderr, "%d\n",strlen(gtk_widget_get_name(GTK_WIDGET(g_ptr_array_index(array, TEXT)))));
-    //g_fprintf(stderr, "%d\n",strlen(gtk_entry_get_text(GTK_ENTRY(g_ptr_array_index(array, TEXT)))));
-    
-    //k = длинна строки 'SELECT id FROM garfeild WHERE number="число" AND text="текст";'
-    //Сравниваем названия виджета entry с элементом массива nameInput, соответствующего ID.
-        //DEBUG: Проверка вхождения в цикл для первого if
-        //g_fprintf(stderr, "ID!\n");
-        /*k = strlen(selectSubStr[0]) + 
-            strlen(gtk_widget_get_name(GTK_WIDGET(g_ptr_array_index(array, NUMBER)))) + 
-            2*strlen(selectSubStr[1]) + 
-            strlen(gtk_entry_get_text(GTK_ENTRY(g_ptr_array_index(array, NUMBER)))) + 
-            strlen(selectSubStr[2]) +
-            strlen(gtk_widget_get_name(GTK_WIDGET(entry[TEXT]))) +
-            strlen(selectSubStr[3]);*/
-    //DEBUG: Проверяем, посчиталась ли длинна конечно строки.
-    g_fprintf(stderr, "%d\n", k);
-    
+    //Конечная строка запроса.
     gchar *str;
-
+    //Добавляем необходимые подстроки.
     str = g_strconcat(
             selectSubStr[0], 
             gtk_widget_get_name(GTK_WIDGET(g_ptr_array_index(array ,NUMBER))), 
@@ -293,7 +356,6 @@ void entry_print2(GtkWidget *gw, GPtrArray *array)
             NULL
             );
 
-
     //Проверочный вывод полученно строки.
     g_print ("%s\n", str);
     rc = sqlite3_exec(db, str, callback, 0, &zErrMsg);
@@ -304,96 +366,128 @@ void entry_print2(GtkWidget *gw, GPtrArray *array)
     g_free(str);
 }
 
-
-void entry_clear(GtkWidget *gw, GPtrArray *entry)
+void input_clear(GtkWidget *gw, GPtrArray *input)
 { 
     int i;
 
-    for(i=0; i< entry->len; i++)
-        gtk_entry_set_text(GTK_ENTRY(g_ptr_array_index(entry, i)), "");
+    for(i=0; i< input->len; i++)    {
+        if( i<10)
+            gtk_entry_set_text(GTK_ENTRY(g_ptr_array_index(input, i)), "");
+        else if (i>=10 && i<input->len)
+            gtk_combo_box_set_active(GTK_COMBO_BOX(g_ptr_array_index(input, i)), -1);
+    }
 }
 
+
+/////////////////////////////////////////////////////////////////////////////
 /* old stuff
  * void entry_clear(GtkWidget *gw, GtkWidget *entry)
  * {
  *      gtk_entry_set_text(GTK_ENTRY(entry), "");
  * }
  */
+/////////////////////////////////////////////////////////////////////////////
+
 
 void entry_enter(GtkWidget *gw, GtkWidget *button)
 {
   g_signal_emit_by_name(G_OBJECT(button), "clicked");
 }
 
-//gchar *createSelectQuery(gchar)
-
 GtkWidget* tab2()
 {
-    GtkWidget *hboxs[2];
     GtkWidget *tableBox;
     GtkWidget *button[2];
-    GtkWidget *labelInput[2];
-    GtkWidget *rightAlignment[2];
     GtkWidget *buttonBox;
     GPtrArray *input;
-    int j;
+    GPtrArray *checkButtons;
+    int i, j;
     
+    const gchar *nameEntries[5] = { 
+        "Производительность ядра",                              //1 
+        "Разрядность ядра",                                     //2
+        "Количество программируемых 32-х разрядных таймеров",   //3
+        "Тип универсального асинхронного порта",                //4
+        "Тип корпуса"                                           //5
+    };
     
+    const gchar *nameCombobox[5] = {
+        "Наличиие сторожевого таймера",                         //1
+        "Наличие интерфейса внешней памяти",                    //2
+        "Наличие отладочного интерфейса",                       //3
+        "Наличие контроллера DMA",                              //4
+        "Наличие PLL"                                           //5
+    };
+    
+    const gchar *namesACP[3] = {
+        "АЦП: количество разрядов",                             //3
+        "АЦП: количество каналов",                              //4
+        "АЦП: скорость преобразования/производительность"       //5
+    };
+    
+    const gchar *namesRAM[2] = {
+        "Размер памяти команд",                                 //1
+        "Размер памяти даннх",                                  //2
+    };
+   
     //initiating buttons and labels
     buttonBox = gtk_hbutton_box_new();
+    //Установка форматирования кнопок:
     gtk_button_box_set_layout(GTK_BUTTON_BOX(buttonBox), GTK_BUTTONBOX_END);
+    //g_print("BUTTONS: Created\n");
     
-    tableBox = gtk_table_new(2, 2, FALSE);
+    tableBox = gtk_table_new(ROWS, COLUMNS, FALSE);
     gtk_table_set_row_spacings(GTK_TABLE(tableBox), 5);
     gtk_table_set_col_spacings(GTK_TABLE(tableBox), 5);
+    //g_print("TABLEBOX: Created\n");
 
     input = g_ptr_array_new();
-    
+    //g_print("INPUT: Created\n");
+    checkButtons = g_ptr_array_new();
+    //g_print("CHECKBUTTONS: Created\n");
+
+
     for(j=0; j<2; j++)  {
         button[j] = gtk_button_new_with_label(nameButton[j]);
         gtk_widget_set_size_request(button[j], 70, 35);
-        
-        labelInput[j] = gtk_label_new(nameInput[j]);
-        
-        g_ptr_array_add(input, gtk_entry_new());
-        //Задаем имя для виджета GtkEntry таким же, как и текст соседнего GtkLabel. 
-        gtk_widget_set_name(GTK_WIDGET(g_ptr_array_index(input, j)) , nameInput[j]);
-        
-        rightAlignment[j] = gtk_alignment_new(1, 0.5, 0.1, 0);
-        
-        hboxs[j] = gtk_hbox_new(FALSE, 5);
-        
-        gtk_container_add(GTK_CONTAINER(rightAlignment[j]), labelInput[j]);
-        
-        gtk_box_pack_start(GTK_BOX(hboxs[j]), rightAlignment[j], FALSE, FALSE, 0);
-        //gtk_box_pack_start(GTK_BOX(hboxs[j]), input[j], FALSE, FALSE, 0);
-        gtk_box_pack_start(GTK_BOX(hboxs[j]), GTK_WIDGET(g_ptr_array_index(input, j)), FALSE, FALSE, 0);
+        //g_print("BUTTON: Created\n");
     }
     
-    for(j=0; j<2; j++)
-        gtk_table_attach_defaults(GTK_TABLE(tableBox), hboxs[j], 0+j, 1+j, 0, 1);
+    for (i=0; i<3; i++) {
+        if (i==0)   {
+            gtk_table_attach_defaults(GTK_TABLE(tableBox), GTK_WIDGET(createFrame(input, checkButtons, "АЦП", namesACP, 3)), 0, 1, 0, 3 );
+
+            gtk_table_attach_defaults(GTK_TABLE(tableBox), GTK_WIDGET(createFrame(input, checkButtons, "RAM", namesRAM, 2)), 0, 1, 3, 5);
+        }
+        else if(i==1)
+        {
+            for(j=0; j<5; j++)
+                gtk_table_attach_defaults(GTK_TABLE(tableBox), GTK_WIDGET(createEntry(input, checkButtons, nameEntries[j])), i, i+1, j, j+1);
+        }
+        else if(i==2)
+        {
+            for(j=0; j<5; j++)
+                gtk_table_attach_defaults(GTK_TABLE(tableBox), GTK_WIDGET(createComboBox(input, checkButtons, nameCombobox[j])), i, i+1, j, j+1);
+        }
+    }
     
     for(j=0; j<2; j++)
         gtk_box_pack_start(GTK_BOX(buttonBox), button[j], FALSE, FALSE, 0);
-    gtk_table_attach_defaults(GTK_TABLE(tableBox), buttonBox, 1, 2, 1, 2);
+    gtk_table_attach_defaults(GTK_TABLE(tableBox), buttonBox, 2, 3, 5, 6);
     
-    for(j=0; j<2; j++) { 
-        g_signal_connect(G_OBJECT(button[0]), "clicked", 
-                G_CALLBACK(entry_clear), (gpointer) input);
-        
-        //g_signal_connect(G_OBJECT(button[1]), "clicked", 
-        //        G_CALLBACK(entry_print), (gpointer) input[j]);
-        
+    for(j=0; j<input->len; j++) { 
+        if (j<10)   {
         g_signal_connect(G_OBJECT(g_ptr_array_index(input, j)), "activate",
                 G_CALLBACK(entry_enter), (gpointer) button[1]);
+        }
     }
+    
+    g_signal_connect(G_OBJECT(button[0]), "clicked", 
+            G_CALLBACK(input_clear), (gpointer) input);
+
     g_signal_connect(G_OBJECT(button[1]), "clicked", 
             G_CALLBACK(entry_print2), (gpointer)input);
     
-    /*g_fprintf(stderr, "%d\n",strlen(gtk_widget_get_name(GTK_WIDGET(input[NUMBER]))));
-    g_fprintf(stderr, "%d\n",strlen(gtk_entry_get_text(GTK_ENTRY(input[NUMBER]))));
-    g_fprintf(stderr, "%d\n",strlen(gtk_widget_get_name(GTK_WIDGET(input[TEXT]))));
-    g_fprintf(stderr, "%d\n",strlen(gtk_entry_get_text(GTK_ENTRY(input[TEXT]))));*/
    gtk_container_set_border_width(GTK_CONTAINER(tableBox), 5);
    return tableBox;
 }
