@@ -56,6 +56,8 @@ GtkWidget* createEntry(GPtrArray *entries, GPtrArray *checkButtons, const gchar 
     gtk_box_pack_start(GTK_BOX(_vbox), _leftAlign, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(_vbox), _entry, FALSE, FALSE, 0);
 
+    g_signal_connect(G_OBJECT(_label), "toggled",
+            G_CALLBACK(toggle_action), (gpointer) _entry);
     return _vbox;
 }
 
@@ -83,6 +85,9 @@ GtkWidget* createComboBox(GPtrArray *comboboxes, GPtrArray *checkButtons, const 
     gtk_box_pack_start(GTK_BOX(_vbox), _leftAlign, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(_vbox), _combobox, FALSE, FALSE, 0);
 
+    g_signal_connect(G_OBJECT(_label), "toggled",
+            G_CALLBACK(toggle_action), (gpointer) _combobox);
+
     return _vbox;
 }
 
@@ -94,8 +99,10 @@ GtkWidget* createFrame(GPtrArray *entries, GPtrArray *checkButtons, const gchar 
     int i;
 
     _frame = gtk_frame_new(NULL);
+    gtk_widget_set_name(GTK_WIDGET(_frame), "Frame");
     _vbox = gtk_vbox_new(FALSE, 5);
     _label = gtk_check_button_new_with_label(name);
+    gtk_widget_set_name("Frame");
     g_ptr_array_add(checkButtons, _label);
     gtk_frame_set_label_widget(GTK_FRAME(_frame), GTK_WIDGET(_label));
     for ( i=0; i<size; i++ )
@@ -105,6 +112,10 @@ GtkWidget* createFrame(GPtrArray *entries, GPtrArray *checkButtons, const gchar 
     }
 
     gtk_container_add(GTK_CONTAINER(_frame), GTK_WIDGET(_vbox));
+    
+    g_signal_connect(G_OBJECT(_label), "toggled",
+            G_CALLBACK(toggle_action), (gpointer) _frame);
+
     return _frame;
 }
 
@@ -395,6 +406,22 @@ void entry_enter(GtkWidget *gw, GtkWidget *button)
     g_signal_emit_by_name(G_OBJECT(button), "clicked");
 }
 
+void toggle_action(GtkWidget *checkButton, GtkWidget *widget)
+{
+    gboolean val;
+    val = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkButton));
+    if( val == TRUE )
+    {
+        gtk_widget_set_sensitive(GTK_WIDGET(widget), FALSE);
+    }
+    else if (val == FALSE)
+    {
+        gtk_widget_set_sensitive(GTK_WIDGET(widget), FALSE);
+    }
+
+
+}
+
 GtkWidget* tab2()
 {
     GtkWidget *tableBox;
@@ -482,7 +509,9 @@ GtkWidget* tab2()
                 G_CALLBACK(entry_enter), (gpointer) button[1]);
         }
     }
-    
+   
+    for(j=0; j<checkButtons->len; j++)  {
+    }
     g_signal_connect(G_OBJECT(button[0]), "clicked", 
             G_CALLBACK(input_clear), (gpointer) input);
 
