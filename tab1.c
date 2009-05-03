@@ -68,6 +68,11 @@ static void state_callback( GtkToggleButton *checkbutton, GtkWidget *entry )
     
     //gtk_scale_set_draw_value (GTK_SCALE (vscale), checkbutton->active);  
 }
+
+//void choice_callback (...)
+//{
+//
+//}
 /***********************************************************************/
 GtkWidget* tab1 ()
 {   
@@ -173,7 +178,6 @@ gparray2 = g_ptr_array_new ();
 
             if (j==5) //work
             {
-
                 frame = gtk_frame_new(NULL);
                 checkbutton = gtk_check_button_new_with_label (frame_name[2]);
                 gtk_widget_set_name (GTK_WIDGET(checkbutton), frame_name[2]);
