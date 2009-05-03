@@ -18,18 +18,22 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName){
     return 0;
 }
 
-static void sch_callback( GtkWidget *widget, GtkWidget *entry ) 
+static void sch_callback( GtkWidget *widget, GPtrArray *gparray ) 
 {
     char *zErrMsg = 0;
-    int rc;
+    int rc, i;
 
     const gchar *entry_text;
-    entry_text = gtk_entry_get_text (GTK_ENTRY (entry));
+
+    for (i=0; i < gparray->len; i++)
+    {
+        entry_text = gtk_entry_get_text (GTK_ENTRY (g_ptr_array_index(gparray, i)));
   
-    rc = sqlite3_exec(db, "SELECT MODEL FROM input", callback, 0, &zErrMsg);
-    if( rc!=SQLITE_OK )
+        rc = sqlite3_exec(db, "SELECT MODEL FROM input", callback, 0, &zErrMsg);
+        if( rc!=SQLITE_OK )
                             {
-    fprintf(stderr, "SQL error: %s\n", zErrMsg);
+        fprintf(stderr, "SQL error: %s\n", zErrMsg);
+        }
     }
 }
 
@@ -80,7 +84,7 @@ GtkWidget* tab1 ()
     GtkWidget *scr_window;
     GtkWidget *opt, *ch; //choice
     GtkWidget *combo;
-    GPtrArray *gparray;
+    GPtrArray *gparray, *gparray2;
     int i,j,m,n,k;
     gchar *frame_name[6] = {"Входные параметры","Выходные параметры","Рабочие функции","Защитные фунции"};
 
@@ -99,141 +103,168 @@ GtkWidget* tab1 ()
     gchar *defend2_name[2]={"Тепловая защита","Защита от потери питания контроллером"};
 
     gchar *sch_filter[6]={"все","входные параметры","выходные параметры","рабочие функции","защитные функции","ни одного"};
-    table = gtk_table_new (13, 3, FALSE);
-    sch_button = gtk_button_new_with_label ("Поиск"); 
+
+table = gtk_table_new (13, 3, FALSE);
+sch_button = gtk_button_new_with_label ("Поиск"); 
 //    gtk_widget_set_size_request (sch_button, 70, 35);
-    clr_button = gtk_button_new_with_label ("Сброс"); 
+clr_button = gtk_button_new_with_label ("Сброс"); 
 //    gtk_widget_set_size_request (clr_button, 70, 35);
+gparray = g_ptr_array_new ();
+gparray2 = g_ptr_array_new ();
 
-      gparray = g_ptr_array_new ();
-for (j=0; j<11; j++)
+    for (j=0; j<11; j++)
     {
-        if (j==0)
-            {
-        frame = gtk_frame_new(NULL);
-        checkbutton = gtk_check_button_new_with_label (frame_name[0]);
-        gtk_frame_set_label_widget(GTK_FRAME(frame), checkbutton);
-        gtk_table_attach_defaults (GTK_TABLE (table), frame, 0, 3, 0, 1);
-
-                table_in = gtk_table_new (1, 3, FALSE);
-        gtk_container_add (GTK_CONTAINER(frame), table_in);
+        if (j==0) //input
+        {
+            frame = gtk_frame_new(NULL);
+            checkbutton = gtk_check_button_new_with_label (frame_name[0]);
+            gtk_frame_set_label_widget(GTK_FRAME(frame), checkbutton);
+            gtk_table_attach_defaults (GTK_TABLE (table), frame, 0, 3, 0, 1);
+            table_in = gtk_table_new (1, 3, FALSE);
+            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), TRUE);
+            g_signal_connect (G_OBJECT (checkbutton), "toggled",
+                                  G_CALLBACK (state_callback), (gpointer) table_in);
+            gtk_container_add (GTK_CONTAINER(frame), table_in);
                 for(m=0; m<3; m++)
                 {
-
-                entry = gtk_entry_new ();
-
-                g_ptr_array_add (gparray, (gpointer) entry);
-
-                vbox = gtk_vbox_new (FALSE, 0);
-                checkbutton = gtk_check_button_new_with_label (input_entry_name[m]);
-
-                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), TRUE);
-                g_signal_connect (G_OBJECT (checkbutton), "toggled",
-                                  G_CALLBACK (state_callback), (gpointer) entry);
-
-                gtk_container_add (GTK_CONTAINER(vbox), checkbutton);
-                gtk_container_add (GTK_CONTAINER(vbox), entry);
-                gtk_table_attach_defaults (GTK_TABLE (table_in), vbox, 0+m, 1+m, 0, 1);
-/*                g_signal_connect (G_OBJECT (sch_button), "clicked",
-                      G_CALLBACK (sch_callback), (gpointer) entry); 
-                g_signal_connect (G_OBJECT (clr_button), "clicked",
-                      G_CALLBACK (clr_callback), (gpointer) entry);*/
+                    entry = gtk_entry_new ();
+                    gtk_widget_set_name (GTK_WIDGET(entry), input_entry_name[m]);
+                    g_ptr_array_add (gparray, (gpointer) entry);
+                    vbox = gtk_vbox_new (FALSE, 0);
+                    checkbutton = gtk_check_button_new_with_label (input_entry_name[m]);
+                    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), TRUE);
+                    g_signal_connect (G_OBJECT (checkbutton), "toggled",
+                                      G_CALLBACK (state_callback), (gpointer) entry);
+                    gtk_container_add (GTK_CONTAINER(vbox), checkbutton);
+                    gtk_container_add (GTK_CONTAINER(vbox), entry);
+                    gtk_table_attach_defaults (GTK_TABLE (table_in), vbox, 0+m, 1+m, 0, 1);
                 }
-            }
+         }  
         
-            if (j==1)
-            {
-
-        frame = gtk_frame_new(NULL);
-        checkbutton = gtk_check_button_new_with_label (frame_name[j]);
-        gtk_frame_set_label_widget(GTK_FRAME(frame), checkbutton);
-        gtk_table_attach_defaults (GTK_TABLE (table), frame, 0, 3, 1, 4);
-                table_in = gtk_table_new (4, 3, FALSE);
-        gtk_container_add (GTK_CONTAINER(frame), table_in);
+        if (j==1) //output
+        {
+            frame = gtk_frame_new(NULL);
+            checkbutton = gtk_check_button_new_with_label (frame_name[j]);
+            gtk_widget_set_name (GTK_WIDGET(checkbutton), frame_name[j]);
+            g_ptr_array_add (gparray2, (gpointer) checkbutton);
+            gtk_frame_set_label_widget(GTK_FRAME(frame), checkbutton);
+            gtk_table_attach_defaults (GTK_TABLE (table), frame, 0, 3, 1, 4);
+            table_in = gtk_table_new (4, 3, FALSE);
+            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), TRUE);
+            g_signal_connect (G_OBJECT (checkbutton), "toggled",
+                              G_CALLBACK (state_callback), (gpointer) table_in);
+            gtk_container_add (GTK_CONTAINER(frame), table_in);
                 k=0;
                 for(m=0; m<3; m++)
                 for(n=0; n<4; n++)
                 {
-                entry = gtk_entry_new ();
-                g_ptr_array_add (gparray, (gpointer) entry);
-                vbox = gtk_vbox_new (FALSE, 0);
-                checkbutton = gtk_check_button_new_with_label (output_entry_name[k]);
-                gtk_container_add (GTK_CONTAINER(vbox), checkbutton);
-                gtk_container_add (GTK_CONTAINER(vbox), entry);
-                gtk_table_attach_defaults (GTK_TABLE (table_in), vbox, 0+m, 1+m, 0+n, 1+n);
-        /*        g_signal_connect (G_OBJECT (sch_button), "clicked",
-                      G_CALLBACK (sch_callback), (gpointer) entry); 
-                g_signal_connect (G_OBJECT (clr_button), "clicked",
-                      G_CALLBACK (clr_callback), (gpointer) entry);*/
-                k++;
+                    entry = gtk_entry_new ();
+                    g_ptr_array_add (gparray, (gpointer) entry);
+                    gtk_widget_set_name (GTK_WIDGET(entry), output_entry_name[k]);
+                    vbox = gtk_vbox_new (FALSE, 0);
+                    checkbutton = gtk_check_button_new_with_label (output_entry_name[k]);
+                    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), TRUE);
+                    g_signal_connect (G_OBJECT (checkbutton), "toggled",
+                                      G_CALLBACK (state_callback), (gpointer) entry);
+                    gtk_container_add (GTK_CONTAINER(vbox), checkbutton);
+                    gtk_container_add (GTK_CONTAINER(vbox), entry);
+                    gtk_table_attach_defaults (GTK_TABLE (table_in), vbox, 0+m, 1+m, 0+n, 1+n);
+                    k++;
                 }
             }
 
-            if (j==5)
+            if (j==5) //work
             {
 
-        frame = gtk_frame_new(NULL);
-        checkbutton = gtk_check_button_new_with_label (frame_name[2]);
-        gtk_frame_set_label_widget(GTK_FRAME(frame), checkbutton);
-        gtk_table_attach_defaults (GTK_TABLE (table), frame, 0, 3, 5, 7);
+                frame = gtk_frame_new(NULL);
+                checkbutton = gtk_check_button_new_with_label (frame_name[2]);
+                gtk_widget_set_name (GTK_WIDGET(checkbutton), frame_name[2]);
+                g_ptr_array_add (gparray2, (gpointer) checkbutton);
+                gtk_frame_set_label_widget(GTK_FRAME(frame), checkbutton);
+                gtk_table_attach_defaults (GTK_TABLE (table), frame, 0, 3, 5, 7);
                 table_in = gtk_table_new (2, 3, FALSE);
-        gtk_container_add (GTK_CONTAINER(frame), table_in);
+                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), TRUE);
+                g_signal_connect (G_OBJECT (checkbutton), "toggled",
+                                  G_CALLBACK (state_callback), (gpointer) table_in);
+                gtk_container_add (GTK_CONTAINER(frame), table_in);
                 k=0;
                 for(m=0; m<2; m++)
                 for(n=0; n<3; n++)
                 {
-                hbox = gtk_hbox_new (FALSE, 0);
-                combo = gtk_combo_box_new_text();
-                g_ptr_array_add (gparray, (gpointer) combo);
-                gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "есть");
-                gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "нет");
-                checkbutton = gtk_check_button_new_with_label (work_name[k]);
-                gtk_container_add (GTK_CONTAINER(hbox), checkbutton);
-                gtk_container_add (GTK_CONTAINER(hbox), combo);
-                gtk_table_attach_defaults (GTK_TABLE (table_in), hbox, 0+m, 1+m, 0+n, 1+n);
-                k++;
+                    hbox = gtk_hbox_new (FALSE, 0);
+                    combo = gtk_combo_box_new_text();
+                    g_ptr_array_add (gparray, (gpointer) combo);
+                    gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "есть");
+                    gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "нет");
+                    checkbutton = gtk_check_button_new_with_label (work_name[k]);
+                    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), TRUE);
+                    g_signal_connect (G_OBJECT (checkbutton), "toggled",
+                                      G_CALLBACK (state_callback), (gpointer) combo);
+                    gtk_container_add (GTK_CONTAINER(hbox), checkbutton);
+                    gtk_container_add (GTK_CONTAINER(hbox), combo);
+                    gtk_table_attach_defaults (GTK_TABLE (table_in), hbox, 0+m, 1+m, 0+n, 1+n);
+                    k++;
                 }
             }
-            if (j==7)
+            if (j==7) //defend
             {
-        frame = gtk_frame_new(NULL);
-        checkbutton = gtk_check_button_new_with_label (defend_title[0]);
-        gtk_frame_set_label_widget(GTK_FRAME(frame), checkbutton);
-        gtk_table_attach_defaults (GTK_TABLE (table), frame, 0, 3, 7, 9);
-                table_in = gtk_table_new (1, 2, FALSE);
-        gtk_container_add (GTK_CONTAINER(frame), table_in);
-                for(m=0; m<2; m++)
-                {
-                hbox = gtk_hbox_new (FALSE, 0);
-                combo = gtk_combo_box_new_text();
-                g_ptr_array_add (gparray, (gpointer) combo);
-                gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "есть");
-                gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "нет");
-                checkbutton = gtk_check_button_new_with_label (defend1_name[m]);
-                gtk_container_add (GTK_CONTAINER(hbox), checkbutton);
-                gtk_container_add (GTK_CONTAINER(hbox), combo);
-                gtk_table_attach_defaults (GTK_TABLE (table_in), hbox, 0+m, 1+m, 0, 1);
-                }
-            }
-            if (j==9)
-            {
-        frame = gtk_frame_new(NULL);
-        checkbutton = gtk_check_button_new_with_label (defend_title[1]);
-        gtk_frame_set_label_widget(GTK_FRAME(frame), checkbutton);
-        gtk_table_attach_defaults (GTK_TABLE (table), frame, 0, 3, 9, 11);
+                frame = gtk_frame_new(NULL);
+                checkbutton = gtk_check_button_new_with_label (defend_title[0]);
+                gtk_widget_set_name (GTK_WIDGET(checkbutton), defend_title[0]);
+                g_ptr_array_add (gparray2, (gpointer) checkbutton);
+                gtk_frame_set_label_widget(GTK_FRAME(frame), checkbutton);
+                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), TRUE);
+                gtk_table_attach_defaults (GTK_TABLE (table), frame, 0, 3, 7, 9);
                 table_in = gtk_table_new (1, 4, FALSE);
-        gtk_container_add (GTK_CONTAINER(frame), table_in);
+                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), TRUE);
+                g_signal_connect (G_OBJECT (checkbutton), "toggled",
+                                  G_CALLBACK (state_callback), (gpointer) table_in);
+                gtk_container_add (GTK_CONTAINER(frame), table_in);
                 for(m=0; m<4; m++)
                 {
-                hbox = gtk_hbox_new (FALSE, 0);
-                combo = gtk_combo_box_new_text();
-                g_ptr_array_add (gparray, (gpointer) combo);
-                gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "есть");
-                gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "нет");
-                checkbutton = gtk_check_button_new_with_label (defend2_name[m]);
-                gtk_container_add (GTK_CONTAINER(hbox), checkbutton);
-                gtk_container_add (GTK_CONTAINER(hbox), combo);
-                gtk_table_attach_defaults (GTK_TABLE (table_in), hbox, 0+m, 1+m, 0, 1);
+                    hbox = gtk_hbox_new (FALSE, 0);
+                    combo = gtk_combo_box_new_text();
+                    gtk_widget_set_name (GTK_WIDGET(combo), defend1_name[m]);
+                    g_ptr_array_add (gparray, (gpointer) combo);
+                    gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "есть");
+                    gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "нет");
+                    checkbutton = gtk_check_button_new_with_label (defend1_name[m]);
+                    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), TRUE);
+                    g_signal_connect (G_OBJECT (checkbutton), "toggled",
+                                      G_CALLBACK (state_callback), (gpointer) combo);
+                    gtk_container_add (GTK_CONTAINER(hbox), checkbutton);
+                    gtk_container_add (GTK_CONTAINER(hbox), combo);
+                    gtk_table_attach_defaults (GTK_TABLE (table_in), hbox, 0+m, 1+m, 0, 1);
+                }
+            }
+            if (j==9) //defend2
+            {
+                frame = gtk_frame_new(NULL);
+                checkbutton = gtk_check_button_new_with_label (defend_title[1]);
+                gtk_widget_set_name (GTK_WIDGET(checkbutton), defend_title[1]);
+                g_ptr_array_add (gparray2, (gpointer) checkbutton);
+                gtk_frame_set_label_widget(GTK_FRAME(frame), checkbutton);
+                gtk_table_attach_defaults (GTK_TABLE (table), frame, 0, 3, 9, 11);
+                table_in = gtk_table_new (1, 2, FALSE);
+                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), TRUE);
+                g_signal_connect (G_OBJECT (checkbutton), "toggled",
+                                  G_CALLBACK (state_callback), (gpointer) table_in);
+                gtk_container_add (GTK_CONTAINER(frame), table_in);
+                for(m=0; m<2; m++)
+                {
+                    hbox = gtk_hbox_new (FALSE, 0);
+                    combo = gtk_combo_box_new_text();
+                    g_ptr_array_add (gparray, (gpointer) combo);
+                    gtk_widget_set_name (GTK_WIDGET(combo), defend2_name[m]);
+                    gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "есть");
+                    gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "нет");
+                    checkbutton = gtk_check_button_new_with_label (defend2_name[m]);
+                    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), TRUE);
+                    g_signal_connect (G_OBJECT (checkbutton), "toggled",
+                                      G_CALLBACK (state_callback), (gpointer) combo);
+                    gtk_container_add (GTK_CONTAINER(hbox), checkbutton);
+                    gtk_container_add (GTK_CONTAINER(hbox), combo);
+                    gtk_table_attach_defaults (GTK_TABLE (table_in), hbox, 0+m, 1+m, 0, 1);
                 }
             }
 }
@@ -244,7 +275,7 @@ g_signal_connect (G_OBJECT (clr_button), "clicked",
                   G_CALLBACK (clr_callback), (gpointer) gparray);
 
 //checkbuttons
-    hbox = gtk_hbox_new(FALSE, 0);
+hbox = gtk_hbox_new(FALSE, 0);
 
     for (i=0; i<6; i++)
     {
@@ -253,11 +284,11 @@ g_signal_connect (G_OBJECT (clr_button), "clicked",
     }
   
 
-    bbox = gtk_hbutton_box_new();
-    gtk_container_add (GTK_CONTAINER (bbox), sch_button);
-    gtk_container_add (GTK_CONTAINER (bbox), clr_button);
-    gtk_table_attach_defaults (GTK_TABLE (table), bbox, 2, 3, 11, 12);
-    gtk_table_attach_defaults (GTK_TABLE (table), hbox, 0, 3, 12, 13);
+bbox = gtk_hbutton_box_new();
+gtk_container_add (GTK_CONTAINER (bbox), sch_button);
+gtk_container_add (GTK_CONTAINER (bbox), clr_button);
+gtk_table_attach_defaults (GTK_TABLE (table), bbox, 2, 3, 11, 12);
+gtk_table_attach_defaults (GTK_TABLE (table), hbox, 0, 3, 12, 13);
     
 return table;
 }
