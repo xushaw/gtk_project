@@ -130,7 +130,6 @@ GtkWidget* createEntry(GPtrArray *entries, GPtrArray *checkButtons, const gchar 
 
     g_signal_connect(G_OBJECT(_label), "toggled",
             G_CALLBACK(toggle_action), (gpointer) _entry);
-    g_signal_emit_by_name(G_OBJECT(_label), "toggled");
     return _vbox;
 }
 
@@ -162,7 +161,6 @@ GtkWidget* createComboBox(GPtrArray *comboboxes, GPtrArray *checkButtons, const 
 
     g_signal_connect(G_OBJECT(_label), "toggled",
             G_CALLBACK(toggle_action), (gpointer) _combobox);
-    g_signal_emit_by_name(G_OBJECT(_label), "toggled");
 
     return _vbox;
 }
@@ -190,8 +188,6 @@ GtkWidget* createFrame(GPtrArray *entries, GPtrArray *checkButtons, const gchar 
     
     g_signal_connect(G_OBJECT(_label), "toggled",
             G_CALLBACK(toggle_action), (gpointer) _vbox);
-
-    //g_signal_emit_by_name(G_OBJECT(_label), "toggled");
     return _frame;
 }
 
