@@ -105,10 +105,8 @@ GtkWidget* tab1 ()
     gchar *sch_filter[6]={"все","входные параметры","выходные параметры","рабочие функции","защитные функции","ни одного"};
 
 table = gtk_table_new (13, 3, FALSE);
-sch_button = gtk_button_new_with_label ("Поиск"); 
-//    gtk_widget_set_size_request (sch_button, 70, 35);
-clr_button = gtk_button_new_with_label ("Сброс"); 
-//    gtk_widget_set_size_request (clr_button, 70, 35);
+
+
 gparray = g_ptr_array_new ();
 gparray2 = g_ptr_array_new ();
 
@@ -269,6 +267,11 @@ gparray2 = g_ptr_array_new ();
             }
 }
 
+sch_button = gtk_button_new_with_label ("Поиск"); 
+gtk_widget_set_size_request (sch_button, 70, 35);
+clr_button = gtk_button_new_with_label ("Сброс"); 
+gtk_widget_set_size_request (clr_button, 70, 35);
+
 g_signal_connect (G_OBJECT (sch_button), "clicked",
                   G_CALLBACK (sch_callback), (gpointer) gparray); 
 g_signal_connect (G_OBJECT (clr_button), "clicked",
@@ -285,8 +288,9 @@ hbox = gtk_hbox_new(FALSE, 0);
   
 
 bbox = gtk_hbutton_box_new();
-gtk_container_add (GTK_CONTAINER (bbox), sch_button);
-gtk_container_add (GTK_CONTAINER (bbox), clr_button);
+gtk_box_pack_start(GTK_BOX (bbox), sch_button, TRUE, FALSE, 0);
+gtk_box_pack_start(GTK_BOX (bbox), clr_button, TRUE, FALSE, 0);
+gtk_button_box_set_layout(GTK_BUTTON_BOX(bbox), GTK_BUTTONBOX_END);
 gtk_table_attach_defaults (GTK_TABLE (table), bbox, 2, 3, 11, 12);
 gtk_table_attach_defaults (GTK_TABLE (table), hbox, 0, 3, 12, 13);
     
