@@ -83,7 +83,7 @@ GtkWidget* tab1 ()
     GtkWidget *scr_window;
     GtkWidget *opt, *ch; //choice
     GtkWidget *combo;
-    GPtrArray *array, *gparray2;
+    GPtrArray *array, *arr2;
     int i,j,m,n,k;
     gchar *frame_name[6] = {"Входные параметры","Выходные параметры","Рабочие функции","Защитные фунции"};
 
@@ -274,24 +274,24 @@ arr2 = g_ptr_array_new ();
         g_print("%s\n" ,gtk_widget_get_name(g_ptr_array_index(array, i)));
     }
 
-    for (i=0; i<array->len; i++)
-    {
-        gboolean val;
+//    for (i=0; i<array->len; i++)
+//    {
+/*        gboolean val;
+        g_char str_1;
         val = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (g_ptr_array_index(array, 0)));
         if (val == TRUE)
         {
-            for (j=0; j<6; j++)//5 tables
-            {
-                g_ptr_array_add (arr2, (gpointer) 0+i);
-            }
-        }
-    }
+            g_ptr_array_add (arr2, (gpointer) g_ptr_array_index (array,0));//0=>j
+//            str_1 = func (arr2, "SELECT MODEL FROM input"); 
+            g_print ("%d\n", val);
+        }*/
+  //  }
 
+/*    printf("----------------\n");
     for (i=0; i<arr2->len; i++)
     {
-        printf("----------------\n");
-        g_print("%s\n" ,gtk_widget_get_name(g_ptr_array_index(arr2, i)));
-    }
+        g_print("%s\n" ,GTK_OBJECT_TYPE_NAME (g_ptr_array_index(arr2, i)));
+    }*/
 
     
 
