@@ -66,13 +66,7 @@ static void state_callback( GtkToggleButton *checkbutton, GtkWidget *entry )
 
     }
     
-    //gtk_scale_set_draw_value (GTK_SCALE (vscale), checkbutton->active);  
 }
-
-//void choice_callback (...)
-//{
-//
-//}
 /***********************************************************************/
 GtkWidget* tab1 ()
 {   
@@ -121,6 +115,7 @@ gparray2 = g_ptr_array_new ();
         {
             frame = gtk_frame_new(NULL);
             checkbutton = gtk_check_button_new_with_label (frame_name[0]);
+            g_ptr_array_add (gparray, (gpointer) checkbutton);
             gtk_frame_set_label_widget(GTK_FRAME(frame), checkbutton);
             gtk_table_attach_defaults (GTK_TABLE (table), frame, 0, 3, 0, 1);
             table_in = gtk_table_new (1, 3, FALSE);
@@ -131,7 +126,7 @@ gparray2 = g_ptr_array_new ();
                 for(m=0; m<3; m++)
                 {
                     entry = gtk_entry_new ();
-                    gtk_widget_set_name (GTK_WIDGET(entry), input_entry_name[m]);
+//                    gtk_widget_set_name (GTK_WIDGET(entry), input_entry_name[m]);
                     g_ptr_array_add (gparray, (gpointer) entry);
                     vbox = gtk_vbox_new (FALSE, 0);
                     checkbutton = gtk_check_button_new_with_label (input_entry_name[m]);
@@ -148,8 +143,8 @@ gparray2 = g_ptr_array_new ();
         {
             frame = gtk_frame_new(NULL);
             checkbutton = gtk_check_button_new_with_label (frame_name[j]);
-            gtk_widget_set_name (GTK_WIDGET(checkbutton), frame_name[j]);
-            g_ptr_array_add (gparray2, (gpointer) checkbutton);
+//            gtk_widget_set_name (GTK_WIDGET(checkbutton), frame_name[j]);
+            g_ptr_array_add (gparray, (gpointer) checkbutton);
             gtk_frame_set_label_widget(GTK_FRAME(frame), checkbutton);
             gtk_table_attach_defaults (GTK_TABLE (table), frame, 0, 3, 1, 4);
             table_in = gtk_table_new (4, 3, FALSE);
@@ -163,7 +158,7 @@ gparray2 = g_ptr_array_new ();
                 {
                     entry = gtk_entry_new ();
                     g_ptr_array_add (gparray, (gpointer) entry);
-                    gtk_widget_set_name (GTK_WIDGET(entry), output_entry_name[k]);
+            //        gtk_widget_set_name (GTK_WIDGET(entry), output_entry_name[k]);
                     vbox = gtk_vbox_new (FALSE, 0);
                     checkbutton = gtk_check_button_new_with_label (output_entry_name[k]);
                     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), TRUE);
@@ -180,8 +175,8 @@ gparray2 = g_ptr_array_new ();
             {
                 frame = gtk_frame_new(NULL);
                 checkbutton = gtk_check_button_new_with_label (frame_name[2]);
-                gtk_widget_set_name (GTK_WIDGET(checkbutton), frame_name[2]);
-                g_ptr_array_add (gparray2, (gpointer) checkbutton);
+            //    gtk_widget_set_name (GTK_WIDGET(checkbutton), frame_name[2]);
+                g_ptr_array_add (gparray, (gpointer) checkbutton);
                 gtk_frame_set_label_widget(GTK_FRAME(frame), checkbutton);
                 gtk_table_attach_defaults (GTK_TABLE (table), frame, 0, 3, 5, 7);
                 table_in = gtk_table_new (2, 3, FALSE);
@@ -212,39 +207,42 @@ gparray2 = g_ptr_array_new ();
             {
                 frame = gtk_frame_new(NULL);
                 checkbutton = gtk_check_button_new_with_label (defend_title[0]);
-                gtk_widget_set_name (GTK_WIDGET(checkbutton), defend_title[0]);
-                g_ptr_array_add (gparray2, (gpointer) checkbutton);
+         //       gtk_widget_set_name (GTK_WIDGET(checkbutton), defend_title[0]);
+                g_ptr_array_add (gparray, (gpointer) checkbutton);
                 gtk_frame_set_label_widget(GTK_FRAME(frame), checkbutton);
                 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), TRUE);
                 gtk_table_attach_defaults (GTK_TABLE (table), frame, 0, 3, 7, 9);
-                table_in = gtk_table_new (1, 4, FALSE);
+                table_in = gtk_table_new (2, 2, FALSE);
                 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), TRUE);
                 g_signal_connect (G_OBJECT (checkbutton), "toggled",
                                   G_CALLBACK (state_callback), (gpointer) table_in);
                 gtk_container_add (GTK_CONTAINER(frame), table_in);
-                for(m=0; m<4; m++)
+                k=0;
+                for(m=0; m<2; m++)
+                for(n=0; n<2; n++)
                 {
                     hbox = gtk_hbox_new (FALSE, 0);
                     combo = gtk_combo_box_new_text();
-                    gtk_widget_set_name (GTK_WIDGET(combo), defend1_name[m]);
+              //      gtk_widget_set_name (GTK_WIDGET(combo), defend1_name[m]);
                     g_ptr_array_add (gparray, (gpointer) combo);
                     gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "есть");
                     gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "нет");
-                    checkbutton = gtk_check_button_new_with_label (defend1_name[m]);
+                    checkbutton = gtk_check_button_new_with_label (defend1_name[k]);
                     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), TRUE);
                     g_signal_connect (G_OBJECT (checkbutton), "toggled",
                                       G_CALLBACK (state_callback), (gpointer) combo);
                     gtk_container_add (GTK_CONTAINER(hbox), checkbutton);
                     gtk_container_add (GTK_CONTAINER(hbox), combo);
-                    gtk_table_attach_defaults (GTK_TABLE (table_in), hbox, 0+m, 1+m, 0, 1);
+                    gtk_table_attach_defaults (GTK_TABLE (table_in), hbox, 0+m, 1+m, 0+n, 1+n);
+                    k++;
                 }
             }
             if (j==9) //defend2
             {
                 frame = gtk_frame_new(NULL);
                 checkbutton = gtk_check_button_new_with_label (defend_title[1]);
-                gtk_widget_set_name (GTK_WIDGET(checkbutton), defend_title[1]);
-                g_ptr_array_add (gparray2, (gpointer) checkbutton);
+          //      gtk_widget_set_name (GTK_WIDGET(checkbutton), defend_title[1]);
+                g_ptr_array_add (gparray, (gpointer) checkbutton);
                 gtk_frame_set_label_widget(GTK_FRAME(frame), checkbutton);
                 gtk_table_attach_defaults (GTK_TABLE (table), frame, 0, 3, 9, 11);
                 table_in = gtk_table_new (1, 2, FALSE);
@@ -257,7 +255,7 @@ gparray2 = g_ptr_array_new ();
                     hbox = gtk_hbox_new (FALSE, 0);
                     combo = gtk_combo_box_new_text();
                     g_ptr_array_add (gparray, (gpointer) combo);
-                    gtk_widget_set_name (GTK_WIDGET(combo), defend2_name[m]);
+            //        gtk_widget_set_name (GTK_WIDGET(combo), defend2_name[m]);
                     gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "есть");
                     gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "нет");
                     checkbutton = gtk_check_button_new_with_label (defend2_name[m]);
@@ -269,7 +267,12 @@ gparray2 = g_ptr_array_new ();
                     gtk_table_attach_defaults (GTK_TABLE (table_in), hbox, 0+m, 1+m, 0, 1);
                 }
             }
-}
+    }
+
+            for (i=0; i<gparray->len; i++)
+            {
+                g_print("%s\n" ,gtk_widget_get_name(g_ptr_array_index(gparray, i)));
+            }
 
 sch_button = gtk_button_new_with_label ("Поиск"); 
 gtk_widget_set_size_request (sch_button, 70, 35);
@@ -292,8 +295,8 @@ hbox = gtk_hbox_new(FALSE, 0);
   
 
 bbox = gtk_hbutton_box_new();
-gtk_box_pack_start(GTK_BOX (bbox), sch_button, TRUE, FALSE, 0);
 gtk_box_pack_start(GTK_BOX (bbox), clr_button, TRUE, FALSE, 0);
+gtk_box_pack_start(GTK_BOX (bbox), sch_button, TRUE, FALSE, 0);
 gtk_button_box_set_layout(GTK_BUTTON_BOX(bbox), GTK_BUTTONBOX_END);
 gtk_table_attach_defaults (GTK_TABLE (table), bbox, 2, 3, 11, 12);
 gtk_table_attach_defaults (GTK_TABLE (table), hbox, 0, 3, 12, 13);
