@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 //sqlite addon:
         rc = sqlite3_open("123.db", &db);
 
-        if( rc ){
+         if( rc ){
         fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
         exit(1);
