@@ -56,6 +56,8 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                     g_print("%s\n", str1);
                 }
             }
+
+            for (i=4; i<)
         
     }
 
@@ -308,10 +310,10 @@ array = g_ptr_array_new ();
             }
     }
 
-/*    for (i=0; i<array->len; i++)
+    for (i=0; i<array->len; i++)
     {
         g_print("%s\n" ,gtk_widget_get_name(g_ptr_array_index(array, i)));
-    }*/
+    }
 //****************************************************************************************
 /*    for (i=0; i<array->len; i++)
     {
