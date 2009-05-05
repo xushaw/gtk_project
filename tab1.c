@@ -30,7 +30,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
     if ( gtk_toggle_button_get_active(g_ptr_array_index(arr, 0)) == TRUE )
     {
         //g_print("First if\n");
-            temp = g_strdup("SELECT MODEL FROM input ");
+            temp = g_strdup("SELECT MODEL FROM input WHERE ");
             //g_print("Dup\n");
             table_cnt++;
             for (i=1; i<4; i++)
@@ -59,7 +59,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
     if ( gtk_toggle_button_get_active(g_ptr_array_index(arr, 4)) == TRUE )
     {
         //g_print("First if\n");
-        temp2 = g_strdup("SELECT MODEL FROM output ");
+        temp2 = g_strdup("SELECT MODEL FROM output WHERE ");
         g_print("%s\n", temp2);
         //g_print("Dup\n");
         table_cnt++;
