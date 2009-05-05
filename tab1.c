@@ -6,6 +6,7 @@
 #include <glib.h>
 
 sqlite3 *db;
+int table_cnt;
 
 static int callback(void *NotUsed, int argc, char **argv, char **azColName){
      int i;
@@ -18,16 +19,50 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName){
     return 0;
 }
 
-static void sch_callback( GtkWidget *widget, GPtrArray *array ) 
+static void sch_callback( GtkWidget *widget, GPtrArray *arr) 
 {
     char *zErrMsg = 0;
     int rc, i;
+    gchar *str1, *str, *temp;
 
     const gchar *entry_text;
-
-    for (i=0; i < array->len; i++)
+    gboolean flag = TRUE;
+    table_cnt=0;
+    //g_print("Begin\n");
+    if ( gtk_toggle_button_get_active(g_ptr_array_index(arr, 0)) == TRUE )
     {
-        entry_text = gtk_entry_get_text (GTK_ENTRY (g_ptr_array_index(array, i)));
+        //g_print("First if\n");
+            temp = g_strdup("SELECT MODEL FROM input ");
+            //g_print("Dup\n");
+            table_cnt++;
+            for (i=1; i<4; i++)
+            {
+                //g_print("For %d\n", i);
+                if ( GTK_WIDGET_SENSITIVE (g_ptr_array_index(arr, i)) == TRUE)
+                {
+                    //g_print("if\n");
+                    if (flag == TRUE) 
+                    {
+                        str1 = g_strconcat (temp, gtk_widget_get_name(g_ptr_array_index(arr,i)), "=\"", 
+                            gtk_entry_get_text(g_ptr_array_index(arr,i)), "\"", NULL);
+                        flag = FALSE;
+                    }
+                    else 
+                    {
+                        str1 = g_strconcat (temp," AND ", gtk_widget_get_name(g_ptr_array_index(arr,i)), 
+                            "=\"", gtk_entry_get_text(g_ptr_array_index(arr,i)), "\"", NULL);
+                    }
+                    temp = g_strdup (str1);
+                    g_print("%s\n", str1);
+                }
+            }
+        
+    }
+
+/*
+    for (i=0; i < arr2->len; i++)
+    {
+        entry_text = gtk_entry_get_text (GTK_ENTRY (g_ptr_array_index(arr2, i)));
   
         rc = sqlite3_exec(db, "SELECT MODEL FROM input", callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
@@ -35,6 +70,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *array )
         fprintf(stderr, "SQL error: %s\n", zErrMsg);
         }
     }
+    */
 }
 
 static void clr_callback( GtkWidget *widget, GPtrArray *array )
@@ -102,12 +138,15 @@ GtkWidget* tab1 ()
     gchar *defend2_name[2]={"Тепловая защита","Защита от потери питания контроллером"};
 
     gchar *sch_filter[6]={"все","входные параметры","выходные параметры","рабочие функции","защитные функции","ни одного"};
+    gchar *base_frame[5] = {"input", "output", "work_functions","defend_functions2", "defend_functions4"};
+    gchar *base_input[3] = {"phase_number","U_in","freq_in"};
+//    gchar *base_output[11] = {};
 
 table = gtk_table_new (13, 3, FALSE);
 
 
 array = g_ptr_array_new ();
-arr2 = g_ptr_array_new ();
+//arr2 = g_ptr_array_new ();
 
     for (j=0; j<11; j++)
     {
@@ -126,7 +165,7 @@ arr2 = g_ptr_array_new ();
                 for(m=0; m<3; m++)
                 {
                     entry = gtk_entry_new ();
-//                    gtk_widget_set_name (GTK_WIDGET(entry), input_entry_name[m]);
+                    gtk_widget_set_name (GTK_WIDGET(entry), base_input[m]);
                     g_ptr_array_add (array, (gpointer) entry);
                     vbox = gtk_vbox_new (FALSE, 0);
                     checkbutton = gtk_check_button_new_with_label (input_entry_name[m]);
@@ -143,7 +182,7 @@ arr2 = g_ptr_array_new ();
         {
             frame = gtk_frame_new(NULL);
             checkbutton = gtk_check_button_new_with_label (frame_name[j]);
-//            gtk_widget_set_name (GTK_WIDGET(checkbutton), frame_name[j]);
+//            gtk_widget_set_name (GTK_WIDGET(checkbutton), base_output[j]);
             g_ptr_array_add (array, (gpointer) checkbutton);
             gtk_frame_set_label_widget(GTK_FRAME(frame), checkbutton);
             gtk_table_attach_defaults (GTK_TABLE (table), frame, 0, 3, 1, 4);
@@ -269,23 +308,26 @@ arr2 = g_ptr_array_new ();
             }
     }
 
-    for (i=0; i<array->len; i++)
+/*    for (i=0; i<array->len; i++)
     {
         g_print("%s\n" ,gtk_widget_get_name(g_ptr_array_index(array, i)));
-    }
-
-//    for (i=0; i<array->len; i++)
-//    {
-/*        gboolean val;
-        g_char str_1;
+    }*/
+//****************************************************************************************
+/*    for (i=0; i<array->len; i++)
+    {
+        gboolean val;
+        gchar str_1;
         val = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (g_ptr_array_index(array, 0)));
         if (val == TRUE)
         {
-            g_ptr_array_add (arr2, (gpointer) g_ptr_array_index (array,0));//0=>j
-//            str_1 = func (arr2, "SELECT MODEL FROM input"); 
-            g_print ("%d\n", val);
-        }*/
-  //  }
+            g_ptr_array_add (arr2, (gpointer) g_ptr_array_index (array, i));
+            //loop by k
+            str = g_strconcat("SELECT MODEL FROM ", base_frame[k], NULL);
+//            str_1 = func (arr2, "SELECT MODEL FROM" table[i]); 
+//            g_print ("%d\n", val);
+        }
+        
+    }   */
 
 /*    printf("----------------\n");
     for (i=0; i<arr2->len; i++)
@@ -293,15 +335,13 @@ arr2 = g_ptr_array_new ();
         g_print("%s\n" ,GTK_OBJECT_TYPE_NAME (g_ptr_array_index(arr2, i)));
     }*/
 
-    
-
 sch_button = gtk_button_new_with_label ("Поиск"); 
 gtk_widget_set_size_request (sch_button, 70, 35);
 clr_button = gtk_button_new_with_label ("Сброс"); 
 gtk_widget_set_size_request (clr_button, 70, 35);
 
 g_signal_connect (G_OBJECT (sch_button), "clicked",
-                  G_CALLBACK (sch_callback), (gpointer) array); 
+                  G_CALLBACK (sch_callback), (gpointer) array);//array 
 g_signal_connect (G_OBJECT (clr_button), "clicked",
                   G_CALLBACK (clr_callback), (gpointer) array);
 
@@ -313,7 +353,6 @@ hbox = gtk_hbox_new(FALSE, 0);
         checkbutton = gtk_check_button_new_with_label (sch_filter[i]);
         gtk_container_add (GTK_CONTAINER (hbox), checkbutton);
     }
-  
 
 bbox = gtk_hbutton_box_new();
 gtk_box_pack_start(GTK_BOX (bbox), clr_button, TRUE, FALSE, 0);
