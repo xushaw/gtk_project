@@ -70,6 +70,7 @@ void entry_print2(GtkWidget *gw, GPtrArray *array)
 
     //Дублируем str в str3
     str3 = g_strdup("SELECT id FROM microprocessors WHERE ");
+    str2 = g_strdup("");
 
     //Заполняем строку запроса
     for (i=0; i<array->len; i++)
@@ -394,13 +395,13 @@ GtkWidget* tab2()
         "ram_data"
     };
     
-    rc = sqlite3_open("base.db", &db);
+    /*rc = sqlite3_open("base.db", &db);
     if( rc )   
     {
         fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
         exit(1);
-    }
+    }*/
     
     //initiating buttons and labels
     buttonBox = gtk_hbutton_box_new();
