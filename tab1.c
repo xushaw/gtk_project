@@ -12,11 +12,12 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName){
      int i;
      NotUsed=0;
 
-    for(i=0; i<argc; i++){
-    printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
-    }
-    printf("\n");
-    return 0;
+     for(i=0; i<argc; i++)
+     {
+        printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+     }
+     printf("\n");
+     return 0;
 }
 
 static void sch_callback( GtkWidget *widget, GPtrArray *arr) 
@@ -88,11 +89,11 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                     {
                         str2 = g_strconcat (temp2,
                         gtk_widget_get_name(g_ptr_array_index(arr,i)),
-                        "max<=\"", //max<=
+                        "max>=\"", 
                         gtk_entry_get_text(g_ptr_array_index(arr,i)),
                         "\" AND ",
                         gtk_widget_get_name(g_ptr_array_index(arr,i)),
-                        "min>=\"",
+                        "min<=\"",
                         gtk_entry_get_text(g_ptr_array_index(arr,i)),
                         "\"",
                         NULL);
@@ -105,7 +106,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                         {
                             str2 = g_strconcat (temp2, gtk_widget_get_name(g_ptr_array_index(arr,i)), "=\"", 
                             gtk_entry_get_text(g_ptr_array_index(arr,i)), "\"", NULL);
-                            g_print("ELSE: %s\n", str2);
+                      //      g_print("ELSE: %s\n", str2);
                         }
                     temp2 = g_strdup (str2);
                 //    g_print("%s\n", str2);
@@ -117,24 +118,31 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
         {
             fprintf(stderr, "SQL error: %s\n", zErrMsg);
         }
-    
+        g_free(str1); 
         rc = sqlite3_exec(db, str2, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
         {
             fprintf(stderr, "SQL error: %s\n", zErrMsg);
         }
-
+        g_free(str2);
 /*        rc = sqlite3_exec(db, str3, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
         {
             fprintf(stderr, "SQL error: %s\n", zErrMsg);
         }
-
+        g_free(str3); 
         rc = sqlite3_exec(db, str4, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
         {
             fprintf(stderr, "SQL error: %s\n", zErrMsg);
-        }*/ 
+        }
+        g_free(str4);
+        rc = sqlite3_exec(db, str5, callback, 0, &zErrMsg);
+        if( rc!=SQLITE_OK )
+        {
+            fprintf(stderr, "SQL error: %s\n", zErrMsg);
+        }
+        g_free(str5);*/
 }
 
 static void clr_callback( GtkWidget *widget, GPtrArray *array )
@@ -207,19 +215,26 @@ GtkWidget* tab1 ()
     "Максимально-токовая защита","Защита от обрыва и перекоса фаз",
     "Защита от понижения или повышения напряжения в звене постоянного тока"};
     gchar *defend2_name[2]={"Тепловая защита","Защита от потери питания контроллером"};
+    gchar *korr_name[3] = {"Коррекция выходного напряжения\nв зависимости от напряжения питающей сети",
+    "Коррекция интенсивности(при разгоне)\nи рабочей частоты (в установившимся режиме)\nпри превышении тока двигетеля",
+    "Коррекция интенсивности торможения при\nпревышении напряжения на звене постоянного тока"};
 
-    gchar *sch_filter[6]={"все","входные параметры","выходные параметры","рабочие функции","защитные функции",
-    "ни одного"};
+/*    gchar *sch_filter[6]={"все","входные параметры","выходные параметры","рабочие функции",
+    "защитные функции", "ни одного"};*/
     gchar *base_frame[5] = {"input", "output", "work_functions","defend_functions2", "defend_functions4"};
     gchar *base_input[3] = {"phase_number","U_in","freq_in"};
     gchar *base_output[11] = {"power_","phase_number","range_reg_U_", "diskr_reg_U_", "range_reg_f_", "diskr_reg_f_",
     "range_reg_v_razsys_", "range_reg_v_zamsys_", "control_way", "mod_way", "takt_f"};
+    gchar *base_work[6] = {"zad_fraq_tp","ustan_zad_freq_tp", "command_pusk_stop", "pusk_stop_har",
+    "auto_pusk_stop_error", "reg_techn_var"};
+    gchar *base_defend2[2] = {"power_leave_MP_defend","teplo_defend"};
+    gchar *base_defend4[4] = {"inc_decr_U_in_i_const_zveno","obriv_perekos_phase_defend","defend_from_kz",
+    "max_i_defend"};
 
-table = gtk_table_new (13, 3, FALSE);
+table = gtk_table_new (14, 3, FALSE);
 array = g_ptr_array_new ();
-//arr2 = g_ptr_array_new ();
 
-    for (j=0; j<11; j++)
+    for (j=0; j<13; j++)
     {
         if (j==0) //input
         {
@@ -380,6 +395,40 @@ array = g_ptr_array_new ();
                     gtk_table_attach_defaults (GTK_TABLE (table_in), hbox, 0+m, 1+m, 0, 1);
                 }
             }
+
+            if (j==11) //korr
+            {
+                frame = gtk_frame_new(NULL);
+                checkbutton = gtk_check_button_new_with_label ("Режимы коррекции");
+                g_ptr_array_add (array, (gpointer) checkbutton);
+                gtk_frame_set_label_widget(GTK_FRAME(frame), checkbutton);
+                gtk_table_attach_defaults (GTK_TABLE (table), frame, 0, 3, 11, 13);
+                table_in = gtk_table_new (2, 2, FALSE);
+                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), TRUE);
+                g_signal_connect (G_OBJECT (checkbutton), "toggled",
+                                  G_CALLBACK (state_callback), (gpointer) table_in);
+                gtk_container_add (GTK_CONTAINER(frame), table_in);
+                for(m=0; m<2; m++)
+                for(n=0; n<2; n++)
+                if (n!=1 || m!=1)
+                
+                {
+                    hbox = gtk_hbox_new (FALSE, 0);
+                    combo = gtk_combo_box_new_text();
+                    g_ptr_array_add (array, (gpointer) combo);
+            //        gtk_widget_set_name (GTK_WIDGET(combo), defend2_name[m]);
+                    gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "есть");
+                    gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "нет");
+                    checkbutton = gtk_check_button_new_with_label (korr_name[m]);
+                    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), TRUE);
+                    g_signal_connect (G_OBJECT (checkbutton), "toggled",
+                                      G_CALLBACK (state_callback), (gpointer) combo);
+                    gtk_container_add (GTK_CONTAINER(hbox), checkbutton);
+                    gtk_container_add (GTK_CONTAINER(hbox), combo);
+                    gtk_table_attach_defaults (GTK_TABLE (table_in), hbox, 0+m, 1+m, 0+n, 1+n);
+                }
+            }
+
     }
 
     for (i=0; i<array->len; i++)
@@ -419,21 +468,21 @@ g_signal_connect (G_OBJECT (sch_button), "clicked",
 g_signal_connect (G_OBJECT (clr_button), "clicked",
                   G_CALLBACK (clr_callback), (gpointer) array);
 
-//checkbuttons
+/*checkbuttons**************************************************
 hbox = gtk_hbox_new(FALSE, 0);
 
     for (i=0; i<6; i++)
     {
         checkbutton = gtk_check_button_new_with_label (sch_filter[i]);
         gtk_container_add (GTK_CONTAINER (hbox), checkbutton);
-    }
+    }*/
 
 bbox = gtk_hbutton_box_new();
 gtk_box_pack_start(GTK_BOX (bbox), clr_button, TRUE, FALSE, 0);
 gtk_box_pack_start(GTK_BOX (bbox), sch_button, TRUE, FALSE, 0);
 gtk_button_box_set_layout(GTK_BUTTON_BOX(bbox), GTK_BUTTONBOX_END);
-gtk_table_attach_defaults (GTK_TABLE (table), bbox, 2, 3, 11, 12);
-gtk_table_attach_defaults (GTK_TABLE (table), hbox, 0, 3, 12, 13);
+gtk_table_attach_defaults (GTK_TABLE (table), bbox, 2, 3, 13, 14);
+//gtk_table_attach_defaults (GTK_TABLE (table), hbox, 0, 3, 12, 13);
     
 return table;
 }
