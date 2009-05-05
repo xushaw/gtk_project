@@ -142,10 +142,11 @@ static void clr_callback( GtkWidget *widget, GPtrArray *array )
     int i;
     for (i=0; i < array->len; i++)
     {
-        if (i<15) {
+        if (g_strcmp0 (GTK_OBJECT_TYPE_NAME (g_ptr_array_index(array, i)), "GtkEntry") == 0)
+        {
             gtk_entry_set_text (GTK_ENTRY (g_ptr_array_index(array, i)), "");
-            }
-        else
+        }
+        else if (g_strcmp0 (GTK_OBJECT_TYPE_NAME (g_ptr_array_index(array, i)),"GtkComboBox") == 0)
             gtk_combo_box_set_active (GTK_COMBO_BOX(g_ptr_array_index(array, i)), -1);
     }
 }
