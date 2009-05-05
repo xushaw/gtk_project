@@ -216,7 +216,7 @@ GtkWidget* tab1 ()
     "Защита от понижения или повышения напряжения в звене постоянного тока"};
     gchar *defend2_name[2]={"Тепловая защита","Защита от потери питания контроллером"};
     gchar *korr_name[3] = {"Коррекция выходного напряжения\nв зависимости от напряжения питающей сети",
-    "Коррекция интенсивности(при разгоне)\nи рабочей частоты (в установившимся режиме)\nпри превышении тока двигетеля",
+    "Коррекция интенсивности(при разгоне) и рабочей частоты\n(в установившимся режиме) при превышении тока двигетеля",
     "Коррекция интенсивности торможения при\nпревышении напряжения на звене постоянного тока"};
 
 /*    gchar *sch_filter[6]={"все","входные параметры","выходные параметры","рабочие функции",
@@ -408,6 +408,7 @@ array = g_ptr_array_new ();
                 g_signal_connect (G_OBJECT (checkbutton), "toggled",
                                   G_CALLBACK (state_callback), (gpointer) table_in);
                 gtk_container_add (GTK_CONTAINER(frame), table_in);
+                k=0;
                 for(m=0; m<2; m++)
                 for(n=0; n<2; n++)
                 if (n!=1 || m!=1)
@@ -419,13 +420,14 @@ array = g_ptr_array_new ();
             //        gtk_widget_set_name (GTK_WIDGET(combo), defend2_name[m]);
                     gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "есть");
                     gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "нет");
-                    checkbutton = gtk_check_button_new_with_label (korr_name[m]);
+                    checkbutton = gtk_check_button_new_with_label (korr_name[k]);
                     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), TRUE);
                     g_signal_connect (G_OBJECT (checkbutton), "toggled",
                                       G_CALLBACK (state_callback), (gpointer) combo);
                     gtk_container_add (GTK_CONTAINER(hbox), checkbutton);
                     gtk_container_add (GTK_CONTAINER(hbox), combo);
                     gtk_table_attach_defaults (GTK_TABLE (table_in), hbox, 0+m, 1+m, 0+n, 1+n);
+                    k++;
                 }
             }
 
