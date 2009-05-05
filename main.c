@@ -51,6 +51,7 @@ int main(int argc, char *argv[])
   notebook = gtk_notebook_new();
   menu_f = gtk_menu_new();
   menu_h = gtk_menu_new();
+  g_print("Привет!\n");
 
     for (i=0; i<3; i++)
     {
@@ -90,6 +91,7 @@ int main(int argc, char *argv[])
   for(i=0; i<2; i++)  {
     label = gtk_label_new(nameLabel[i]);
     scr_window = gtk_scrolled_window_new (NULL, NULL);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scr_window), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
     //Твой таб.
     if (i == 0)
         table = tab1();

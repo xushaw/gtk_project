@@ -9,13 +9,13 @@
 
 /* garfeild.c */
 
-#define ROWS 6
+#define ROWS 7
 #define COLUMNS 3
 
 #define AVIABLE 0
 #define UNAVIABLE 1
 
-#define N_COLUMNS 16
+#define N_COLUMNS 13
 
 #define CORE_PERF 0
 #define CORE_DIGIT 1
@@ -59,6 +59,7 @@ void entry_print2(GtkWidget *gw, GPtrArray *array)
     char *zErrMsg = 0;
     int rc;
     int i;
+    gboolean flag = TRUE;
     gchar *str2, *str3;
     //Подстроки запроса
     gchar *subStr[3] =  {
@@ -73,25 +74,25 @@ void entry_print2(GtkWidget *gw, GPtrArray *array)
     //Заполняем строку запроса
     for (i=0; i<array->len; i++)
     {  
-        //g_print("%s\n", GTK_OBJECT_TYPE_NAME(g_ptr_array_index(array,i)));
-        //Первая часть не содержить "AND"
-        if (i==0)
-            str2 = g_strconcat(
-                    str3, 
-                    gtk_widget_get_name(g_ptr_array_index(array, i)), 
-                    subStr[0], 
-                    gtk_entry_get_text(GTK_ENTRY(g_ptr_array_index(array,i))), 
-                    subStr[1], 
-                    NULL);
-        //а остальные содержат.
-        else
+        g_print("%s\n", GTK_OBJECT_TYPE_NAME(g_ptr_array_index(array, i)));
+
+        if ( GTK_WIDGET_SENSITIVE (g_ptr_array_index(array, i)) == TRUE && GTK_WIDGET_PARENT_SENSITIVE(g_ptr_array_index(array, i)) == TRUE )
+            if(g_strcmp0(GTK_OBJECT_TYPE_NAME(g_ptr_array_index(array,i)), "GtkCheckButton") != 0)
         {
+            //g_print("%s\n", GTK_OBJECT_TYPE_NAME(g_ptr_array_index(array,i)));
+            ////Первая часть не содержить "AND"
+            if (flag==FALSE)
+            {
+                    str2 = g_strconcat(str3, subStr[2], NULL);
+                    str3 = g_strdup(str2);
+            }
+            else
+                flag=FALSE;
             //Проверяем, какой тип виджета (для Ксю не обязательно) и активен ли i-ый виджет из массива. Если активен, до добавляем подстроку: 
             // " AND <название_столбца>=\"значение\""
-            if ( g_strcmp0( GTK_OBJECT_TYPE_NAME( g_ptr_array_index( array, i ) ), "GtkEntry" ) == 0 && GTK_WIDGET_SENSITIVE( g_ptr_array_index( array, i ) ) )
+            if ( g_strcmp0( GTK_OBJECT_TYPE_NAME( g_ptr_array_index( array, i ) ), "GtkEntry" ) == 0 )
                 str2 = g_strconcat(
                         str3,                                                           //      Полученная ранее строка.
-                        subStr[2],                                                      //      " AND "
                         gtk_widget_get_name(g_ptr_array_index(array, i)),               //      имя виджета == имя столбца в базе
                         subStr[0],                                                      //      "=\""
                         gtk_entry_get_text(GTK_ENTRY(g_ptr_array_index(array,i))),      //      данные из виджета
@@ -100,16 +101,16 @@ void entry_print2(GtkWidget *gw, GPtrArray *array)
             else if (g_strcmp0(GTK_OBJECT_TYPE_NAME(g_ptr_array_index(array, i)), "GtkComboBox") == 0 && gtk_combo_box_get_active(g_ptr_array_index(array, i)) != -1 )
                 str2 = g_strconcat(
                         str3, 
-                        subStr[2], 
                         gtk_widget_get_name(g_ptr_array_index(array, i)), 
                         subStr[0], 
-                        gtk_combo_box_get_active_text(GTK_COMBO_BOX(g_ptr_array_index(array,i))), 
+                        gtk_combo_box_get_active_text(GTK_COMBO_BOX(g_ptr_array_index(array,i))),
                         subStr[1], 
                         NULL);
+            //Дублируем str2 в str3 для дальнейшей подстановки.
+            str3 = g_strdup(str2); 
+            g_print("%s\n", str2);
+
         }
-        //Дублируем str2 в str3 для дальнейшей подстановки.
-        str3 = g_strdup(str2);
-        g_print("%s\n", str2);
     }
     rc = sqlite3_exec(db, str2, callback, 0, &zErrMsg);
     if( rc!=SQLITE_OK )
@@ -252,7 +253,7 @@ void set_column(GtkWidget *tree, const char *labelColumn[])
   GtkCellRenderer *renderer;
   int i;
  
-  for ( i=0; i < N_COLUMNS; i++ )
+  for ( i=0; i < 16; i++ )
   {
  
           renderer = gtk_cell_renderer_text_new ();
@@ -270,22 +271,22 @@ void set_table_info(GtkTreeStore *store, const char *names[], gboolean flag)
  
     gtk_tree_store_append (store, &iter, NULL); /* Acquire an iterator */
     gtk_tree_store_set (store, &iter,
-            CORE_PERF, names[CORE_PERF], 
-            CORE_DIGIT,  names[CORE_DIGIT],
-            COUNT_TIMERS, names[COUNT_TIMERS],
-            ASYNC_PORT_TYPE, names[ASYNC_PORT_TYPE],
-            CASE_TYPE, names[CASE_TYPE], 
-            GUARD_TIMER, names[GUARD_TIMER], 
-            INTERFACE_RAM, names[INTERFACE_RAM],
-            INTERFACE_DEBUG, names[INTERFACE_DEBUG],    
-            DMA, names[DMA], 
-            PLL, names[PLL],                  
-            ADC_DIGIT, names[ADC_DIGIT],
-            ADC_CHANNELS, names[ADC_CHANNELS],
-            ADC_PERF, names[ADC_PERF],      
-            RAM_COMMAND, names[RAM_COMMAND],
-            RAM_DATA, names[RAM_DATA],       
-            OTHER, names[OTHER],          
+            CORE_PERF, names[CORE_PERF],                //1
+            CORE_DIGIT,  names[CORE_DIGIT],             //2
+            COUNT_TIMERS, names[COUNT_TIMERS],          //3
+            ASYNC_PORT_TYPE, names[ASYNC_PORT_TYPE],    //4
+            CASE_TYPE, names[CASE_TYPE],                //5
+            GUARD_TIMER, names[GUARD_TIMER],            //6
+            INTERFACE_RAM, names[INTERFACE_RAM],        //7
+            INTERFACE_DEBUG, names[INTERFACE_DEBUG],    //8
+            DMA, names[DMA],                            //9
+            PLL, names[PLL],                            //0
+            ADC_DIGIT, names[ADC_DIGIT],                //1
+            ADC_CHANNELS, names[ADC_CHANNELS],          //2
+            ADC_PERF, names[ADC_PERF],                  //3
+            RAM_COMMAND, names[RAM_COMMAND],            //4
+            RAM_DATA, names[RAM_DATA],                  //5
+            OTHER, names[OTHER],                        //6
             -1);
 }
  
@@ -311,6 +312,7 @@ GtkWidget* tab2()
     GtkWidget *button[2];
     GtkWidget *buttonBox;
     GtkWidget *tableOut;
+    GtkWidget *scrWindow;
     GtkTreeStore *store;
     GPtrArray *input;
     GPtrArray *all;
@@ -318,21 +320,21 @@ GtkWidget* tab2()
     int rc;
 
     const gchar *labelCoumn[16] = {
-        "Производительность ядра MIPS (оп/с)",                  //1
+        "Производительность\n ядра MIPS (оп/с)",                  //1
         "Разрядность ядра",                                     //2
-        "Количество программируемых 32-х разрядных таймеров",   //3
-        "Тип универсального асинхронного порта",                //4
-        "Тип корпуса"                                           //5
-        "Наличиие сторожевого таймера",                         //6
-        "Наличие интерфейса внешней памяти",                    //7
-        "Наличие отладочного интерфейса",                       //8
-        "Наличие контроллера DMA",                              //9
-        "Наличие PLL"                                           //0
+        "Количество программируемых\n 32-х разрядных таймеров",   //3
+        "Тип универсального\n асинхронного порта",                //4
+        "Тип корпуса",                                          //5
+        "Наличиие сторожевого\n таймера",                         //6
+        "Наличие интерфейса\n внешней памяти",                    //7
+        "Наличие отладочного\n интерфейса",                       //8
+        "Наличие контроллера\n DMA",                              //9
+        "Наличие PLL",                                          //0
         "АЦП: количество разрядов",                             //1
         "АЦП: количество каналов",                              //2
-        "АЦП: скорость преобразования/производительность"       //3
+        "АЦП: скорость\n преобразования/производительность",      //3
         "Размер памяти команд (кбайт)",                         //4
-        "Размер памяти даннх(кбайт)",                           //5
+        "Размер памяти данных(кбайт)",                           //5
         "Дополнительно"                                         //6
     };
     
@@ -360,7 +362,7 @@ GtkWidget* tab2()
     
     const gchar *namesRAM[2] = {
         "Размер памяти команд",                                 //1
-        "Размер памяти даннх",                                  //2
+        "Размер памяти данных",                                  //2
     };
     //Названия кнопок
     const gchar *nameButton[2] = { "Поиск", "Сброс" };
@@ -431,6 +433,8 @@ GtkWidget* tab2()
             );
     tableOut = setup_table(store, labelCoumn);
 
+    scrWindow = gtk_scrolled_window_new (NULL, NULL);
+    
     input = g_ptr_array_new();
     //g_print("INPUT: Created\n");
     all = g_ptr_array_new();
@@ -464,6 +468,8 @@ GtkWidget* tab2()
     for(j=0; j<2; j++)
         gtk_box_pack_start(GTK_BOX(buttonBox), button[j], FALSE, FALSE, 0);
     gtk_table_attach_defaults(GTK_TABLE(tableBox), buttonBox, 2, 3, 5, 6);
+    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrWindow), tableOut);
+    gtk_table_attach_defaults(GTK_TABLE(tableBox), scrWindow, 0, 3, 6, 7);
     
     for(j=0; j<input->len; j++) { 
         if (j<10)   {
