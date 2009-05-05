@@ -23,9 +23,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
 {
     char *zErrMsg = 0;
     int rc, i;
-    gchar *str1, *str, *temp;
-
-    const gchar *entry_text;
+    gchar *str1, *str2, *temp, *temp2;
     gboolean flag = TRUE;
     table_cnt=0;
     //g_print("Begin\n");
@@ -56,26 +54,87 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                     g_print("%s\n", str1);
                 }
             }
-
-/*            for (i=4; i<17; i++)
-                {
-
-                }*/
-        
     }
 
-/*
-    for (i=0; i < arr2->len; i++)
+    if ( gtk_toggle_button_get_active(g_ptr_array_index(arr, 4)) == TRUE )
     {
-        entry_text = gtk_entry_get_text (GTK_ENTRY (g_ptr_array_index(arr2, i)));
-  
-        rc = sqlite3_exec(db, "SELECT MODEL FROM input", callback, 0, &zErrMsg);
-        if( rc!=SQLITE_OK )
-                            {
-        fprintf(stderr, "SQL error: %s\n", zErrMsg);
-        }
+        //g_print("First if\n");
+        temp2 = g_strdup("SELECT MODEL FROM output ");
+        g_print("%s\n", temp2);
+        //g_print("Dup\n");
+        table_cnt++;
+        flag = TRUE;
+        for (i=5; i<16; i++)
+        {
+            if ( GTK_WIDGET_SENSITIVE (g_ptr_array_index(arr, i)) == TRUE)
+            {
+                //g_print("if\n");
+                if (flag == FALSE) 
+                {
+                    str2 = g_strconcat(temp2, " AND ", NULL);
+                    temp2 = g_strdup(str2);
+                }
+                else { 
+                    flag = FALSE;
+                }
+                
+                if (g_strcmp0("power_", gtk_widget_get_name(g_ptr_array_index(arr, i)) ) == 0 ||
+                    g_strcmp0("range_reg_U_", gtk_widget_get_name(g_ptr_array_index(arr, i)) ) == 0 || 
+                    g_strcmp0("diskr_reg_U_", gtk_widget_get_name(g_ptr_array_index(arr, i)) ) == 0 || 
+                    g_strcmp0("range_reg_f_", gtk_widget_get_name(g_ptr_array_index(arr, i)) ) == 0 || 
+                    g_strcmp0("diskr_reg_f_", gtk_widget_get_name(g_ptr_array_index(arr, i)) ) == 0 || 
+                    g_strcmp0("range_reg_v_razsys_", gtk_widget_get_name(g_ptr_array_index(arr, i)) ) == 0 || 
+                    g_strcmp0("range_reg_v_zamsys_", gtk_widget_get_name(g_ptr_array_index(arr, i)) ) == 0)
+                    {
+                        str2 = g_strconcat (temp2,
+                        gtk_widget_get_name(g_ptr_array_index(arr,i)),
+                        "max<=\"", //max<=
+                        gtk_entry_get_text(g_ptr_array_index(arr,i)),
+                        "\" AND ",
+                        gtk_widget_get_name(g_ptr_array_index(arr,i)),
+                        "min>=\"",
+                        gtk_entry_get_text(g_ptr_array_index(arr,i)),
+                        "\"",
+                        NULL);
+                     //   g_print("IF: %s\n", str2);
+                    }
+                    else if (g_strcmp0("phase_number", gtk_widget_get_name(g_ptr_array_index(arr, i)) ) == 0 ||
+                        g_strcmp0("control_way", gtk_widget_get_name(g_ptr_array_index(arr, i)) ) == 0 || 
+                        g_strcmp0("mod_way", gtk_widget_get_name(g_ptr_array_index(arr, i)) ) == 0 || 
+                        g_strcmp0("takt_f", gtk_widget_get_name(g_ptr_array_index(arr, i)) ) == 0)
+                        {
+                            str2 = g_strconcat (temp2, gtk_widget_get_name(g_ptr_array_index(arr,i)), "=\"", 
+                            gtk_entry_get_text(g_ptr_array_index(arr,i)), "\"", NULL);
+                            g_print("ELSE: %s\n", str2);
+                        }
+                    temp2 = g_strdup (str2);
+                //    g_print("%s\n", str2);
+                }
+            }
     }
-    */
+        rc = sqlite3_exec(db, str1, callback, 0, &zErrMsg);
+        if( rc!=SQLITE_OK )
+        {
+            fprintf(stderr, "SQL error: %s\n", zErrMsg);
+        }
+    
+        rc = sqlite3_exec(db, str2, callback, 0, &zErrMsg);
+        if( rc!=SQLITE_OK )
+        {
+            fprintf(stderr, "SQL error: %s\n", zErrMsg);
+        }
+
+/*        rc = sqlite3_exec(db, str3, callback, 0, &zErrMsg);
+        if( rc!=SQLITE_OK )
+        {
+            fprintf(stderr, "SQL error: %s\n", zErrMsg);
+        }
+
+        rc = sqlite3_exec(db, str4, callback, 0, &zErrMsg);
+        if( rc!=SQLITE_OK )
+        {
+            fprintf(stderr, "SQL error: %s\n", zErrMsg);
+        }*/ 
 }
 
 static void clr_callback( GtkWidget *widget, GPtrArray *array )
@@ -135,21 +194,27 @@ GtkWidget* tab1 ()
     "диапазон регулирования скорости в разомкнутой системе", "диапазон регулирования скорости в замкнутой системе",
     "принцип управления", "способ модуляции", "тактовая частота ШИМ"};
 
-    gchar *work_name[6]={"Задание частоты или технологической переменной","Установки задания частоты или технологической переменной","Команды пуск/стоп","Пуско-тормозная характеристика", "Автоматический повторный пуск при обнаружении ошибки","Регулятор технологической переменной"};
+    gchar *work_name[6]={"Задание частоты или технологической переменной",
+    "Установки задания частоты или технологической переменной",
+    "Команды пуск/стоп","Пуско-тормозная характеристика",
+    "Автоматический повторный пуск при обнаружении ошибки","Регулятор технологической переменной"};
 
-    gchar *defend_title[2]={"Защиты преобразователя и двигателя","Защита от неправильной работы тиристорного выпрямителя"};
+    gchar *defend_title[2]={"Защиты преобразователя и двигателя",
+    "Защита от неправильной работы тиристорного выпрямителя"};
 
-    gchar *defend1_name[4]={"Защита от короткого замыкания на корпус","Максимально-токовая защита","Защита от обрыва и перекоса фаз","Защита от понижения или повышения напряжения в звене постоянного тока"};
+    gchar *defend1_name[4]={"Защита от короткого замыкания на корпус",
+    "Максимально-токовая защита","Защита от обрыва и перекоса фаз",
+    "Защита от понижения или повышения напряжения в звене постоянного тока"};
     gchar *defend2_name[2]={"Тепловая защита","Защита от потери питания контроллером"};
 
-    gchar *sch_filter[6]={"все","входные параметры","выходные параметры","рабочие функции","защитные функции","ни одного"};
+    gchar *sch_filter[6]={"все","входные параметры","выходные параметры","рабочие функции","защитные функции",
+    "ни одного"};
     gchar *base_frame[5] = {"input", "output", "work_functions","defend_functions2", "defend_functions4"};
     gchar *base_input[3] = {"phase_number","U_in","freq_in"};
-//    gchar *base_output[11] = {};
+    gchar *base_output[11] = {"power_","phase_number","range_reg_U_", "diskr_reg_U_", "range_reg_f_", "diskr_reg_f_",
+    "range_reg_v_razsys_", "range_reg_v_zamsys_", "control_way", "mod_way", "takt_f"};
 
 table = gtk_table_new (13, 3, FALSE);
-
-
 array = g_ptr_array_new ();
 //arr2 = g_ptr_array_new ();
 
@@ -199,13 +264,13 @@ array = g_ptr_array_new ();
                 k=0;
                 for(m=0; m<3; m++)
                 for(n=0; n<4; n++)
-                if (n!=3 ||  m!=2 )
+                if (n!=3 || m!=2)
                 {
                     printf ("n=%d\n", n);
                     printf ("m=%d\n", m);
                     entry = gtk_entry_new ();
                     g_ptr_array_add (array, (gpointer) entry);
-            //        gtk_widget_set_name (GTK_WIDGET(entry), output_entry_name[k]);
+                    gtk_widget_set_name (GTK_WIDGET(entry), base_output[k]);
                     vbox = gtk_vbox_new (FALSE, 0);
                     checkbutton = gtk_check_button_new_with_label (output_entry_name[k]);
                     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), TRUE);
@@ -318,7 +383,7 @@ array = g_ptr_array_new ();
 
     for (i=0; i<array->len; i++)
     {
-        g_print("%s\n" ,gtk_widget_get_name(g_ptr_array_index(array, i)));
+        g_print("%d: %s\n" ,i, gtk_widget_get_name(g_ptr_array_index(array, i)));
     }
 //****************************************************************************************
 /*    for (i=0; i<array->len; i++)
