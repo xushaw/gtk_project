@@ -1,4 +1,3 @@
-#include "tab2.h"
 #include <gtk/gtk.h>
 #include <sqlite3.h>
 #include <string.h>
@@ -6,6 +5,8 @@
 #include <stdio.h>
 #include <glib.h>
 #include <glib/gprintf.h>
+#include "tab2.h"
+
 /* garfeild.c */
 
 #define ROWS 6
@@ -14,15 +15,39 @@
 #define AVIABLE 0
 #define UNAVIABLE 1
 
-sqlite3 *db;
+#define N_COLUMNS 16
 
+#define CORE_PERF 0
+#define CORE_DIGIT 1
+#define COUNT_TIMERS 2
+#define ASYNC_PORT_TYPE 3
+#define CASE_TYPE 4
+
+#define GUARD_TIMER 5
+#define INTERFACE_RAM 6
+#define INTERFACE_DEBUG 7
+#define DMA 8
+#define PLL 9
+
+#define ADC_DIGIT 10
+#define ADC_CHANNELS 11
+#define ADC_PERF 12
+
+#define RAM_COMMAND 13
+#define RAM_DATA 14 
+
+#define OTHER 15
+    
+sqlite3 *db;
+GPtrArray *results;
 /* Callbacks */
 static int callback(void *NotUsed, int argc, char **argv, char **azColName)
 {
     int i;
     NotUsed=0;
-    g_print("Callback");
+    g_print("Callback\n");
     for(i=0; i<argc; i++){
+        g_ptr_array_add(results, argv[i]);
         printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
      }
     printf("\n");
@@ -34,55 +59,67 @@ void entry_print2(GtkWidget *gw, GPtrArray *array)
     char *zErrMsg = 0;
     int rc;
     int i;
-    gchar *str = "SELECT ALL* FROM microprocessors";
     gchar *str2, *str3;
-    //Массив частей запроса 'SELECT что-то FROM garfeild что-то-еще="значение";'
-    /*const gchar *selectSubStr[4] = { 
-        "SELECT id FROM garfeild WHERE ",   //0
-        "=\"",                              //1
-        "\" AND ",                          //2
-        "\";"};                             //3
-    */
-    //Конечная строка запроса.
-    //gchar *str;
-    //Добавляем необходимые подстроки.
-    /*
-    str = g_strconcat(
-            selectSubStr[0], 
-            gtk_widget_get_name(GTK_WIDGET(g_ptr_array_index(array ,NUMBER))), 
-            selectSubStr[1], 
-            gtk_entry_get_text(GTK_ENTRY(g_ptr_array_index(array, NUMBER))), 
-            selectSubStr[2], 
-            gtk_widget_get_name(GTK_WIDGET(g_ptr_array_index(array, TEXT))), 
-            selectSubStr[1], 
-            gtk_entry_get_text(GTK_ENTRY(g_ptr_array_index(array, TEXT))), 
-            selectSubStr[3],
-            NULL
-            );
-    */
+    //Подстроки запроса
+    gchar *subStr[3] =  {
+        "=\"", 
+        "\"", 
+        " AND "
+    };
 
-    for (i=0; i<array->len; i++)
-        g_print("%s\n" ,GTK_OBJECT_TYPE_NAME(g_ptr_array_index(array, i)));
-    //str2 = NULL;
-    //!!!!!!
-    str3 = "SELECT id FROM TABLE";
+    //Дублируем str в str3
+    str3 = g_strdup("SELECT id FROM microprocessors WHERE ");
+
+    //Заполняем строку запроса
     for (i=0; i<array->len; i++)
     {  
-        //g_free(str2);
-        str2 = g_strconcat(str3, GTK_OBJECT_TYPE_NAME(g_ptr_array_index(array, i)), NULL);
+        //g_print("%s\n", GTK_OBJECT_TYPE_NAME(g_ptr_array_index(array,i)));
+        //Первая часть не содержить "AND"
+        if (i==0)
+            str2 = g_strconcat(
+                    str3, 
+                    gtk_widget_get_name(g_ptr_array_index(array, i)), 
+                    subStr[0], 
+                    gtk_entry_get_text(GTK_ENTRY(g_ptr_array_index(array,i))), 
+                    subStr[1], 
+                    NULL);
+        //а остальные содержат.
+        else
+        {
+            //Проверяем, какой тип виджета (для Ксю не обязательно) и активен ли i-ый виджет из массива. Если активен, до добавляем подстроку: 
+            // " AND <название_столбца>=\"значение\""
+            if ( g_strcmp0( GTK_OBJECT_TYPE_NAME( g_ptr_array_index( array, i ) ), "GtkEntry" ) == 0 && GTK_WIDGET_SENSITIVE( g_ptr_array_index( array, i ) ) )
+                str2 = g_strconcat(
+                        str3,                                                           //      Полученная ранее строка.
+                        subStr[2],                                                      //      " AND "
+                        gtk_widget_get_name(g_ptr_array_index(array, i)),               //      имя виджета == имя столбца в базе
+                        subStr[0],                                                      //      "=\""
+                        gtk_entry_get_text(GTK_ENTRY(g_ptr_array_index(array,i))),      //      данные из виджета
+                        subStr[1],                                                      //      "\""
+                        NULL);
+            else if (g_strcmp0(GTK_OBJECT_TYPE_NAME(g_ptr_array_index(array, i)), "GtkComboBox") == 0 && gtk_combo_box_get_active(g_ptr_array_index(array, i)) != -1 )
+                str2 = g_strconcat(
+                        str3, 
+                        subStr[2], 
+                        gtk_widget_get_name(g_ptr_array_index(array, i)), 
+                        subStr[0], 
+                        gtk_combo_box_get_active_text(GTK_COMBO_BOX(g_ptr_array_index(array,i))), 
+                        subStr[1], 
+                        NULL);
+        }
+        //Дублируем str2 в str3 для дальнейшей подстановки.
         str3 = g_strdup(str2);
         g_print("%s\n", str2);
     }
-    //!!!!!!!!
-    //Проверочный вывод полученно строки.
-    //g_print ("%s\n", str);
-    str = "";
-    rc = sqlite3_exec(db, str, callback, 0, &zErrMsg);
+    rc = sqlite3_exec(db, str2, callback, 0, &zErrMsg);
     if( rc!=SQLITE_OK )
     {
         g_fprintf(stderr,"SQL error: %s\n", zErrMsg);
     }
+    
     //g_free(str);
+    g_free(str2);
+    g_free(str3);
 }
 
 void input_clear(GtkWidget *gw, GPtrArray *input)
@@ -119,7 +156,7 @@ void entry_enter(GtkWidget *gw, GtkWidget *button)
 }
 
 /* Create some widgets */
-GtkWidget* createEntry(GPtrArray *entries, GPtrArray *all, const gchar *name)
+GtkWidget* createEntry(GPtrArray *entries, GPtrArray *all, const gchar *name, const gchar *wname)
 {
     GtkWidget *_entry;
     GtkWidget *_label;
@@ -127,6 +164,7 @@ GtkWidget* createEntry(GPtrArray *entries, GPtrArray *all, const gchar *name)
     GtkWidget *_vbox;
     
     _entry = gtk_entry_new();
+    gtk_widget_set_name(GTK_WIDGET(_entry), wname);
     g_ptr_array_add(entries, _entry);
     g_ptr_array_add(all, _entry);
     
@@ -147,7 +185,7 @@ GtkWidget* createEntry(GPtrArray *entries, GPtrArray *all, const gchar *name)
     return _vbox;
 }
 
-GtkWidget* createComboBox(GPtrArray *comboboxes, GPtrArray *all, const gchar* name)
+GtkWidget* createComboBox(GPtrArray *comboboxes, GPtrArray *all, const gchar *name, const gchar *wname)
 {
     GtkWidget *_combobox;
     GtkWidget *_label;
@@ -156,6 +194,7 @@ GtkWidget* createComboBox(GPtrArray *comboboxes, GPtrArray *all, const gchar* na
     const gchar *textForCombobox[2] = { "Есть", "Нет" };
     
     _combobox = gtk_combo_box_new_text();
+    gtk_widget_set_name(GTK_WIDGET(_combobox), wname);
     gtk_combo_box_append_text(GTK_COMBO_BOX(_combobox), textForCombobox[0]); 
     gtk_combo_box_append_text(GTK_COMBO_BOX(_combobox), textForCombobox[1]); 
     g_ptr_array_add(comboboxes, _combobox);
@@ -179,7 +218,7 @@ GtkWidget* createComboBox(GPtrArray *comboboxes, GPtrArray *all, const gchar* na
     return _vbox;
 }
 
-GtkWidget* createFrame(GPtrArray *entries, GPtrArray *all, const gchar name[], const gchar *names[], const int size)
+GtkWidget* createFrame(GPtrArray *entries, GPtrArray *all, const gchar name[], const gchar *names[], const gchar *wnames[], const int size)
 {
     GtkWidget *_frame;
     GtkWidget *_label;
@@ -194,7 +233,7 @@ GtkWidget* createFrame(GPtrArray *entries, GPtrArray *all, const gchar name[], c
     gtk_frame_set_label_widget(GTK_FRAME(_frame), GTK_WIDGET(_label));
     for ( i=0; i<size; i++ )
     {
-        gtk_container_add(GTK_CONTAINER(_vbox), createEntry(entries, all, names[i]));
+        gtk_container_add(GTK_CONTAINER(_vbox), createEntry(entries, all, names[i], wnames[i]));
 
     }
 
@@ -205,15 +244,97 @@ GtkWidget* createFrame(GPtrArray *entries, GPtrArray *all, const gchar name[], c
     return _frame;
 }
 
+
+/* table */
+void set_column(GtkWidget *tree, const char *labelColumn[])
+{
+  GtkTreeViewColumn *column;
+  GtkCellRenderer *renderer;
+  int i;
+ 
+  for ( i=0; i < N_COLUMNS; i++ )
+  {
+ 
+          renderer = gtk_cell_renderer_text_new ();
+          column = gtk_tree_view_column_new_with_attributes (labelColumn[i], renderer,
+                  "text", i,
+                  NULL);
+ 
+      gtk_tree_view_append_column (GTK_TREE_VIEW (tree), column);
+  }
+}
+ 
+void set_table_info(GtkTreeStore *store, const char *names[], gboolean flag)
+{
+    GtkTreeIter iter;
+ 
+    gtk_tree_store_append (store, &iter, NULL); /* Acquire an iterator */
+    gtk_tree_store_set (store, &iter,
+            CORE_PERF, names[CORE_PERF], 
+            CORE_DIGIT,  names[CORE_DIGIT],
+            COUNT_TIMERS, names[COUNT_TIMERS],
+            ASYNC_PORT_TYPE, names[ASYNC_PORT_TYPE],
+            CASE_TYPE, names[CASE_TYPE], 
+            GUARD_TIMER, names[GUARD_TIMER], 
+            INTERFACE_RAM, names[INTERFACE_RAM],
+            INTERFACE_DEBUG, names[INTERFACE_DEBUG],    
+            DMA, names[DMA], 
+            PLL, names[PLL],                  
+            ADC_DIGIT, names[ADC_DIGIT],
+            ADC_CHANNELS, names[ADC_CHANNELS],
+            ADC_PERF, names[ADC_PERF],      
+            RAM_COMMAND, names[RAM_COMMAND],
+            RAM_DATA, names[RAM_DATA],       
+            OTHER, names[OTHER],          
+            -1);
+}
+ 
+GtkWidget* setup_table(GtkTreeStore *store, const char *labelColumn[])
+{
+  GtkWidget *tree;
+ 
+  tree = gtk_tree_view_new_with_model (GTK_TREE_MODEL (store));
+ 
+  set_column(tree, labelColumn);
+ 
+  g_object_unref (G_OBJECT (store));
+ 
+  g_print("setup\n");
+  return tree;
+ 
+}
+
+
 GtkWidget* tab2()
 {
     GtkWidget *tableBox;
     GtkWidget *button[2];
     GtkWidget *buttonBox;
+    GtkWidget *tableOut;
+    GtkTreeStore *store;
     GPtrArray *input;
     GPtrArray *all;
     int i, j;
     int rc;
+
+    const gchar *labelCoumn[16] = {
+        "Производительность ядра MIPS (оп/с)",                  //1
+        "Разрядность ядра",                                     //2
+        "Количество программируемых 32-х разрядных таймеров",   //3
+        "Тип универсального асинхронного порта",                //4
+        "Тип корпуса"                                           //5
+        "Наличиие сторожевого таймера",                         //6
+        "Наличие интерфейса внешней памяти",                    //7
+        "Наличие отладочного интерфейса",                       //8
+        "Наличие контроллера DMA",                              //9
+        "Наличие PLL"                                           //0
+        "АЦП: количество разрядов",                             //1
+        "АЦП: количество каналов",                              //2
+        "АЦП: скорость преобразования/производительность"       //3
+        "Размер памяти команд (кбайт)",                         //4
+        "Размер памяти даннх(кбайт)",                           //5
+        "Дополнительно"                                         //6
+    };
     
     const gchar *nameEntries[5] = { 
         "Производительность ядра",                              //1 
@@ -243,6 +364,33 @@ GtkWidget* tab2()
     };
     //Названия кнопок
     const gchar *nameButton[2] = { "Поиск", "Сброс" };
+
+    const gchar *namesFromBaseEntries[5] = {
+        "core_perf",
+        "core_digit",
+        "count_timers",
+        "async_port_type",
+        "case_type"
+    };
+
+    const gchar *namesFromBaseCombobox[5] = {
+        "guard_timer",
+        "interface_ram",
+        "interface_debug",
+        "dma",
+        "pll"
+    };
+
+    const gchar *namesFromBaseACP[3] = {
+        "adc_digit",
+        "adc_channels",
+        "adc_perf"
+    };
+
+    const gchar *namesFromBaseRAM[2] = {
+        "ram_command",
+        "ram_data"
+    };
     
     rc = sqlite3_open("base.db", &db);
     if( rc )   
@@ -251,9 +399,7 @@ GtkWidget* tab2()
         sqlite3_close(db);
         exit(1);
     }
-
-
-
+    
     //initiating buttons and labels
     buttonBox = gtk_hbutton_box_new();
     //Установка форматирования кнопок:
@@ -265,10 +411,31 @@ GtkWidget* tab2()
     gtk_table_set_col_spacings(GTK_TABLE(tableBox), 5);
     //g_print("TABLEBOX: Created\n");
 
+    store = gtk_tree_store_new( 16,
+            G_TYPE_STRING,  //1
+            G_TYPE_STRING,  //2
+            G_TYPE_STRING,  //3
+            G_TYPE_STRING,  //4
+            G_TYPE_STRING,  //5
+            G_TYPE_STRING,  //6
+            G_TYPE_STRING,  //7
+            G_TYPE_STRING,  //8
+            G_TYPE_STRING,  //9
+            G_TYPE_STRING,  //0
+            G_TYPE_STRING,  //1
+            G_TYPE_STRING,  //2
+            G_TYPE_STRING,  //3
+            G_TYPE_STRING,  //4
+            G_TYPE_STRING,  //5
+            G_TYPE_STRING   //6
+            );
+    tableOut = setup_table(store, labelCoumn);
+
     input = g_ptr_array_new();
     //g_print("INPUT: Created\n");
     all = g_ptr_array_new();
-
+    
+    results = g_ptr_array_new();
 
     for(j=0; j<2; j++)  {
         button[j] = gtk_button_new_with_label(nameButton[j]);
@@ -277,20 +444,20 @@ GtkWidget* tab2()
     }
     
     for (i=0; i<3; i++) {
-        if (i==0)   {
-            gtk_table_attach_defaults(GTK_TABLE(tableBox), GTK_WIDGET(createFrame(input, all, "АЦП", namesACP, 3)), 0, 1, 0, 3 );
+        if (i==1)   {
+            gtk_table_attach_defaults(GTK_TABLE(tableBox), GTK_WIDGET(createFrame(input, all, "АЦП", namesACP, namesFromBaseACP, 3)), 1, 2, 0, 3 );
 
-            gtk_table_attach_defaults(GTK_TABLE(tableBox), GTK_WIDGET(createFrame(input, all, "RAM", namesRAM, 2)), 0, 1, 3, 5);
+            gtk_table_attach_defaults(GTK_TABLE(tableBox), GTK_WIDGET(createFrame(input, all, "RAM", namesRAM, namesFromBaseRAM, 2)), 1, 2, 3, 5);
         }
-        else if(i==1)
+        else if(i==0)
         {
             for(j=0; j<5; j++)
-                gtk_table_attach_defaults(GTK_TABLE(tableBox), GTK_WIDGET(createEntry(input, all, nameEntries[j])), i, i+1, j, j+1);
+                gtk_table_attach_defaults(GTK_TABLE(tableBox), GTK_WIDGET(createEntry(input, all, nameEntries[j], namesFromBaseEntries[j])), i, i+1, j, j+1);
         }
         else if(i==2)
         {
             for(j=0; j<5; j++)
-                gtk_table_attach_defaults(GTK_TABLE(tableBox), GTK_WIDGET(createComboBox(input, all, nameCombobox[j])), i, i+1, j, j+1);
+                gtk_table_attach_defaults(GTK_TABLE(tableBox), GTK_WIDGET(createComboBox(input, all, nameCombobox[j], namesFromBaseCombobox[j])), i, i+1, j, j+1);
         }
     }
     
