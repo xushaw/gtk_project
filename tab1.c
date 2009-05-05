@@ -57,7 +57,10 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                 }
             }
 
-            for (i=4; i<)
+/*            for (i=4; i<17; i++)
+                {
+
+                }*/
         
     }
 
@@ -196,7 +199,10 @@ array = g_ptr_array_new ();
                 k=0;
                 for(m=0; m<3; m++)
                 for(n=0; n<4; n++)
+                if (n!=3 ||  m!=2 )
                 {
+                    printf ("n=%d\n", n);
+                    printf ("m=%d\n", m);
                     entry = gtk_entry_new ();
                     g_ptr_array_add (array, (gpointer) entry);
             //        gtk_widget_set_name (GTK_WIDGET(entry), output_entry_name[k]);
