@@ -23,10 +23,13 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName){
 static void sch_callback( GtkWidget *widget, GPtrArray *arr) 
 {
     char *zErrMsg = 0;
+
     int rc, i;
     gchar *str1, *str2, *temp, *temp2;
     gboolean flag = TRUE;
     table_cnt=0;
+    str1 = g_strdup("");
+    str2 = g_strdup("");
     //g_print("Begin\n");
     if ( gtk_toggle_button_get_active(g_ptr_array_index(arr, 0)) == TRUE )
     {
@@ -118,7 +121,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
         {
             fprintf(stderr, "SQL error: %s\n", zErrMsg);
         }
-        g_free(str1); 
+        g_free(str1);
         rc = sqlite3_exec(db, str2, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
         {
