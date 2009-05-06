@@ -15,44 +15,53 @@
 #define AVIABLE 0
 #define UNAVIABLE 1
 
-#define N_COLUMNS 13
+#define N_COLUMNS 16
 
-#define CORE_PERF 0
-#define CORE_DIGIT 1
-#define COUNT_TIMERS 2
-#define ASYNC_PORT_TYPE 3
-#define CASE_TYPE 4
+#define MP_NAME 0
+#define CORE_PERF 1
+#define CORE_DIGIT 2
+#define COUNT_TIMERS 3
+#define ASYNC_PORT_TYPE 4
+#define CASE_TYPE 5
 
-#define GUARD_TIMER 5
-#define INTERFACE_RAM 6
-#define INTERFACE_DEBUG 7
-#define DMA 8
-#define PLL 9
+#define GUARD_TIMER 6
+#define INTERFACE_RAM 7
+#define INTERFACE_DEBUG 8
+#define DMA 9
+#define PLL 10
 
-#define ADC_DIGIT 10
-#define ADC_CHANNELS 11
-#define ADC_PERF 12
+#define ADC_DIGIT 11
+#define ADC_CHANNELS 12
+#define ADC_PERF 13
 
-#define RAM_COMMAND 13
-#define RAM_DATA 14 
+#define RAM_COMMAND 14
+#define RAM_DATA 15 
 
-#define OTHER 15
+#define OTHER 16
     
 sqlite3 *db;
-GPtrArray *results;
+GtkTreeStore *store;
+//GPtrArray *results;
 /* Callbacks */
 static int callback(void *NotUsed, int argc, char **argv, char **azColName)
 {
     int i;
     NotUsed=0;
+    GPtrArray *results;
+    results = g_ptr_array_new();
     g_print("Callback\n");
     for(i=0; i<argc; i++){
-        g_ptr_array_add(results, argv[i]);
         printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+        g_ptr_array_add(results, argv[i]);
      }
     printf("\n");
+    set_table_info(results);
+    //g_free(results);
+
     return 0;
 } 
+
+//static int callbackForTable(void *NotUsed, int argc, char **argv, char **azColName)
 
 void entry_print2(GtkWidget *gw, GPtrArray *array)
 { 
@@ -69,13 +78,13 @@ void entry_print2(GtkWidget *gw, GPtrArray *array)
     };
 
     //Дублируем str в str3
-    str3 = g_strdup("SELECT id FROM microprocessors WHERE ");
+    str3 = g_strdup("SELECT mp_name, core_perf, core_digit,count_timers, async_port_type,case_type, guard_timer, interface_ram, interface_debug, dma, pll, adc_digit, adc_channels, adc_perf, ram_command, ram_data FROM microprocessors WHERE ");
     str2 = g_strdup("");
 
     //Заполняем строку запроса
     for (i=0; i<array->len; i++)
     {  
-        g_print("%s\n", GTK_OBJECT_TYPE_NAME(g_ptr_array_index(array, i)));
+        //g_print("%s\n", GTK_OBJECT_TYPE_NAME(g_ptr_array_index(array, i)));
 
         if ( GTK_WIDGET_SENSITIVE (g_ptr_array_index(array, i)) == TRUE && GTK_WIDGET_PARENT_SENSITIVE(g_ptr_array_index(array, i)) == TRUE )
             if(g_strcmp0(GTK_OBJECT_TYPE_NAME(g_ptr_array_index(array,i)), "GtkCheckButton") != 0)
@@ -203,7 +212,6 @@ GtkWidget* createComboBox(GPtrArray *comboboxes, GPtrArray *all, const gchar *na
     g_ptr_array_add(all, _combobox);
     
     _label = gtk_check_button_new_with_label(name);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(_label), TRUE);
 
     _leftAlign = gtk_alignment_new(0, 0.5, 0.1, 0);
     
@@ -217,6 +225,8 @@ GtkWidget* createComboBox(GPtrArray *comboboxes, GPtrArray *all, const gchar *na
     g_signal_connect(G_OBJECT(_label), "toggled",
             G_CALLBACK(toggle_action), (gpointer) _combobox);
 
+    g_signal_emit_by_name(_label, "toggled", (gpointer)_combobox);
+    
     return _vbox;
 }
 
@@ -254,7 +264,7 @@ void set_column(GtkWidget *tree, const char *labelColumn[])
   GtkCellRenderer *renderer;
   int i;
  
-  for ( i=0; i < 16; i++ )
+  for ( i=0; i < N_COLUMNS; i++ )
   {
  
           renderer = gtk_cell_renderer_text_new ();
@@ -266,11 +276,37 @@ void set_column(GtkWidget *tree, const char *labelColumn[])
   }
 }
  
-void set_table_info(GtkTreeStore *store, const char *names[], gboolean flag)
+void set_table_info(GPtrArray *results)
 {
     GtkTreeIter iter;
  
     gtk_tree_store_append (store, &iter, NULL); /* Acquire an iterator */
+    gtk_tree_store_set (store, &iter,
+            MP_NAME, g_ptr_array_index(results, MP_NAME),
+            CORE_PERF, g_ptr_array_index(results ,CORE_PERF),                //1
+            CORE_DIGIT,  g_ptr_array_index(results, CORE_DIGIT),            //2
+            COUNT_TIMERS, g_ptr_array_index(results, COUNT_TIMERS),          //3
+            ASYNC_PORT_TYPE, g_ptr_array_index(results, ASYNC_PORT_TYPE),   //4
+            CASE_TYPE, g_ptr_array_index(results, CASE_TYPE),               //5
+            GUARD_TIMER, g_ptr_array_index(results, GUARD_TIMER),           //6
+            INTERFACE_RAM, g_ptr_array_index(results, INTERFACE_RAM),       //7
+            INTERFACE_DEBUG, g_ptr_array_index(results, INTERFACE_DEBUG),   //8
+            DMA, g_ptr_array_index(results, DMA),                           //9
+            PLL, g_ptr_array_index(results, PLL),                           //0
+            ADC_DIGIT, g_ptr_array_index(results, ADC_DIGIT),               //1
+            ADC_CHANNELS, g_ptr_array_index(results, ADC_CHANNELS),         //2
+            ADC_PERF, g_ptr_array_index(results, ADC_PERF),                 //3
+            RAM_COMMAND, g_ptr_array_index(results, RAM_COMMAND),           //4
+            RAM_DATA, g_ptr_array_index(results, RAM_DATA),                 //5
+//            OTHER, g_ptr_array_index(results, OTHER),                       //6
+            -1);
+}
+
+/*void set_table_info(GtkTreeStore *store, const char *names[], gboolean flag)
+{
+    GtkTreeIter iter;
+ 
+    gtk_tree_store_append (store, &iter, NULL);
     gtk_tree_store_set (store, &iter,
             CORE_PERF, names[CORE_PERF],                //1
             CORE_DIGIT,  names[CORE_DIGIT],             //2
@@ -290,7 +326,8 @@ void set_table_info(GtkTreeStore *store, const char *names[], gboolean flag)
             OTHER, names[OTHER],                        //6
             -1);
 }
- 
+*/
+
 GtkWidget* setup_table(GtkTreeStore *store, const char *labelColumn[])
 {
   GtkWidget *tree;
@@ -306,7 +343,6 @@ GtkWidget* setup_table(GtkTreeStore *store, const char *labelColumn[])
  
 }
 
-
 GtkWidget* tab2()
 {
     GtkWidget *tableBox;
@@ -314,13 +350,14 @@ GtkWidget* tab2()
     GtkWidget *buttonBox;
     GtkWidget *tableOut;
     GtkWidget *scrWindow;
-    GtkTreeStore *store;
+    //GtkTreeStore *store;
     GPtrArray *input;
     GPtrArray *all;
     int i, j;
     int rc;
 
-    const gchar *labelCoumn[16] = {
+    const gchar *labelCoumn[17] = {
+        "Модель",
         "Производительность\n ядра MIPS (оп/с)",                  //1
         "Разрядность ядра",                                     //2
         "Количество программируемых\n 32-х разрядных таймеров",   //3
@@ -414,7 +451,8 @@ GtkWidget* tab2()
     gtk_table_set_col_spacings(GTK_TABLE(tableBox), 5);
     //g_print("TABLEBOX: Created\n");
 
-    store = gtk_tree_store_new( 16,
+    store = gtk_tree_store_new( 17,
+            G_TYPE_STRING,  //0
             G_TYPE_STRING,  //1
             G_TYPE_STRING,  //2
             G_TYPE_STRING,  //3
@@ -440,7 +478,7 @@ GtkWidget* tab2()
     //g_print("INPUT: Created\n");
     all = g_ptr_array_new();
     
-    results = g_ptr_array_new();
+    //results = g_ptr_array_new();
 
     for(j=0; j<2; j++)  {
         button[j] = gtk_button_new_with_label(nameButton[j]);
