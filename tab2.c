@@ -76,7 +76,8 @@ void entry_print2(GtkWidget *gw, GPtrArray *array)
         "\"", 
         " AND "
     };
-
+    
+    gtk_tree_store_clear(store);
     //Дублируем str в str3
     str3 = g_strdup("SELECT mp_name, core_perf, core_digit,count_timers, async_port_type,case_type, guard_timer, interface_ram, interface_debug, dma, pll, adc_digit, adc_channels, adc_perf, ram_command, ram_data FROM microprocessors WHERE ");
     str2 = g_strdup("");
@@ -474,6 +475,7 @@ GtkWidget* tab2()
 
     scrWindow = gtk_scrolled_window_new (NULL, NULL);
     
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrWindow), GTK_POLICY_AUTOMATIC, GTK_POLICY_NEVER);
     input = g_ptr_array_new();
     //g_print("INPUT: Created\n");
     all = g_ptr_array_new();

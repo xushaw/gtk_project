@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
   char buf[512]; // скока надо точно,я не знаю
   int i=0;
   int rc;
-  char *label_f[3] = {"сохранить","сохранить как...","выход"};
+  char *label_f[3] = {"сохранить","сохранить как...","Выход"};
   char *label_h[1] = {"о программе"};
 //sqlite addon:
         rc = sqlite3_open("123.db", &db);
@@ -59,6 +59,10 @@ int main(int argc, char *argv[])
     menu_items_f = gtk_menu_item_new_with_label (buf);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu_f), menu_items_f);
 
+    if ( g_strcmp0("Выход", label_f[i]) == 0 )
+        g_signal_connect(G_OBJECT(menu_items_f), "activate",
+                G_CALLBACK(gtk_main_quit), NULL);
+    else
     g_signal_connect_swapped (G_OBJECT (menu_items_f), "activate",
                               G_CALLBACK (menuitem_response),  (gpointer) g_strdup (buf));
     gtk_widget_show (menu_items_f);
