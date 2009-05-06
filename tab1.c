@@ -25,12 +25,18 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
     char *zErrMsg = 0;
 
     int rc, i;
-    gchar *str1, *str2, *temp, *temp2;
+    gchar *str1, *str2, *str3, *str4, *str5, *str6, *temp, *temp2;
     gboolean flag = TRUE;
     table_cnt=0;
     str1 = g_strdup("");
     str2 = g_strdup("");
+    str3 = g_strdup("");
+    str4 = g_strdup("");
+    str5 = g_strdup("");
+    str6 = g_strdup("");
     //g_print("Begin\n");
+    temp = g_strdup("SELECT MODEL FROM input WHERE ");
+
     if ( gtk_toggle_button_get_active(g_ptr_array_index(arr, 0)) == TRUE )
     {
         //g_print("First if\n");
@@ -64,7 +70,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
     {
         //g_print("First if\n");
         temp2 = g_strdup("SELECT MODEL FROM output WHERE ");
-        g_print("%s\n", temp2);
+     //   g_print("%s\n", temp2);
         //g_print("Dup\n");
         table_cnt++;
         flag = TRUE;
@@ -116,6 +122,156 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                 }
             }
     }
+
+        if ( gtk_toggle_button_get_active(g_ptr_array_index(arr, 16)) == TRUE ) //work
+        {
+            flag = TRUE;
+        //g_print("First if\n");
+            temp = g_strdup("SELECT MODEL FROM work_functions WHERE ");
+            //g_print("Dup\n");
+            table_cnt++;
+            for (i=17; i<23; i++)// ComboBox
+            {
+                //g_print("For %d\n", i);
+                if ( GTK_WIDGET_SENSITIVE (g_ptr_array_index(arr, i)) == TRUE)
+                {
+                    //g_print("if\n");
+                    if (flag == TRUE) 
+                    {
+                        str3 = g_strconcat (temp, gtk_widget_get_name(g_ptr_array_index(arr,i)), "=\"", 
+                            gtk_combo_box_get_active_text(GTK_COMBO_BOX(g_ptr_array_index(arr,i))), "\"", NULL);
+                        flag = FALSE;
+                    }
+                    else 
+                    {
+                        str3 = g_strconcat (temp," AND ", gtk_widget_get_name(g_ptr_array_index(arr,i)), 
+                            "=\"", gtk_combo_box_get_active_text(GTK_COMBO_BOX(g_ptr_array_index(arr,i))), "\"", NULL);
+                    }
+                    temp = g_strdup (str3);
+                    g_print("%s\n", str3);
+                }
+            }
+        }
+
+        if ( gtk_toggle_button_get_active(g_ptr_array_index(arr, 23)) == TRUE ) //defend4
+        {
+        //g_print("First if\n");
+            flag = TRUE;
+            temp = g_strdup("SELECT MODEL FROM defend_functions4 WHERE ");
+            //g_print("Dup\n");
+            table_cnt++;
+            for (i=24; i<28; i++)// ComboBox
+            {
+                //g_print("For %d\n", i);
+                if ( GTK_WIDGET_SENSITIVE (g_ptr_array_index(arr, i)) == TRUE)
+                {
+                    //g_print("if\n");
+                    if (flag == TRUE) 
+                    {
+                        str4 = g_strconcat (temp, gtk_widget_get_name(g_ptr_array_index(arr,i)), "=\"", 
+                            gtk_combo_box_get_active_text(GTK_COMBO_BOX(g_ptr_array_index(arr,i))), "\"", NULL);
+                        flag = FALSE;
+                    }
+                    else 
+                    {
+                        str4 = g_strconcat (temp," AND ", gtk_widget_get_name(g_ptr_array_index(arr,i)), 
+                            "=\"", gtk_combo_box_get_active_text(GTK_COMBO_BOX(g_ptr_array_index(arr,i))), "\"", NULL);
+                    }
+                    temp = g_strdup (str4);
+                    g_print("%s\n", str4);
+                }
+            }
+        }
+        if ( gtk_toggle_button_get_active(g_ptr_array_index(arr, 28)) == TRUE )//defend2
+        {
+        //g_print("First if\n");
+            flag = TRUE;
+            temp = g_strdup("SELECT MODEL FROM defend_functions2 WHERE ");
+            //g_print("Dup\n");
+            table_cnt++;
+            for (i=29; i<31; i++)// ComboBox
+            {
+                //g_print("For %d\n", i);
+                if ( GTK_WIDGET_SENSITIVE (g_ptr_array_index(arr, i)) == TRUE)
+                {
+                    //g_print("if\n");
+                    if (flag == TRUE) 
+                    {
+                        str5 = g_strconcat (temp, gtk_widget_get_name(g_ptr_array_index(arr,i)), "=\"", 
+                            gtk_combo_box_get_active_text(GTK_COMBO_BOX(g_ptr_array_index(arr,i))), "\"", NULL);
+                        flag = FALSE;
+                    }
+                    else 
+                    {
+                        str5 = g_strconcat (temp," AND ", gtk_widget_get_name(g_ptr_array_index(arr,i)), 
+                            "=\"", gtk_combo_box_get_active_text(GTK_COMBO_BOX(g_ptr_array_index(arr,i))), "\"", NULL);
+                    }
+                    temp = g_strdup (str5);
+                    g_print("%s\n", str5);
+                }
+            }
+        }
+
+        if ( gtk_toggle_button_get_active(g_ptr_array_index(arr, 31)) == TRUE ) //korr
+        {
+        //g_print("First if\n");
+            flag = TRUE;
+            temp = g_strdup("SELECT MODEL FROM korr WHERE ");
+            //g_print("Dup\n");
+            table_cnt++;
+            for (i=32; i<35; i++)// ComboBox
+            {
+                //g_print("For %d\n", i);
+                if ( GTK_WIDGET_SENSITIVE (g_ptr_array_index(arr, i)) == TRUE)
+                {
+                    //g_print("if\n");
+                    if (flag == TRUE) 
+                    {
+                        str3 = g_strconcat (temp, gtk_widget_get_name(g_ptr_array_index(arr,i)), "=\"", 
+                            gtk_combo_box_get_active_text(GTK_COMBO_BOX(g_ptr_array_index(arr,i))), "\"", NULL);
+                        flag = FALSE;
+                    }
+                    else 
+                    {
+                        str3 = g_strconcat (temp," AND ", gtk_widget_get_name(g_ptr_array_index(arr,i)), 
+                            "=\"", gtk_combo_box_get_active_text(GTK_COMBO_BOX(g_ptr_array_index(arr,i))), "\"", NULL);
+                    }
+                    temp = g_strdup (str3);
+                    g_print("%s\n", str3);
+                }
+            }
+        }
+
+/*        if ( gtk_toggle_button_get_active(g_ptr_array_index(arr, 31)) == TRUE )//korr
+        {
+        //g_print("First if\n");
+            temp = g_strdup("SELECT MODEL FROM work_functions WHERE ");
+            //g_print("Dup\n");
+            table_cnt++;
+            for (i=32; i<35; i++)// ComboBox
+            {
+                //g_print("For %d\n", i);
+                if ( GTK_WIDGET_SENSITIVE (g_ptr_array_index(arr, i)) == TRUE)
+                {
+                    //g_print("if\n");
+                    if (flag == TRUE) 
+                    {
+                        str3 = g_strconcat (temp, gtk_widget_get_name(g_ptr_array_index(arr,i)), "=\"", 
+                            gtk_combo_box_get_active_text(GTK_COMBO_BOX(g_ptr_array_index(arr,i))), "\"", NULL);
+                        flag = FALSE;
+                    }
+                    else 
+                    {
+                        str3 = g_strconcat (temp," AND ", gtk_widget_get_name(g_ptr_array_index(arr,i)), 
+                            "=\"", gtk_combo_box_get_active_text(GTK_COMBO_BOX(g_ptr_array_index(arr,i))), "\"", NULL);
+                    }
+                    temp = g_strdup (str3);
+                    g_print("%s\n", str3);
+                }
+            }
+        }*/
+
+
         rc = sqlite3_exec(db, str1, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
         {
@@ -128,7 +284,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
             fprintf(stderr, "SQL error: %s\n", zErrMsg);
         }
         g_free(str2);
-/*        rc = sqlite3_exec(db, str3, callback, 0, &zErrMsg);
+        rc = sqlite3_exec(db, str3, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
         {
             fprintf(stderr, "SQL error: %s\n", zErrMsg);
@@ -145,7 +301,14 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
         {
             fprintf(stderr, "SQL error: %s\n", zErrMsg);
         }
-        g_free(str5);*/
+        g_free(str5);
+        rc = sqlite3_exec(db, str6, callback, 0, &zErrMsg);
+        if( rc!=SQLITE_OK )
+        {
+            fprintf(stderr, "SQL error: %s\n", zErrMsg);
+        }
+        g_free(str6);
+
 }
 
 static void clr_callback( GtkWidget *widget, GPtrArray *array )
@@ -186,16 +349,12 @@ GtkWidget* tab1 ()
     GtkWidget *table_in; 
     GtkWidget *entry;
     GtkWidget *sch_button, *clr_button;
-    GtkWidget *label;
     GtkWidget *frame;
     GtkWidget *bbox; //button box
-    GtkWidget *ch_bbox1, *ch_bbox2; //for checkbuttons
     GtkWidget *checkbutton; //enable\disable entries
-    GtkWidget *hbox, *vbox, *ex_hbox; //for ch_boxes
-    GtkWidget *scr_window;
-    GtkWidget *opt, *ch; //choice
+    GtkWidget *hbox, *vbox; //for ch_boxes
     GtkWidget *combo;
-    GPtrArray *array, *arr2;
+    GPtrArray *array;
     int i,j,m,n,k;
     gchar *frame_name[6] = {"Входные параметры","Выходные параметры","Рабочие функции","Защитные фунции"};
 
@@ -222,9 +381,10 @@ GtkWidget* tab1 ()
     "Коррекция интенсивности(при разгоне) и рабочей частоты\n(в установившимся режиме) при превышении тока двигетеля",
     "Коррекция интенсивности торможения при\nпревышении напряжения на звене постоянного тока"};
 
+    gchar *base_korr[3] = {"k_int_i_drive","k_int_torm_U_lim","k_U_out_depend_U_in"};
+
 /*    gchar *sch_filter[6]={"все","входные параметры","выходные параметры","рабочие функции",
     "защитные функции", "ни одного"};*/
-    gchar *base_frame[5] = {"input", "output", "work_functions","defend_functions2", "defend_functions4"};
     gchar *base_input[3] = {"phase_number","U_in","freq_in"};
     gchar *base_output[11] = {"power_","phase_number","range_reg_U_", "diskr_reg_U_", "range_reg_f_", "diskr_reg_f_",
     "range_reg_v_razsys_", "range_reg_v_zamsys_", "control_way", "mod_way", "takt_f"};
@@ -247,9 +407,11 @@ array = g_ptr_array_new ();
             gtk_frame_set_label_widget(GTK_FRAME(frame), checkbutton);
             gtk_table_attach_defaults (GTK_TABLE (table), frame, 0, 3, 0, 1);
             table_in = gtk_table_new (1, 3, FALSE);
-            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), TRUE);
+            gtk_widget_set_sensitive(GTK_WIDGET(table_in), FALSE);
+            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), FALSE);
             g_signal_connect (G_OBJECT (checkbutton), "toggled",
                                   G_CALLBACK (state_callback), (gpointer) table_in);
+            g_signal_emit_by_name(checkbutton, "toggled", (gpointer) table_in);
             gtk_container_add (GTK_CONTAINER(frame), table_in);
                 for(m=0; m<3; m++)
                 {
@@ -276,9 +438,11 @@ array = g_ptr_array_new ();
             gtk_frame_set_label_widget(GTK_FRAME(frame), checkbutton);
             gtk_table_attach_defaults (GTK_TABLE (table), frame, 0, 3, 1, 4);
             table_in = gtk_table_new (4, 3, FALSE);
-            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), TRUE);
+            gtk_widget_set_sensitive(GTK_WIDGET(table_in), FALSE);
+            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), FALSE);
             g_signal_connect (G_OBJECT (checkbutton), "toggled",
                               G_CALLBACK (state_callback), (gpointer) table_in);
+            g_signal_emit_by_name(checkbutton, "toggled", (gpointer) table_in);
             gtk_container_add (GTK_CONTAINER(frame), table_in);
                 k=0;
                 for(m=0; m<3; m++)
@@ -306,14 +470,15 @@ array = g_ptr_array_new ();
             {
                 frame = gtk_frame_new(NULL);
                 checkbutton = gtk_check_button_new_with_label (frame_name[2]);
-            //    gtk_widget_set_name (GTK_WIDGET(checkbutton), frame_name[2]);
                 g_ptr_array_add (array, (gpointer) checkbutton);
                 gtk_frame_set_label_widget(GTK_FRAME(frame), checkbutton);
                 gtk_table_attach_defaults (GTK_TABLE (table), frame, 0, 3, 5, 7);
                 table_in = gtk_table_new (2, 3, FALSE);
-                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), TRUE);
+                gtk_widget_set_sensitive(GTK_WIDGET(table_in), FALSE);
+                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), FALSE);
                 g_signal_connect (G_OBJECT (checkbutton), "toggled",
                                   G_CALLBACK (state_callback), (gpointer) table_in);
+                g_signal_emit_by_name(checkbutton, "toggled", (gpointer) table_in);
                 gtk_container_add (GTK_CONTAINER(frame), table_in);
                 k=0;
                 for(m=0; m<2; m++)
@@ -321,6 +486,7 @@ array = g_ptr_array_new ();
                 {
                     hbox = gtk_hbox_new (FALSE, 0);
                     combo = gtk_combo_box_new_text();
+                    gtk_widget_set_name (GTK_WIDGET(combo), base_work[k]);
                     g_ptr_array_add (array, (gpointer) combo);
                     gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "есть");
                     gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "нет");
@@ -334,7 +500,7 @@ array = g_ptr_array_new ();
                     k++;
                 }
             }
-            if (j==7) //defend
+            if (j==7) //defend4
             {
                 frame = gtk_frame_new(NULL);
                 checkbutton = gtk_check_button_new_with_label (defend_title[0]);
@@ -344,7 +510,8 @@ array = g_ptr_array_new ();
                 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), TRUE);
                 gtk_table_attach_defaults (GTK_TABLE (table), frame, 0, 3, 7, 9);
                 table_in = gtk_table_new (2, 2, FALSE);
-                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), TRUE);
+                gtk_widget_set_sensitive(GTK_WIDGET(table_in), FALSE);
+                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), FALSE);
                 g_signal_connect (G_OBJECT (checkbutton), "toggled",
                                   G_CALLBACK (state_callback), (gpointer) table_in);
                 gtk_container_add (GTK_CONTAINER(frame), table_in);
@@ -354,7 +521,7 @@ array = g_ptr_array_new ();
                 {
                     hbox = gtk_hbox_new (FALSE, 0);
                     combo = gtk_combo_box_new_text();
-              //      gtk_widget_set_name (GTK_WIDGET(combo), defend1_name[m]);
+                    gtk_widget_set_name (GTK_WIDGET(combo), base_defend4[k]);
                     g_ptr_array_add (array, (gpointer) combo);
                     gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "есть");
                     gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "нет");
@@ -372,12 +539,12 @@ array = g_ptr_array_new ();
             {
                 frame = gtk_frame_new(NULL);
                 checkbutton = gtk_check_button_new_with_label (defend_title[1]);
-          //      gtk_widget_set_name (GTK_WIDGET(checkbutton), defend_title[1]);
                 g_ptr_array_add (array, (gpointer) checkbutton);
                 gtk_frame_set_label_widget(GTK_FRAME(frame), checkbutton);
                 gtk_table_attach_defaults (GTK_TABLE (table), frame, 0, 3, 9, 11);
                 table_in = gtk_table_new (1, 2, FALSE);
-                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), TRUE);
+                gtk_widget_set_sensitive(GTK_WIDGET(table_in), FALSE);
+                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), FALSE);
                 g_signal_connect (G_OBJECT (checkbutton), "toggled",
                                   G_CALLBACK (state_callback), (gpointer) table_in);
                 gtk_container_add (GTK_CONTAINER(frame), table_in);
@@ -386,7 +553,7 @@ array = g_ptr_array_new ();
                     hbox = gtk_hbox_new (FALSE, 0);
                     combo = gtk_combo_box_new_text();
                     g_ptr_array_add (array, (gpointer) combo);
-            //        gtk_widget_set_name (GTK_WIDGET(combo), defend2_name[m]);
+                    gtk_widget_set_name (GTK_WIDGET(combo), base_defend2[m]);
                     gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "есть");
                     gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "нет");
                     checkbutton = gtk_check_button_new_with_label (defend2_name[m]);
@@ -407,7 +574,8 @@ array = g_ptr_array_new ();
                 gtk_frame_set_label_widget(GTK_FRAME(frame), checkbutton);
                 gtk_table_attach_defaults (GTK_TABLE (table), frame, 0, 3, 11, 13);
                 table_in = gtk_table_new (2, 2, FALSE);
-                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), TRUE);
+                gtk_widget_set_sensitive(GTK_WIDGET(table_in), FALSE);
+                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), FALSE);
                 g_signal_connect (G_OBJECT (checkbutton), "toggled",
                                   G_CALLBACK (state_callback), (gpointer) table_in);
                 gtk_container_add (GTK_CONTAINER(frame), table_in);
@@ -420,7 +588,7 @@ array = g_ptr_array_new ();
                     hbox = gtk_hbox_new (FALSE, 0);
                     combo = gtk_combo_box_new_text();
                     g_ptr_array_add (array, (gpointer) combo);
-            //        gtk_widget_set_name (GTK_WIDGET(combo), defend2_name[m]);
+                    gtk_widget_set_name (GTK_WIDGET(combo), base_korr[k]);
                     gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "есть");
                     gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "нет");
                     checkbutton = gtk_check_button_new_with_label (korr_name[k]);
