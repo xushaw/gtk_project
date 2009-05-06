@@ -6,17 +6,49 @@
 #include <glib.h>
 
 sqlite3 *db;
-int table_cnt;
+int table_cnt, temptable;
+GPtrArray *res1;
 
-static int callback(void *NotUsed, int argc, char **argv, char **azColName){
-     int i;
+gboolean fst = TRUE;
+
+static int callback(void *NotUsed, int argc, char **argv, char **azColName)
+{
+     int i, j;
+     GPtrArray *res2;
      NotUsed=0;
+     gchar temp;
+     res2 = g_ptr_array_new();
 
-     for(i=0; i<argc; i++)
+     if (fst == TRUE)
      {
-        printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+         g_print("First\n");
+        for(i=0; i<argc; i++)
+        {
+            g_ptr_array_add (res1, argv[i]);
+        }
      }
-     printf("\n");
+     else {
+         g_print("Other\n");
+            for(i=0; i<argc; i++)
+            for (j=0; j<res1->len; j++)
+            {
+                if (g_strcmp0(g_ptr_array_index(res1, j), argv[i]) == 0);
+                {
+                    g_ptr_array_add(res2, argv[i]);
+                }
+            }
+            if( res2->len > 0 )
+            {
+                g_ptr_array_free(res1, TRUE);
+                res1 = g_ptr_array_new();
+                 for (j=0; j<res2->len; j++)
+                 {
+                    g_ptr_array_add(res1, g_ptr_array_index(res2, j));
+                    g_print("res1: %s\n", (gchar*)g_ptr_array_index(res1, j));
+                 }
+            }
+
+           }
      return 0;
 }
 
@@ -28,6 +60,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
     gchar *str1, *str2, *str3, *str4, *str5, *str6, *temp, *temp2;
     gboolean flag = TRUE;
     table_cnt=0;
+    fst = TRUE;
     str1 = g_strdup("");
     str2 = g_strdup("");
     str3 = g_strdup("");
@@ -61,7 +94,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                             "=\"", gtk_entry_get_text(g_ptr_array_index(arr,i)), "\"", NULL);
                     }
                     temp = g_strdup (str1);
-                    g_print("%s\n", str1);
+                 //   g_print("%s\n", str1);
                 }
             }
     }
@@ -148,7 +181,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                             "=\"", gtk_combo_box_get_active_text(GTK_COMBO_BOX(g_ptr_array_index(arr,i))), "\"", NULL);
                     }
                     temp = g_strdup (str3);
-                    g_print("%s\n", str3);
+                  //  g_print("%s\n", str3);
                 }
             }
         }
@@ -178,7 +211,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                             "=\"", gtk_combo_box_get_active_text(GTK_COMBO_BOX(g_ptr_array_index(arr,i))), "\"", NULL);
                     }
                     temp = g_strdup (str4);
-                    g_print("%s\n", str4);
+                 //   g_print("%s\n", str4);
                 }
             }
         }
@@ -207,7 +240,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                             "=\"", gtk_combo_box_get_active_text(GTK_COMBO_BOX(g_ptr_array_index(arr,i))), "\"", NULL);
                     }
                     temp = g_strdup (str5);
-                    g_print("%s\n", str5);
+                  //  g_print("%s\n", str5);
                 }
             }
         }
@@ -237,71 +270,51 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                             "=\"", gtk_combo_box_get_active_text(GTK_COMBO_BOX(g_ptr_array_index(arr,i))), "\"", NULL);
                     }
                     temp = g_strdup (str3);
-                    g_print("%s\n", str3);
+                 //   g_print("%s\n", str3);
                 }
             }
         }
-
-/*        if ( gtk_toggle_button_get_active(g_ptr_array_index(arr, 31)) == TRUE )//korr
-        {
-        //g_print("First if\n");
-            temp = g_strdup("SELECT MODEL FROM work_functions WHERE ");
-            //g_print("Dup\n");
-            table_cnt++;
-            for (i=32; i<35; i++)// ComboBox
-            {
-                //g_print("For %d\n", i);
-                if ( GTK_WIDGET_SENSITIVE (g_ptr_array_index(arr, i)) == TRUE)
-                {
-                    //g_print("if\n");
-                    if (flag == TRUE) 
-                    {
-                        str3 = g_strconcat (temp, gtk_widget_get_name(g_ptr_array_index(arr,i)), "=\"", 
-                            gtk_combo_box_get_active_text(GTK_COMBO_BOX(g_ptr_array_index(arr,i))), "\"", NULL);
-                        flag = FALSE;
-                    }
-                    else 
-                    {
-                        str3 = g_strconcat (temp," AND ", gtk_widget_get_name(g_ptr_array_index(arr,i)), 
-                            "=\"", gtk_combo_box_get_active_text(GTK_COMBO_BOX(g_ptr_array_index(arr,i))), "\"", NULL);
-                    }
-                    temp = g_strdup (str3);
-                    g_print("%s\n", str3);
-                }
-            }
-        }*/
-
-
+        g_print("%s\n",str1);
         rc = sqlite3_exec(db, str1, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
         {
             fprintf(stderr, "SQL error: %s\n", zErrMsg);
         }
         g_free(str1);
+
+        g_print("%s\n",str2);
         rc = sqlite3_exec(db, str2, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
         {
             fprintf(stderr, "SQL error: %s\n", zErrMsg);
         }
         g_free(str2);
+
+        g_print("%s\n",str3);
         rc = sqlite3_exec(db, str3, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
         {
             fprintf(stderr, "SQL error: %s\n", zErrMsg);
         }
-        g_free(str3); 
+        g_free(str3);
+
+        g_print("%s\n",str4);
         rc = sqlite3_exec(db, str4, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
         {
             fprintf(stderr, "SQL error: %s\n", zErrMsg);
         }
         g_free(str4);
+
+        g_print("%s\n",str5);
         rc = sqlite3_exec(db, str5, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
         {
             fprintf(stderr, "SQL error: %s\n", zErrMsg);
         }
         g_free(str5);
+
+        g_print("%s\n",str6);
         rc = sqlite3_exec(db, str6, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
         {
@@ -396,7 +409,7 @@ GtkWidget* tab1 ()
 
 table = gtk_table_new (14, 3, FALSE);
 array = g_ptr_array_new ();
-
+res1 = g_ptr_array_new();
     for (j=0; j<13; j++)
     {
         if (j==0) //input
