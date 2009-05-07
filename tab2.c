@@ -49,12 +49,12 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName)
     NotUsed=0;
     GPtrArray *results;
     results = g_ptr_array_new();
-    g_print("Callback\n");
+    //g_print("Callback\n");
     for(i=0; i<argc; i++){
-        printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+        //printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
         g_ptr_array_add(results, argv[i]);
      }
-    printf("\n");
+    //printf("\n");
     set_table_info(results);
     //g_free(results);
 
@@ -79,7 +79,7 @@ void entry_print2(GtkWidget *gw, GPtrArray *array)
     
     gtk_tree_store_clear(store);
     //Дублируем str в str3
-    str3 = g_strdup("SELECT mp_name, core_perf, core_digit,count_timers, async_port_type,case_type, guard_timer, interface_ram, interface_debug, dma, pll, adc_digit, adc_channels, adc_perf, ram_command, ram_data FROM microprocessors WHERE ");
+    str3 = g_strdup("SELECT mp_name, core_perf, core_digit,count_timers, async_port_type,case_type, guard_timer, interface_ram, interface_debug, dma, pll, adc_digit, adc_channels, adc_perf, ram_command, ram_data FROM mp WHERE ");
     str2 = g_strdup("");
 
     //Заполняем строку запроса
@@ -119,7 +119,7 @@ void entry_print2(GtkWidget *gw, GPtrArray *array)
                         NULL);
             //Дублируем str2 в str3 для дальнейшей подстановки.
             str3 = g_strdup(str2); 
-            g_print("%s\n", str2);
+            //g_print("%s\n", str2);
 
         }
     }
@@ -339,7 +339,7 @@ GtkWidget* setup_table(GtkTreeStore *store, const char *labelColumn[])
  
   g_object_unref (G_OBJECT (store));
  
-  g_print("setup\n");
+  //g_print("setup\n");
   return tree;
  
 }

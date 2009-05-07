@@ -20,7 +20,7 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName)
         for(i=0; i<argc; i++)
         {
             g_ptr_array_add(res1, g_strdup(argv[i]));
-            g_print("CALLBACK: %d\n", res1->len);
+            //g_print("CALLBACK: %d\n", res1->len);
             //g_print("CALLBACK:\t%s\n", (gchar*)g_ptr_array_index(res1, res1->len-1));
         }
      
@@ -298,7 +298,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                 
                 if ( duplex == FALSE )
                 {
-                    g_print("duplex!\n");
+                    //g_print("duplex!\n");
                     g_ptr_array_add(tempRes, g_ptr_array_index(res1, i));
                 }
             }
@@ -340,7 +340,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                             
                             if ( duplex == FALSE )
                             {
-                                g_print("duplex!\n");
+                                //g_print("duplex!\n");
                                 g_ptr_array_add(tempRes2, g_ptr_array_index(res1, i));
                             }
                         }
@@ -375,8 +375,8 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
         g_ptr_array_free(res1, TRUE);
         res1 = g_ptr_array_new();
         
-        for(i=0; i<tempRes->len; i++)
-            g_print("res1 #2:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
+        //for(i=0; i<tempRes->len; i++)
+            //g_print("res1 #2:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
         //g_print("%s\n",str3);
         rc = sqlite3_exec(db, str3, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
@@ -409,7 +409,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                             
                             if ( duplex == FALSE )
                             {
-                                g_print("duplex!\n");
+                                //g_print("duplex!\n");
                                 g_ptr_array_add(tempRes2, g_ptr_array_index(res1, i));
                             }
                         }
@@ -444,8 +444,8 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
         g_ptr_array_free(res1, TRUE);
         res1 = g_ptr_array_new();
 
-        for(i=0; i<tempRes->len; i++)
-            g_print("res1 #3:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
+        //for(i=0; i<tempRes->len; i++)
+            //g_print("res1 #3:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
         //g_print("%s\n",str4);
         rc = sqlite3_exec(db, str4, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
@@ -478,7 +478,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                             
                             if ( duplex == FALSE )
                             {
-                                g_print("duplex!\n");
+                                //g_print("duplex!\n");
                                 g_ptr_array_add(tempRes2, g_ptr_array_index(res1, i));
                             }
                         }
@@ -513,8 +513,8 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
         g_ptr_array_free(res1, TRUE);
         res1 = g_ptr_array_new();
         
-        for(i=0; i<tempRes->len; i++)
-            g_print("res1 #4:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
+        //for(i=0; i<tempRes->len; i++)
+            //g_print("res1 #4:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
         //g_print("%s\n", str5);
         if( rc!=SQLITE_OK )
         {
@@ -546,7 +546,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                             
                             if ( duplex == FALSE )
                             {
-                                g_print("duplex!\n");
+                                //g_print("duplex!\n");
                                 g_ptr_array_add(tempRes2, g_ptr_array_index(res1, i));
                             }
                         }
@@ -581,8 +581,8 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
         g_ptr_array_free(res1, TRUE);
         res1 = g_ptr_array_new();
 
-        for(i=0; i<tempRes->len; i++)
-            g_print("res1 #5:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
+        //for(i=0; i<tempRes->len; i++)
+            //g_print("res1 #5:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
         //g_print("%s\n",str6);
         rc = sqlite3_exec(db, str6, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
@@ -600,7 +600,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                 {
                     if ( g_strcmp0( g_ptr_array_index(res1, i), g_ptr_array_index(tempRes, j) ) == 0 )
                     {   
-                        //g_print("==\n");
+                        ////g_print("==\n");
                         //Задаем FALSE, т.к. не знаем еще есть ли значение res1 в tempRes2
                         duplex = FALSE;
                         //Если во втором запасном массиве tempRes2 что-то есть, то проверяем, есть ли значение i-го элемента res1 в tempRes2
@@ -615,7 +615,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                             
                             if ( duplex == FALSE )
                             {
-                                g_print("duplex!\n");
+                                //g_print("duplex!\n");
                                 g_ptr_array_add(tempRes2, g_ptr_array_index(res1, i));
                             }
                         }
@@ -651,8 +651,8 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
         res1 = g_ptr_array_new();
 
         
-        for(i=0; i<tempRes->len; i++)
-            g_print("res1 #end:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
+        //for(i=0; i<tempRes->len; i++)
+            //g_print("res1 #end:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
         
         //g_print("End\n");
         
@@ -666,7 +666,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
             //g_print("str1: %s\n", str1);
             
             index_of_store = 0;
-            g_print("#QUERY 1:\n");
+            //g_print("#QUERY 1:\n");
             rc = sqlite3_exec(db, str1, callback2, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
         {
@@ -681,7 +681,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
             //g_print("str2: %s\n", str2);
 
             index_of_store++;
-            g_print("#QUERY 2:\n");
+            //g_print("#QUERY 2:\n");
             rc = sqlite3_exec(db, str2, callback2, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
         {
@@ -696,7 +696,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
             //g_print("str3: %s\n", str3);
 
             index_of_store++;
-            g_print("#QUERY 3:\n");
+            //g_print("#QUERY 3:\n");
             rc = sqlite3_exec(db, str3, callback2, 0, &zErrMsg);
             if( rc!=SQLITE_OK )
             {
@@ -711,7 +711,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
             //g_print("str4: %s\n", str4);
 
             index_of_store++;
-            g_print("#QUERY 4:\n");
+            //g_print("#QUERY 4:\n");
             rc = sqlite3_exec(db, str4, callback2, 0, &zErrMsg);
             if( rc!=SQLITE_OK )
             {
@@ -726,7 +726,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
             //g_print("str5: %s\n", str5);
 
             index_of_store++;
-            g_print("#QUERY 5:\n");
+            //g_print("#QUERY 5:\n");
             rc = sqlite3_exec(db, str5, callback2, 0, &zErrMsg);
             if( rc!=SQLITE_OK )
             {
@@ -741,7 +741,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
             //g_print("str6: %s\n", str6);
 
             index_of_store++;
-            g_print("#QUERY 6:\n");
+            //g_print("#QUERY 6:\n");
             rc = sqlite3_exec(db, str6, callback2, 0, &zErrMsg);
             if( rc!=SQLITE_OK )
             {
@@ -811,11 +811,11 @@ void set_table_info_xu(GtkTreeStore *store, GPtrArray *results)
 {
     GtkTreeIter iter;
     int i;
-    g_print("*****************Setting table******************\n");   
+    //g_print("*****************Setting table******************\n");   
     gtk_tree_store_append (store, &iter, NULL); 
     for (i=0; i<results->len; i++)
     {
-        g_print("%s\n", (gchar*) g_ptr_array_index(results, i));
+        //g_print("%s\n", (gchar*) g_ptr_array_index(results, i));
         //gtk_tree_store_append (store, &iter, NULL); 
         gtk_tree_store_set (store, &iter, i, g_ptr_array_index(results, i), -1);
     }
@@ -857,7 +857,7 @@ GtkWidget* setup_table_xu(GtkTreeStore *store, const gchar *labelColumn[], int s
  
   g_object_unref (G_OBJECT (store));
  
-  g_print("setup\n");
+  //g_print("setup\n");
   return tree;
  
 }
@@ -1028,8 +1028,8 @@ res1 = g_ptr_array_new();
                 for(n=0; n<4; n++)
                 if (n!=3 || m!=2)
                 {
-                    printf ("n=%d\n", n);
-                    printf ("m=%d\n", m);
+                    //printf ("n=%d\n", n);
+                    //printf ("m=%d\n", m);
                     entry = gtk_entry_new ();
                     g_ptr_array_add (array, (gpointer) entry);
                     gtk_widget_set_name (GTK_WIDGET(entry), base_output[k]);
@@ -1201,7 +1201,7 @@ res1 = g_ptr_array_new();
 
     for (i=0; i<array->len; i++)
     {
-        g_print("%d: %s\n" ,i, gtk_widget_get_name(g_ptr_array_index(array, i)));
+        //g_print("%d: %s\n" ,i, gtk_widget_get_name(g_ptr_array_index(array, i)));
     }
 //****************************************************************************************
 /*    for (i=0; i<array->len; i++)
@@ -1215,7 +1215,7 @@ res1 = g_ptr_array_new();
             //loop by k
             str = g_strconcat("SELECT MODEL FROM ", base_frame[k], NULL);
 //            str_1 = func (arr2, "SELECT MODEL FROM" table[i]); 
-//            g_print ("%d\n", val);
+//            //g_print ("%d\n", val);
         }
         
     }   */
@@ -1223,7 +1223,7 @@ res1 = g_ptr_array_new();
 /*    printf("----------------\n");
     for (i=0; i<arr2->len; i++)
     {
-        g_print("%s\n" ,GTK_OBJECT_TYPE_NAME (g_ptr_array_index(arr2, i)));
+        //g_print("%s\n" ,GTK_OBJECT_TYPE_NAME (g_ptr_array_index(arr2, i)));
     }*/
 
 sch_button = gtk_button_new_with_label ("Поиск"); 
