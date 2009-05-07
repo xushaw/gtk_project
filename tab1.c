@@ -8,57 +8,31 @@
 sqlite3 *db;
 int table_cnt, temptable;
 GPtrArray *res1;
-
+GPtrArray *stores;
 gboolean fst = TRUE;
 
 static int callback(void *NotUsed, int argc, char **argv, char **azColName)
 {
-     int i, j;
-     GPtrArray *res2;
+     int i;
      NotUsed=0;
-     gchar temp;
-     res2 = g_ptr_array_new();
 
-     if (fst == TRUE)
-     {
-         g_print("First\n");
         for(i=0; i<argc; i++)
         {
-            g_ptr_array_add (res1, argv[i]);
+            g_ptr_array_add(res1, argv[i]);
+            g_print("CALLBACK:\t%s\n", (gchar*)g_ptr_array_index(res1, res1->len-1));
         }
-     }
-     else {
-         g_print("Other\n");
-            for(i=0; i<argc; i++)
-            for (j=0; j<res1->len; j++)
-            {
-                if (g_strcmp0(g_ptr_array_index(res1, j), argv[i]) == 0);
-                {
-                    g_ptr_array_add(res2, argv[i]);
-                }
-            }
-            if( res2->len > 0 )
-            {
-                g_ptr_array_free(res1, TRUE);
-                res1 = g_ptr_array_new();
-                 for (j=0; j<res2->len; j++)
-                 {
-                    g_ptr_array_add(res1, g_ptr_array_index(res2, j));
-                    g_print("res1: %s\n", (gchar*)g_ptr_array_index(res1, j));
-                 }
-            }
-
-           }
-     return 0;
+     
+        return 0;
 }
 
 static void sch_callback( GtkWidget *widget, GPtrArray *arr) 
 {
     char *zErrMsg = 0;
-
-    int rc, i;
+    GPtrArray *tempRes, *tempRes2;
+    int rc, i, j, k;
     gchar *str1, *str2, *str3, *str4, *str5, *str6, *temp, *temp2;
     gboolean flag = TRUE;
+    gboolean duplex;
     table_cnt=0;
     fst = TRUE;
     str1 = g_strdup("");
@@ -69,6 +43,9 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
     str6 = g_strdup("");
     //g_print("Begin\n");
     temp = g_strdup("SELECT MODEL FROM input WHERE ");
+
+    tempRes = g_ptr_array_new();
+    tempRes2 = g_ptr_array_new();
 
     if ( gtk_toggle_button_get_active(g_ptr_array_index(arr, 0)) == TRUE )
     {
@@ -275,22 +252,89 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
             }
         }
         g_print("%s\n",str1);
+//        g_ptr_array_add(res1, "garfeild_vs_falg");
+//        g_ptr_array_add(res1, "Привет!");
         rc = sqlite3_exec(db, str1, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
         {
             fprintf(stderr, "SQL error: %s\n", zErrMsg);
         }
         g_free(str1);
+        //Копируем полученный массив в запасной tempRes и очищаем старый.
+        //for(i=0; i<res1->len; i++)
+            //g_ptr_array_add(tempRes, g_ptr_array_index(res1, i));
 
+        for(i=0; i<4; i++)
+            g_print("res1:\t%s\n", (gchar*)g_ptr_array_index(res1, i));
+        g_print("len: %d\n", res1->len);
+        //for(i=0; i<tempRes->len; i++)
+            //g_print("tempRes:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
+        //for(i=0; i<tempRes2->len; i++)
+            //g_print("tempRes2:\t%s\n", (gchar*)g_ptr_array_index(tempRes2, i));
+       
+        //g_ptr_array_free(res1, TRUE);
+        //res1 = g_ptr_array_new();
+        
         g_print("%s\n",str2);
+//        g_ptr_array_add(res1, "garfeild_vs_falg");
         rc = sqlite3_exec(db, str2, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
         {
             fprintf(stderr, "SQL error: %s\n", zErrMsg);
         }
         g_free(str2);
+/*        //Сравниваем i-ый элемент массива res1 и j-ый элемент массива tempRes
+        for(i=0; i<res1->len; i++)
+        {
+            for(j=0; j<tempRes->len; j++)
+            {
+                if ( g_strcmp0( g_ptr_array_index(res1, i), g_ptr_array_index(tempRes, j) ) == 0 )
+                {   
+                    //Задаем FALSE, т.к. не знаем еще есть ли значение res1 в tempRes2
+                    duplex = FALSE;
+                    //Если во втором запасном массиве tempRes2 что-то есть, то проверяем, есть ли значение i-го элемента res1 в tempRes2
+                    if ( tempRes2->len != 0 )
+                    {
+                        for( k=0; k<tempRes2->len; k++ )
+                        {
+                            if ( g_strcmp0( g_ptr_array_index(tempRes2, k), g_ptr_array_index(res1, i) ) == 0 )
+                                duplex = TRUE;
+                            
+                            if ( duplex == FALSE )
+                                g_ptr_array_add(tempRes2, g_ptr_array_index(res1, i));
+                        }
+                    }
+                    else
+                        g_ptr_array_add(tempRes2, g_ptr_array_index(res1, i));
+                }
+            }
+        }
 
+        for(i=0; i<res1->len; i++)
+            g_print("res1:\t%s\n", (gchar*)g_ptr_array_index(res1, i));
+        for(i=0; i<tempRes->len; i++)
+            g_print("tempRes:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
+        for(i=0; i<tempRes2->len; i++)
+            g_print("tempRes2:\t%s\n", (gchar*)g_ptr_array_index(tempRes2, i));
+        
+        g_ptr_array_free(tempRes, TRUE);
+        tempRes = g_ptr_array_new();
+        g_ptr_array_free(res1, TRUE);
+        res1 = g_ptr_array_new();
+
+        for(i=0; i<tempRes2->len; i++)
+            g_ptr_array_add(tempRes, g_ptr_array_index(tempRes2, i));
+        tempRes2 = g_ptr_array_new();
+*/
+        //g_ptr_array_free(res1, TRUE);
+        //res1 = g_ptr_array_new();
+        
+        for(i=0; i<4; i++)
+            g_print("res1:\t%s\n", (gchar*)g_ptr_array_index(res1, i));
+        g_print("len: %d\n", res1->len);
+        
         g_print("%s\n",str3);
+//        g_ptr_array_add(res1, "garfeild_vs_falg");
         rc = sqlite3_exec(db, str3, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
         {
@@ -298,7 +342,12 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
         }
         g_free(str3);
 
+        for(i=0; i<4; i++)
+            g_print("res1:\t%s\n", (gchar*)g_ptr_array_index(res1, i));
+        g_print("len: %d\n", res1->len);
+        
         g_print("%s\n",str4);
+//        g_ptr_array_add(res1, "garfeild_vs_falg");
         rc = sqlite3_exec(db, str4, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
         {
@@ -306,7 +355,12 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
         }
         g_free(str4);
 
+        for(i=0; i<4; i++)
+            g_print("res1:\t%s\n", (gchar*)g_ptr_array_index(res1, i));
+        g_print("len: %d\n", res1->len);
+        
         g_print("%s\n",str5);
+//        g_ptr_array_add(res1, "garfeild_vs_falg");
         rc = sqlite3_exec(db, str5, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
         {
@@ -315,6 +369,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
         g_free(str5);
 
         g_print("%s\n",str6);
+//        g_ptr_array_add(res1, "garfeild_vs_falg");
         rc = sqlite3_exec(db, str6, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
         {
@@ -322,7 +377,12 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
         }
         g_free(str6);
 
+        g_print("End\n");
+
+
 }
+
+
 
 static void clr_callback( GtkWidget *widget, GPtrArray *array )
 {
@@ -355,6 +415,93 @@ static void state_callback( GtkToggleButton *checkbutton, GtkWidget *entry )
     }
     
 }
+
+void set_column_xu(GtkWidget *tree, const char *labelColumn[], int size)
+{
+  GtkTreeViewColumn *column;
+  GtkCellRenderer *renderer;
+  int i;
+ 
+  for ( i=0; i < size; i++ )
+  {
+ 
+          renderer = gtk_cell_renderer_text_new ();
+          column = gtk_tree_view_column_new_with_attributes (labelColumn[i], renderer,
+                  "text", i,
+                  NULL);
+ 
+      gtk_tree_view_append_column (GTK_TREE_VIEW (tree), column);
+  }
+}
+ 
+/*void set_table_info(GPtrArray *results)
+{
+    GtkTreeIter iter;
+ 
+    gtk_tree_store_append (store, &iter, NULL); 
+    gtk_tree_store_set (store, &iter,
+            MP_NAME, g_ptr_array_index(results, MP_NAME),
+            CORE_PERF, g_ptr_array_index(results ,CORE_PERF),                //1
+            CORE_DIGIT,  g_ptr_array_index(results, CORE_DIGIT),            //2
+            COUNT_TIMERS, g_ptr_array_index(results, COUNT_TIMERS),          //3
+            ASYNC_PORT_TYPE, g_ptr_array_index(results, ASYNC_PORT_TYPE),   //4
+            CASE_TYPE, g_ptr_array_index(results, CASE_TYPE),               //5
+            GUARD_TIMER, g_ptr_array_index(results, GUARD_TIMER),           //6
+            INTERFACE_RAM, g_ptr_array_index(results, INTERFACE_RAM),       //7
+            INTERFACE_DEBUG, g_ptr_array_index(results, INTERFACE_DEBUG),   //8
+            DMA, g_ptr_array_index(results, DMA),                           //9
+            PLL, g_ptr_array_index(results, PLL),                           //0
+            ADC_DIGIT, g_ptr_array_index(results, ADC_DIGIT),               //1
+            ADC_CHANNELS, g_ptr_array_index(results, ADC_CHANNELS),         //2
+            ADC_PERF, g_ptr_array_index(results, ADC_PERF),                 //3
+            RAM_COMMAND, g_ptr_array_index(results, RAM_COMMAND),           //4
+            RAM_DATA, g_ptr_array_index(results, RAM_DATA),                 //5
+//            OTHER, g_ptr_array_index(results, OTHER),                       //6
+            -1);
+}*/
+
+/*void set_table_info(GtkTreeStore *store, const char *names[], gboolean flag)
+{
+    GtkTreeIter iter;
+ 
+    gtk_tree_store_append (store, &iter, NULL);
+    gtk_tree_store_set (store, &iter,
+            CORE_PERF, names[CORE_PERF],                //1
+            CORE_DIGIT,  names[CORE_DIGIT],             //2
+            COUNT_TIMERS, names[COUNT_TIMERS],          //3
+            ASYNC_PORT_TYPE, names[ASYNC_PORT_TYPE],    //4
+            CASE_TYPE, names[CASE_TYPE],                //5
+            GUARD_TIMER, names[GUARD_TIMER],            //6
+            INTERFACE_RAM, names[INTERFACE_RAM],        //7
+            INTERFACE_DEBUG, names[INTERFACE_DEBUG],    //8
+            DMA, names[DMA],                            //9
+            PLL, names[PLL],                            //0
+            ADC_DIGIT, names[ADC_DIGIT],                //1
+            ADC_CHANNELS, names[ADC_CHANNELS],          //2
+            ADC_PERF, names[ADC_PERF],                  //3
+            RAM_COMMAND, names[RAM_COMMAND],            //4
+            RAM_DATA, names[RAM_DATA],                  //5
+            OTHER, names[OTHER],                        //6
+            -1);
+}
+*/
+
+GtkWidget* setup_table_xu(GtkTreeStore *store, const gchar *labelColumn[], int size)
+{
+  GtkWidget *tree;
+ 
+  tree = gtk_tree_view_new_with_model (GTK_TREE_MODEL (store));
+ 
+  set_column_xu(tree, labelColumn, size);
+ 
+  g_object_unref (G_OBJECT (store));
+ 
+  g_print("setup\n");
+  return tree;
+ 
+}
+
+
 /***********************************************************************/
 GtkWidget* tab1 ()
 {   
@@ -367,9 +514,20 @@ GtkWidget* tab1 ()
     GtkWidget *checkbutton; //enable\disable entries
     GtkWidget *hbox, *vbox; //for ch_boxes
     GtkWidget *combo;
+    GtkWidget *notebook;
+    GtkWidget *tableOut;
+    GtkWidget *scr_window;
+    GtkTreeStore *tempStore;
     GPtrArray *array;
     int i,j,m,n,k;
-    gchar *frame_name[6] = {"Входные параметры","Выходные параметры","Рабочие функции","Защитные фунции"};
+    int size;
+    gchar *frame_name[6] = {
+        "Входные параметры",
+        "Выходные параметры",
+        "Рабочие функции",
+        "Защиты преобразователя и двигателя", 
+        "Защиты от неправильной работы тиристорного выпрямителя" ,
+        "Режимы коррекции"};
 
     gchar *input_entry_name[3]={"число фаз","напряжение питающией сети,В", "частота питающей сети,Гц"};
 
@@ -407,7 +565,31 @@ GtkWidget* tab1 ()
     gchar *base_defend4[4] = {"inc_decr_U_in_i_const_zveno","obriv_perekos_phase_defend","defend_from_kz",
     "max_i_defend"};
 
-table = gtk_table_new (14, 3, FALSE);
+
+    const gchar *input_entry_name_table[4]={"Модель", "число фаз","напряжение питающией сети,В", "частота питающей сети,Гц"};
+
+    const gchar *output_entry_name_table[12]={"Модель", "мощность", "число фаз", "диапазон регулирования напряжения", 
+    "дискретность регулирования напряжения", "диапазон регулирования частоты", "дискретность регулирования частоты",
+    "диапазон регулирования скорости в разомкнутой системе", "диапазон регулирования скорости в замкнутой системе",
+    "принцип управления", "способ модуляции", "тактовая частота ШИМ"};
+ 
+    const gchar *work_name_table[7]={"Модель", "Задание частоты или технологической переменной",
+    "Установки задания частоты или технологической переменной",
+    "Команды пуск/стоп","Пуско-тормозная характеристика",
+    "Автоматический повторный пуск при обнаружении ошибки","Регулятор технологической переменной"};
+
+    const gchar *defend1_name_table[5]={"Модель", "Защита от короткого замыкания на корпус",
+    "Максимально-токовая защита","Защита от обрыва и перекоса фаз",
+    "Защита от понижения или повышения напряжения в звене постоянного тока"};
+ 
+    const gchar *defend2_name_table[3]={"Модель", "Тепловая защита","Защита от потери питания контроллером"};
+
+    const gchar *korr_name_table[4] = {"Модель", "Коррекция выходного напряжения\nв зависимости от напряжения питающей сети",
+    "Коррекция интенсивности(при разгоне) и рабочей частоты\n(в установившимся режиме) при превышении тока двигетеля",
+    "Коррекция интенсивности торможения при\nпревышении напряжения на звене постоянного тока"};
+
+table = gtk_table_new (15, 3, FALSE);
+notebook = gtk_notebook_new();
 array = g_ptr_array_new ();
 res1 = g_ptr_array_new();
     for (j=0; j<13; j++)
@@ -663,11 +845,101 @@ hbox = gtk_hbox_new(FALSE, 0);
         gtk_container_add (GTK_CONTAINER (hbox), checkbutton);
     }*/
 
+stores = g_ptr_array_new();
+
+for (i=0; i<6; i++)
+{   
+    if (i==0)
+    {
+        tempStore = gtk_tree_store_new(4,
+                G_TYPE_STRING,
+                G_TYPE_STRING,
+                G_TYPE_STRING,
+                G_TYPE_STRING);
+        g_ptr_array_add(stores, tempStore);
+        size = 4;
+        tableOut = setup_table_xu(tempStore, input_entry_name_table, size);
+    }
+    else if (i==1)
+    {
+        tempStore = gtk_tree_store_new(12,
+                G_TYPE_STRING,
+                G_TYPE_STRING,
+                G_TYPE_STRING,
+                G_TYPE_STRING,
+                G_TYPE_STRING,
+                G_TYPE_STRING,
+                G_TYPE_STRING,
+                G_TYPE_STRING,
+                G_TYPE_STRING,
+                G_TYPE_STRING,
+                G_TYPE_STRING,
+                G_TYPE_STRING);
+        g_ptr_array_add(stores, tempStore);
+        size = 12;
+        tableOut = setup_table_xu(tempStore, output_entry_name_table, size);
+    }
+    else if (i==2)
+    {
+        tempStore = gtk_tree_store_new(7,
+                G_TYPE_STRING,
+                G_TYPE_STRING,
+                G_TYPE_STRING,
+                G_TYPE_STRING,
+                G_TYPE_STRING,
+                G_TYPE_STRING,
+                G_TYPE_STRING);
+        g_ptr_array_add(stores, tempStore);
+        size = 7;
+        tableOut = setup_table_xu(tempStore, work_name_table, size);
+    }
+    else if (i==3)
+    {
+        size = 5;
+        tempStore = gtk_tree_store_new(size,
+                G_TYPE_STRING,
+                G_TYPE_STRING,
+                G_TYPE_STRING);
+        g_ptr_array_add(stores, tempStore);
+        tableOut = setup_table_xu(tempStore, defend1_name_table, size);
+    }
+    else if (i==4)
+    {
+        size = 3;
+        tempStore = gtk_tree_store_new(size,
+                G_TYPE_STRING,
+                G_TYPE_STRING,
+                G_TYPE_STRING,
+                G_TYPE_STRING,
+                G_TYPE_STRING);
+        g_ptr_array_add(stores, tempStore);
+        tableOut = setup_table_xu(tempStore, defend2_name_table, size);
+    }
+    else if (i==5)
+    {
+        size = 4;
+        tempStore = gtk_tree_store_new(size,
+                G_TYPE_STRING,
+                G_TYPE_STRING,
+                G_TYPE_STRING,
+                G_TYPE_STRING);
+        g_ptr_array_add(stores, tempStore);
+        tableOut = setup_table_xu(tempStore, korr_name_table, size);
+    }
+
+    scr_window = gtk_scrolled_window_new(NULL, NULL);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scr_window), GTK_POLICY_AUTOMATIC, GTK_POLICY_NEVER);
+    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scr_window), tableOut);
+    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), scr_window, gtk_label_new(frame_name[i]));
+}
+
+
 bbox = gtk_hbutton_box_new();
 gtk_box_pack_start(GTK_BOX (bbox), clr_button, TRUE, FALSE, 0);
 gtk_box_pack_start(GTK_BOX (bbox), sch_button, TRUE, FALSE, 0);
 gtk_button_box_set_layout(GTK_BUTTON_BOX(bbox), GTK_BUTTONBOX_END);
 gtk_table_attach_defaults (GTK_TABLE (table), bbox, 2, 3, 13, 14);
+gtk_table_attach_defaults(GTK_TABLE(table), notebook, 0, 3, 14, 15);
 //gtk_table_attach_defaults (GTK_TABLE (table), hbox, 0, 3, 12, 13);
     
 return table;

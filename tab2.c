@@ -355,7 +355,6 @@ GtkWidget* tab2()
     GPtrArray *input;
     GPtrArray *all;
     int i, j;
-    int rc;
 
     const gchar *labelCoumn[17] = {
         "Модель",
@@ -506,7 +505,7 @@ GtkWidget* tab2()
         }
     }
     
-    for(j=0; j<2; j++)
+    for(j=1; j>=0; j--)
         gtk_box_pack_start(GTK_BOX(buttonBox), button[j], FALSE, FALSE, 0);
     gtk_table_attach_defaults(GTK_TABLE(tableBox), buttonBox, 2, 3, 5, 6);
     gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrWindow), tableOut);

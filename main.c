@@ -51,7 +51,6 @@ int main(int argc, char *argv[])
   notebook = gtk_notebook_new();
   menu_f = gtk_menu_new();
   menu_h = gtk_menu_new();
-  g_print("Привет!\n");
 
     for (i=0; i<3; i++)
     {
