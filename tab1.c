@@ -20,7 +20,7 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName)
         for(i=0; i<argc; i++)
         {
             g_ptr_array_add(res1, g_strdup(argv[i]));
-            //g_print("CALLBACK:\t%s\n", (gchar*)g_ptr_array_index(res1, res1->len-1));
+            ////g_print("CALLBACK:\t%s\n", (gchar*)g_ptr_array_index(res1, res1->len-1));
         }
      
         return 0;
@@ -36,7 +36,7 @@ static int callback2(void *NotUsed, int argc, char **argv, char **azColName)
         for(i=0; i<argc; i++)
         {
             g_ptr_array_add(results, argv[i]);
-            //g_print("CALLBACK:\t%s\n", (gchar*)g_ptr_array_index(res1, res1->len-1));
+            ////g_print("CALLBACK:\t%s\n", (gchar*)g_ptr_array_index(res1, res1->len-1));
         }
      
         set_table_info_xu(g_ptr_array_index(stores, index_of_store), results);
@@ -59,7 +59,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
     str4 = g_strdup("");
     str5 = g_strdup("");
     str6 = g_strdup("");
-    //g_print("Begin\n");
+    ////g_print("Begin\n");
     temp = g_strdup("SELECT MODEL FROM input WHERE ");
 
     tempRes = g_ptr_array_new();
@@ -67,16 +67,16 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
 
     if ( gtk_toggle_button_get_active(g_ptr_array_index(arr, 0)) == TRUE )
      {
-        //g_print("First if\n");
+        ////g_print("First if\n");
             temp = g_strdup("SELECT MODEL FROM input WHERE ");
-            //g_print("Dup\n");
+            ////g_print("Dup\n");
             table_cnt++;
             for (i=1; i<4; i++)
             {
-                //g_print("For %d\n", i);
+                ////g_print("For %d\n", i);
                 if ( GTK_WIDGET_SENSITIVE (g_ptr_array_index(arr, i)) == TRUE)
                 {
-                    //g_print("if\n");
+                    ////g_print("if\n");
                     if (flag == TRUE) 
                     {
                         str1 = g_strconcat (temp, gtk_widget_get_name(g_ptr_array_index(arr,i)), "=\"", 
@@ -89,24 +89,24 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                             "=\"", gtk_entry_get_text(g_ptr_array_index(arr,i)), "\"", NULL);
                     }
                     temp = g_strdup (str1);
-                 //   g_print("%s\n", str1);
+                 //   //g_print("%s\n", str1);
                 }
             }
     }
 
     if ( gtk_toggle_button_get_active(g_ptr_array_index(arr, 4)) == TRUE )
     {
-        //g_print("First if\n");
+        ////g_print("First if\n");
         temp2 = g_strdup("SELECT MODEL FROM output WHERE ");
-     //   g_print("%s\n", temp2);
-        //g_print("Dup\n");
+     //   //g_print("%s\n", temp2);
+        ////g_print("Dup\n");
         table_cnt++;
         flag = TRUE;
         for (i=5; i<16; i++)
         {
             if ( GTK_WIDGET_SENSITIVE (g_ptr_array_index(arr, i)) == TRUE)
             {
-                //g_print("if\n");
+                ////g_print("if\n");
                 if (flag == FALSE) 
                 {
                     str2 = g_strconcat(temp2, " AND ", NULL);
@@ -134,7 +134,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                         gtk_entry_get_text(g_ptr_array_index(arr,i)),
                         "\"",
                         NULL);
-                     //   g_print("IF: %s\n", str2);
+                     //   //g_print("IF: %s\n", str2);
                     }
                     else if (g_strcmp0("phase_number", gtk_widget_get_name(g_ptr_array_index(arr, i)) ) == 0 ||
                         g_strcmp0("control_way", gtk_widget_get_name(g_ptr_array_index(arr, i)) ) == 0 || 
@@ -143,10 +143,10 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                         {
                             str2 = g_strconcat (temp2, gtk_widget_get_name(g_ptr_array_index(arr,i)), "=\"", 
                             gtk_entry_get_text(g_ptr_array_index(arr,i)), "\"", NULL);
-                      //      g_print("ELSE: %s\n", str2);
+                      //      //g_print("ELSE: %s\n", str2);
                         }
                     temp2 = g_strdup (str2);
-                //    g_print("%s\n", str2);
+                //    //g_print("%s\n", str2);
                 }
             }
     }
@@ -154,16 +154,16 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
         if ( gtk_toggle_button_get_active(g_ptr_array_index(arr, 16)) == TRUE ) //work
         {
             flag = TRUE;
-        //g_print("First if\n");
+        ////g_print("First if\n");
             temp = g_strdup("SELECT MODEL FROM work_functions WHERE ");
-            //g_print("Dup\n");
+            ////g_print("Dup\n");
             table_cnt++;
             for (i=17; i<23; i++)// ComboBox
             {
-                //g_print("For %d\n", i);
+                ////g_print("For %d\n", i);
                 if ( GTK_WIDGET_SENSITIVE (g_ptr_array_index(arr, i)) == TRUE)
                 {
-                    //g_print("if\n");
+                    ////g_print("if\n");
                     if (flag == TRUE) 
                     {
                         str3 = g_strconcat (temp, gtk_widget_get_name(g_ptr_array_index(arr,i)), "=\"", 
@@ -176,24 +176,24 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                             "=\"", gtk_combo_box_get_active_text(GTK_COMBO_BOX(g_ptr_array_index(arr,i))), "\"", NULL);
                     }
                     temp = g_strdup (str3);
-                  //  g_print("%s\n", str3);
+                  //  //g_print("%s\n", str3);
                 }
             }
         }
 
         if ( gtk_toggle_button_get_active(g_ptr_array_index(arr, 23)) == TRUE ) //defend4
         {
-        //g_print("First if\n");
+        ////g_print("First if\n");
             flag = TRUE;
             temp = g_strdup("SELECT MODEL FROM defend_functions4 WHERE ");
-            //g_print("Dup\n");
+            ////g_print("Dup\n");
             table_cnt++;
             for (i=24; i<28; i++)// ComboBox
             {
-                //g_print("For %d\n", i);
+                ////g_print("For %d\n", i);
                 if ( GTK_WIDGET_SENSITIVE (g_ptr_array_index(arr, i)) == TRUE)
                 {
-                    //g_print("if\n");
+                    ////g_print("if\n");
                     if (flag == TRUE) 
                     {
                         str4 = g_strconcat (temp, gtk_widget_get_name(g_ptr_array_index(arr,i)), "=\"", 
@@ -206,23 +206,23 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                             "=\"", gtk_combo_box_get_active_text(GTK_COMBO_BOX(g_ptr_array_index(arr,i))), "\"", NULL);
                     }
                     temp = g_strdup (str4);
-                 //   g_print("%s\n", str4);
+                 //   //g_print("%s\n", str4);
                 }
             }
         }
         if ( gtk_toggle_button_get_active(g_ptr_array_index(arr, 28)) == TRUE )//defend2
         {
-        //g_print("First if\n");
+        ////g_print("First if\n");
             flag = TRUE;
             temp = g_strdup("SELECT MODEL FROM defend_functions2 WHERE ");
-            //g_print("Dup\n");
+            ////g_print("Dup\n");
             table_cnt++;
             for (i=29; i<31; i++)// ComboBox
             {
-                //g_print("For %d\n", i);
+                ////g_print("For %d\n", i);
                 if ( GTK_WIDGET_SENSITIVE (g_ptr_array_index(arr, i)) == TRUE)
                 {
-                    //g_print("if\n");
+                    ////g_print("if\n");
                     if (flag == TRUE) 
                     {
                         str5 = g_strconcat (temp, gtk_widget_get_name(g_ptr_array_index(arr,i)), "=\"", 
@@ -235,24 +235,24 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                             "=\"", gtk_combo_box_get_active_text(GTK_COMBO_BOX(g_ptr_array_index(arr,i))), "\"", NULL);
                     }
                     temp = g_strdup (str5);
-                  //  g_print("%s\n", str5);
+                  //  //g_print("%s\n", str5);
                 }
             }
         }
 
         if ( gtk_toggle_button_get_active(g_ptr_array_index(arr, 31)) == TRUE ) //korr
         {
-        //g_print("First if\n");
+        ////g_print("First if\n");
             flag = TRUE;
             temp = g_strdup("SELECT MODEL FROM korr WHERE ");
-            //g_print("Dup\n");
+            ////g_print("Dup\n");
             table_cnt++;
             for (i=32; i<35; i++)// ComboBox
             {
-                //g_print("For %d\n", i);
+                ////g_print("For %d\n", i);
                 if ( GTK_WIDGET_SENSITIVE (g_ptr_array_index(arr, i)) == TRUE)
                 {
-                    //g_print("if\n");
+                    ////g_print("if\n");
                     if (flag == TRUE) 
                     {
                         str3 = g_strconcat (temp, gtk_widget_get_name(g_ptr_array_index(arr,i)), "=\"", 
@@ -265,12 +265,12 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                             "=\"", gtk_combo_box_get_active_text(GTK_COMBO_BOX(g_ptr_array_index(arr,i))), "\"", NULL);
                     }
                     temp = g_strdup (str3);
-                 //   g_print("%s\n", str3);
+                 //   //g_print("%s\n", str3);
                 }
             }
         }
         
-        g_print("%s\n",str1);
+        //g_print("%s\n",str1);
         rc = sqlite3_exec(db, str1, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
         {
@@ -285,8 +285,8 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
         res1 = g_ptr_array_new();
         
         for(i=0; i<tempRes->len; i++)
-            g_print("res1 #1:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
-        g_print("%s\n",str2);
+            //g_print("res1 #1:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
+        //g_print("%s\n",str2);
         rc = sqlite3_exec(db, str2, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
         {
@@ -334,15 +334,15 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
             //Очищаем tempRes2
             tempRes2 = g_ptr_array_new();    
             for(i=0; i<tempRes2->len; i++)
-                g_print("res1:\t%s\n", (gchar*)g_ptr_array_index(tempRes2, i));
+                //g_print("res1:\t%s\n", (gchar*)g_ptr_array_index(tempRes2, i));
         }
         //Очищаем и инициализиуер массив с результатами.
         g_ptr_array_free(res1, TRUE);
         res1 = g_ptr_array_new();
         
         for(i=0; i<tempRes->len; i++)
-            g_print("res1 #2:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
-        g_print("%s\n",str3);
+            //g_print("res1 #2:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
+        //g_print("%s\n",str3);
         rc = sqlite3_exec(db, str3, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
         {
@@ -390,15 +390,15 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
             //Очищаем tempRes2
             tempRes2 = g_ptr_array_new();    
             for(i=0; i<tempRes2->len; i++)
-                g_print("res1:\t%s\n", (gchar*)g_ptr_array_index(tempRes2, i));
+                //g_print("res1:\t%s\n", (gchar*)g_ptr_array_index(tempRes2, i));
         }
         //Очищаем и инициализиуер массив с результатами.
         g_ptr_array_free(res1, TRUE);
         res1 = g_ptr_array_new();
 
         for(i=0; i<tempRes->len; i++)
-            g_print("res1 #3:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
-        g_print("%s\n",str4);
+            //g_print("res1 #3:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
+        //g_print("%s\n",str4);
         rc = sqlite3_exec(db, str4, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
         {
@@ -446,15 +446,15 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
             //Очищаем tempRes2
             tempRes2 = g_ptr_array_new();    
             for(i=0; i<tempRes2->len; i++)
-                g_print("res1:\t%s\n", (gchar*)g_ptr_array_index(tempRes2, i));
+                //g_print("res1:\t%s\n", (gchar*)g_ptr_array_index(tempRes2, i));
         }
         //Очищаем и инициализиуер массив с результатами.
         g_ptr_array_free(res1, TRUE);
         res1 = g_ptr_array_new();
         
         for(i=0; i<tempRes->len; i++)
-            g_print("res1 #4:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
-        g_print("%s\n", str5);
+            //g_print("res1 #4:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
+        //g_print("%s\n", str5);
         if( rc!=SQLITE_OK )
         {
             fprintf(stderr, "SQL error: %s\n", zErrMsg);
@@ -501,15 +501,15 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
             //Очищаем tempRes2
             tempRes2 = g_ptr_array_new();    
             for(i=0; i<tempRes2->len; i++)
-                g_print("res1:\t%s\n", (gchar*)g_ptr_array_index(tempRes2, i));
+                //g_print("res1:\t%s\n", (gchar*)g_ptr_array_index(tempRes2, i));
         }
         //Очищаем и инициализиуер массив с результатами.
         g_ptr_array_free(res1, TRUE);
         res1 = g_ptr_array_new();
 
         for(i=0; i<tempRes->len; i++)
-            g_print("res1 #5:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
-        g_print("%s\n",str6);
+            //g_print("res1 #5:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
+        //g_print("%s\n",str6);
         rc = sqlite3_exec(db, str6, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
         {
@@ -557,7 +557,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
             //Очищаем tempRes2
             tempRes2 = g_ptr_array_new();    
             for(i=0; i<tempRes2->len; i++)
-                g_print("res1:\t%s\n", (gchar*)g_ptr_array_index(tempRes2, i));
+                //g_print("res1:\t%s\n", (gchar*)g_ptr_array_index(tempRes2, i));
         }
         //Очищаем и инициализиуер массив с результатами.
         g_ptr_array_free(res1, TRUE);
@@ -565,9 +565,9 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
 
         
         for(i=0; i<tempRes->len; i++)
-            g_print("res1 #end:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
+            //g_print("res1 #end:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
         
-        g_print("End\n");
+        //g_print("End\n");
         
         for (i=0; i<tempRes->len; i++)
          {
@@ -576,7 +576,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                     "\"",
                     NULL
                     );
-            g_print("str1: %s\n", str1);
+            //g_print("str1: %s\n", str1);
             
             index_of_store = 0;
             rc = sqlite3_exec(db, str1, callback2, 0, &zErrMsg);
@@ -590,7 +590,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                     "\"",
                     NULL
                     );
-            g_print("str2: %s\n", str2);
+            //g_print("str2: %s\n", str2);
 
             index_of_store++;
             rc = sqlite3_exec(db, str2, callback2, 0, &zErrMsg);
@@ -604,7 +604,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                     "\"",
                     NULL
                     );
-            g_print("str3: %s\n", str3);
+            //g_print("str3: %s\n", str3);
 
             index_of_store++;
             rc = sqlite3_exec(db, str3, callback2, 0, &zErrMsg);
@@ -618,7 +618,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                     "\"",
                     NULL
                     );
-            g_print("str4: %s\n", str4);
+            //g_print("str4: %s\n", str4);
 
             index_of_store++;
             rc = sqlite3_exec(db, str4, callback2, 0, &zErrMsg);
@@ -632,7 +632,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                     "\"",
                     NULL
                     );
-            g_print("str5: %s\n", str5);
+            //g_print("str5: %s\n", str5);
 
             index_of_store++;
             rc = sqlite3_exec(db, str5, callback2, 0, &zErrMsg);
@@ -646,7 +646,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                     "\"",
                     NULL
                     );
-            g_print("str6: %s\n", str6);
+            //g_print("str6: %s\n", str6);
 
             index_of_store++;
             rc = sqlite3_exec(db, str6, callback2, 0, &zErrMsg);
