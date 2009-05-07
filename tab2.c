@@ -492,7 +492,7 @@ GtkWidget* tab2()
         //g_print("BUTTON: Created\n");
     }
     
-    for (i=1; i<2; i++) {
+    for (i=0; i<3; i++) {
         if (i==1)   {
             gtk_table_attach_defaults(GTK_TABLE(tableBox), GTK_WIDGET(createFrame(input, all, "АЦП", namesACP, namesFromBaseACP, 3)), 1, 2, 0, 3 );
 
