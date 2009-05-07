@@ -73,8 +73,8 @@ int main(int argc, char *argv[])
     menu_items_h = gtk_menu_item_new_with_label (buf);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu_h), menu_items_h);
 
-    g_signal_connect_swapped (G_OBJECT (menu_items_h), "activate",
-                              G_CALLBACK (menuitem_response),  (gpointer) g_strdup (buf));
+    //g_signal_connect_swapped (G_OBJECT (menu_items_h), "activate",
+                             // G_CALLBACK (menuitem_response),  (gpointer) g_strdup (buf));
     gtk_widget_show (menu_items_h);
     }
 

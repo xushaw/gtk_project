@@ -6,10 +6,8 @@
 #include <glib.h>
 
 sqlite3 *db;
-int table_cnt, temptable;
 GPtrArray *res1;
 GPtrArray *stores;
-gboolean fst = TRUE;
 int index_of_store;
 
 static int callback(void *NotUsed, int argc, char **argv, char **azColName)
@@ -52,8 +50,6 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
     gchar *str1, *str2, *str3, *str4, *str5, *str6, *temp, *temp2;
     gboolean flag = TRUE;
     gboolean duplex;
-    table_cnt=0;
-    fst = TRUE;
     str1 = g_strdup("");
     str2 = g_strdup("");
     str3 = g_strdup("");
@@ -74,7 +70,6 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
         ////g_print("First if\n");
             temp = g_strdup("SELECT MODEL FROM input WHERE ");
             ////g_print("Dup\n");
-            table_cnt++;
             for (i=1; i<4; i++)
             {
                 ////g_print("For %d\n", i);
@@ -104,7 +99,6 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
         temp2 = g_strdup("SELECT MODEL FROM output WHERE ");
      //   //g_print("%s\n", temp2);
         ////g_print("Dup\n");
-        table_cnt++;
         flag = TRUE;
         for (i=5; i<16; i++)
         {
@@ -122,9 +116,9 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                 
                 if (g_strcmp0("power_", gtk_widget_get_name(g_ptr_array_index(arr, i)) ) == 0 ||
                     g_strcmp0("range_reg_U_", gtk_widget_get_name(g_ptr_array_index(arr, i)) ) == 0 || 
-                    g_strcmp0("diskr_reg_U_", gtk_widget_get_name(g_ptr_array_index(arr, i)) ) == 0 || 
+                    //g_strcmp0("diskr_reg_U_", gtk_widget_get_name(g_ptr_array_index(arr, i)) ) == 0 || 
                     g_strcmp0("range_reg_f_", gtk_widget_get_name(g_ptr_array_index(arr, i)) ) == 0 || 
-                    g_strcmp0("diskr_reg_f_", gtk_widget_get_name(g_ptr_array_index(arr, i)) ) == 0 || 
+                    //g_strcmp0("diskr_reg_f_", gtk_widget_get_name(g_ptr_array_index(arr, i)) ) == 0 || 
                     g_strcmp0("range_reg_v_razsys_", gtk_widget_get_name(g_ptr_array_index(arr, i)) ) == 0 || 
                     g_strcmp0("range_reg_v_zamsys_", gtk_widget_get_name(g_ptr_array_index(arr, i)) ) == 0)
                     {
@@ -140,10 +134,11 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                         NULL);
                      //   //g_print("IF: %s\n", str2);
                     }
-                    else if (g_strcmp0("phase_number", gtk_widget_get_name(g_ptr_array_index(arr, i)) ) == 0 ||
+                    else 
+                        /*if (g_strcmp0("phase_number", gtk_widget_get_name(g_ptr_array_index(arr, i)) ) == 0 ||
                         g_strcmp0("control_way", gtk_widget_get_name(g_ptr_array_index(arr, i)) ) == 0 || 
                         g_strcmp0("mod_way", gtk_widget_get_name(g_ptr_array_index(arr, i)) ) == 0 || 
-                        g_strcmp0("takt_f", gtk_widget_get_name(g_ptr_array_index(arr, i)) ) == 0)
+                        g_strcmp0("takt_f", gtk_widget_get_name(g_ptr_array_index(arr, i)) ) == 0)*/
                         {
                             str2 = g_strconcat (temp2, gtk_widget_get_name(g_ptr_array_index(arr,i)), "=\"", 
                             gtk_entry_get_text(g_ptr_array_index(arr,i)), "\"", NULL);
@@ -161,7 +156,6 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
         ////g_print("First if\n");
             temp = g_strdup("SELECT MODEL FROM work_functions WHERE ");
             ////g_print("Dup\n");
-            table_cnt++;
             for (i=17; i<23; i++)// ComboBox
             {
                 ////g_print("For %d\n", i);
@@ -191,7 +185,6 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
             flag = TRUE;
             temp = g_strdup("SELECT MODEL FROM defend_functions4 WHERE ");
             ////g_print("Dup\n");
-            table_cnt++;
             for (i=24; i<28; i++)// ComboBox
             {
                 ////g_print("For %d\n", i);
@@ -220,7 +213,6 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
             flag = TRUE;
             temp = g_strdup("SELECT MODEL FROM defend_functions2 WHERE ");
             ////g_print("Dup\n");
-            table_cnt++;
             for (i=29; i<31; i++)// ComboBox
             {
                 ////g_print("For %d\n", i);
@@ -250,7 +242,6 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
             flag = TRUE;
             temp = g_strdup("SELECT MODEL FROM korr WHERE ");
             ////g_print("Dup\n");
-            table_cnt++;
             for (i=32; i<35; i++)// ComboBox
             {
                 ////g_print("For %d\n", i);
@@ -673,7 +664,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
             fprintf(stderr, "SQL error: %s\n", zErrMsg);
         }
             
-            str2 = g_strconcat("SELECT model, power_min, power_max, phase_number, range_reg_U_min, range_reg_U_max, diskr_reg_U_min, diskr_reg_U_max, range_reg_f_min, range_reg_f_max, diskr_reg_f_min, diskr_reg_f_max, range_reg_v_razsys_min, range_reg_v_razsys_max, range_reg_v_zamsys_min, range_reg_v_zamsys_max, control_way, mod_way, takt_f FROM output WHERE model=\"", 
+            str2 = g_strconcat("SELECT model, power_min, power_max, phase_number, range_reg_U_min, range_reg_U_max, diskr_reg_U, range_reg_f_min, range_reg_f_max, diskr_reg_f, range_reg_v_razsys_min, range_reg_v_razsys_max, range_reg_v_zamsys_min, range_reg_v_zamsys_max, control_way, mod_way, takt_f FROM output WHERE model=\"", 
                     g_ptr_array_index(tempRes, i),
                     "\"",
                     NULL
@@ -798,7 +789,7 @@ void set_column_xu(GtkWidget *tree, const char *labelColumn[], int size)
   {
  
           renderer = gtk_cell_renderer_text_new ();
-          g_object_set(G_OBJECT(renderer), "alignment", PANGO_ALIGN_CENTER, NULL);
+          //g_object_set(G_OBJECT(renderer), "alignment", PANGO_ALIGN_CENTER, NULL);
           column = gtk_tree_view_column_new_with_attributes (labelColumn[i], renderer,
                   "text", i,
                   NULL);
@@ -855,7 +846,7 @@ GtkWidget* setup_table_xu(GtkTreeStore *store, const gchar *labelColumn[], int s
  
   set_column_xu(tree, labelColumn, size);
  
-  g_object_unref (G_OBJECT (store));
+  //g_object_unref (G_OBJECT (store));
  
   //g_print("setup\n");
   return tree;
@@ -890,7 +881,7 @@ GtkWidget* tab1 ()
         "Защиты от неправильной работы тиристорного выпрямителя" ,
         "Режимы коррекции"};
 
-    gchar *input_entry_name[3]={"число фаз","напряжение питающией сети,В", "частота питающей сети,Гц"};
+    gchar *input_entry_name[3]={"Число фаз","Напряжение питающией сети, В", "Частота питающей сети, Гц"};
 
     gchar *output_entry_name[11]={"мощность", "число фаз", "диапазон регулирования напряжения", 
     "дискретность регулирования напряжения", "диапазон регулирования частоты", "дискретность регулирования частоты",
@@ -918,7 +909,7 @@ GtkWidget* tab1 ()
 /*    gchar *sch_filter[6]={"все","входные параметры","выходные параметры","рабочие функции",
     "защитные функции", "ни одного"};*/
     gchar *base_input[3] = {"phase_number","U_in","freq_in"};
-    gchar *base_output[11] = {"power_","phase_number","range_reg_U_", "diskr_reg_U_", "range_reg_f_", "diskr_reg_f_",
+    gchar *base_output[11] = {"power_","phase_number","range_reg_U_", "diskr_reg_U", "range_reg_f_", "diskr_reg_f",
     "range_reg_v_razsys_", "range_reg_v_zamsys_", "control_way", "mod_way", "takt_f"};
     gchar *base_work[6] = {"zad_freq_tp","ustan_zad_freq_tp", "command_pusk_stop", "pusk_stop_har",
     "auto_pusk_stop_error", "reg_techn_var"};
@@ -929,26 +920,24 @@ GtkWidget* tab1 ()
     //Имена для столбцов таблицы-вывода
     const gchar *input_entry_name_table[4]={"Модель", "Число фаз","Напряжение питающией сети,В", "Частота питающей сети,Гц"};
 
-    const gchar *output_entry_name_table[19]={
+    const gchar *output_entry_name_table[18]={
         "Модель",                                                   //0 
-        "Мощность, кВт\nmin",                                       //1
-        "Мощность, кВт\nmax",                                       //2
+        "Мощность\nmin, кВт",                                       //1
+        "Мощность\nmax, кВт",                                       //2
         "Число фаз",                                                //3
-        "Диапазон регулирования напряжени, В\nmin",                 //4
-        "Диапазон регулирования напряжени, В\nmax",               //5
-        "Дискретность регулирования напряжения \nmin",                    //6
-        "Дискретность регулирования напряжения \nmax",                    //7
-        "Диапазон регулирования частоты\nmin",                           //8
-        "Диапазон регулирования частоты\nmax",                           //9
-        "Дискретность регулирования частоты \nmin",                       //0
-        "Дискретность регулирования частоты \nmax",                       //1
-        "Диапазон регулирования скорости в разомкнутой системе\nmin",    //2
-        "Диапазон регулирования скорости в разомкнутой системе\nmax",    //3
-        "Диапазон регулирования скорости в замкнутой системе\nmin",      //4
-        "Диапазон регулирования скорости в замкнутой системе\nmax",      //5
-        "Принцип управления",                                       //6
-        "Способ модуляции",                                         //7
-        "Тактовая частота ШИМ"                                      //8
+        "Диапазон регулирования напряжени\nmin, В",                 //4
+        "Диапазон регулирования напряжени\nmax, В",               //5
+        "Дискретность регулирования напряжения, %",                    //6
+        "Диапазон регулирования частоты\nmin, Гц",                           //7
+        "Диапазон регулирования частоты\nmax, Гц",                           //8
+        "Дискретность регулирования частоты, %",                       //9
+        "Диапазон регулирования скорости в разомкнутой системе\nmin",    //0
+        "Диапазон регулирования скорости в разомкнутой системе\nmax",    //1
+        "Диапазон регулирования скорости в замкнутой системе\nmin",      //2
+        "Диапазон регулирования скорости в замкнутой системе\nmax",      //3
+        "Принцип управления",                                       //5
+        "Способ модуляции",                                         //6
+        "Тактовая частота ШИМ"                                      //7
     };
  
     const gchar *work_name_table[7]={"Модель", "Задание частоты или технологической переменной",
@@ -989,6 +978,7 @@ res1 = g_ptr_array_new();
             g_signal_connect (G_OBJECT (checkbutton), "toggled",
                                   G_CALLBACK (state_callback), (gpointer) table_in);
             g_signal_emit_by_name(checkbutton, "toggled", (gpointer) table_in);
+            gtk_container_set_border_width(GTK_CONTAINER(frame), 5);
             gtk_container_add (GTK_CONTAINER(frame), table_in);
                 for(m=0; m<3; m++)
                 {
@@ -1022,6 +1012,7 @@ res1 = g_ptr_array_new();
             g_signal_connect (G_OBJECT (checkbutton), "toggled",
                               G_CALLBACK (state_callback), (gpointer) table_in);
             g_signal_emit_by_name(checkbutton, "toggled", (gpointer) table_in);
+            gtk_container_set_border_width(GTK_CONTAINER(frame), 5);
             gtk_container_add (GTK_CONTAINER(frame), table_in);
                 k=0;
                 for(m=0; m<3; m++)
@@ -1060,6 +1051,7 @@ res1 = g_ptr_array_new();
                 g_signal_connect (G_OBJECT (checkbutton), "toggled",
                                   G_CALLBACK (state_callback), (gpointer) table_in);
                 g_signal_emit_by_name(checkbutton, "toggled", (gpointer) table_in);
+            gtk_container_set_border_width(GTK_CONTAINER(frame), 5);
                 gtk_container_add (GTK_CONTAINER(frame), table_in);
                 k=0;
                 for(m=0; m<2; m++)
@@ -1105,6 +1097,7 @@ res1 = g_ptr_array_new();
                 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), FALSE);
                 g_signal_connect (G_OBJECT (checkbutton), "toggled",
                                   G_CALLBACK (state_callback), (gpointer) table_in);
+            gtk_container_set_border_width(GTK_CONTAINER(frame), 5);
                 gtk_container_add (GTK_CONTAINER(frame), table_in);
                 k=0;
                 for(m=0; m<2; m++)
@@ -1140,6 +1133,7 @@ res1 = g_ptr_array_new();
                 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), FALSE);
                 g_signal_connect (G_OBJECT (checkbutton), "toggled",
                                   G_CALLBACK (state_callback), (gpointer) table_in);
+            gtk_container_set_border_width(GTK_CONTAINER(frame), 5);
                 gtk_container_add (GTK_CONTAINER(frame), table_in);
                 for(m=0; m<2; m++)
                 {
@@ -1173,6 +1167,7 @@ res1 = g_ptr_array_new();
                 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), FALSE);
                 g_signal_connect (G_OBJECT (checkbutton), "toggled",
                                   G_CALLBACK (state_callback), (gpointer) table_in);
+            gtk_container_set_border_width(GTK_CONTAINER(frame), 5);
                 gtk_container_add (GTK_CONTAINER(frame), table_in);
                 k=0;
                 for(m=0; m<2; m++)
@@ -1262,7 +1257,7 @@ for (i=0; i<6; i++)
     }
     else if (i==1)
     {
-        size = 19;
+        size = 17;
         tempStore = gtk_tree_store_new(size,
                 G_TYPE_STRING,  //0
                 G_TYPE_STRING,  //1
@@ -1280,8 +1275,6 @@ for (i=0; i<6; i++)
                 G_TYPE_STRING,  //3
                 G_TYPE_STRING,  //4
                 G_TYPE_STRING,  //5
-                G_TYPE_STRING,  //6
-                G_TYPE_STRING,  //7
                 G_TYPE_STRING);
         g_ptr_array_add(stores, tempStore);
         tableOut = setup_table_xu(tempStore, output_entry_name_table, size);
@@ -1304,6 +1297,8 @@ for (i=0; i<6; i++)
     {
         size = 5;
         tempStore = gtk_tree_store_new(size,
+                G_TYPE_STRING,
+                G_TYPE_STRING,
                 G_TYPE_STRING,
                 G_TYPE_STRING,
                 G_TYPE_STRING);
@@ -1347,6 +1342,7 @@ gtk_box_pack_start(GTK_BOX (bbox), sch_button, TRUE, FALSE, 0);
 gtk_button_box_set_layout(GTK_BUTTON_BOX(bbox), GTK_BUTTONBOX_END);
 gtk_table_attach_defaults (GTK_TABLE (table), bbox, 2, 3, 13, 14);
 gtk_table_attach_defaults(GTK_TABLE(table), notebook, 0, 3, 14, 15);
+gtk_container_set_border_width(GTK_CONTAINER(table), 5);
 //gtk_table_attach_defaults (GTK_TABLE (table), hbox, 0, 3, 12, 13);
     
 return table;
