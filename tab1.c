@@ -20,7 +20,8 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName)
         for(i=0; i<argc; i++)
         {
             g_ptr_array_add(res1, g_strdup(argv[i]));
-            ////g_print("CALLBACK:\t%s\n", (gchar*)g_ptr_array_index(res1, res1->len-1));
+            g_print("CALLBACK: %d\n", res1->len);
+            //g_print("CALLBACK:\t%s\n", (gchar*)g_ptr_array_index(res1, res1->len-1));
         }
      
         return 0;
@@ -44,7 +45,7 @@ static int callback2(void *NotUsed, int argc, char **argv, char **azColName)
 }
 
 static void sch_callback( GtkWidget *widget, GPtrArray *arr) 
-{ 
+{
     char *zErrMsg = 0;
     GPtrArray *tempRes, *tempRes2;
     int rc, i, j, k;
@@ -64,6 +65,9 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
 
     tempRes = g_ptr_array_new();
     tempRes2 = g_ptr_array_new();
+
+    for(i=0; i<stores->len; i++)
+        gtk_tree_store_clear(g_ptr_array_index(stores, i));
 
     if ( gtk_toggle_button_get_active(g_ptr_array_index(arr, 0)) == TRUE )
      {
@@ -280,11 +284,29 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
 
         //Копируем полученный массив в запасной tempRes и очищаем старый.
         for(i=0; i<res1->len; i++)
-            g_ptr_array_add(tempRes, g_ptr_array_index(res1, i));
-        g_ptr_array_free(res1, TRUE);
+        {
+            duplex = FALSE;
+            if ( tempRes->len == 0)
+                g_ptr_array_add(tempRes, g_ptr_array_index(res1, i));
+            else
+            {
+                for ( j=0; j<tempRes->len; j++)
+                {
+                    if ( g_strcmp0( g_ptr_array_index(tempRes, j), g_ptr_array_index(res1, i) ) == 0 )
+                        duplex = TRUE;
+                }
+                
+                if ( duplex == FALSE )
+                {
+                    g_print("duplex!\n");
+                    g_ptr_array_add(tempRes, g_ptr_array_index(res1, i));
+                }
+            }
+        }
+        g_ptr_array_free(res1, FALSE);
         res1 = g_ptr_array_new();
         
-        for(i=0; i<tempRes->len; i++)
+        //for(i=0; i<tempRes->len; i++)
             //g_print("res1 #1:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
         //g_print("%s\n",str2);
         rc = sqlite3_exec(db, str2, callback, 0, &zErrMsg);
@@ -297,33 +319,46 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
         //Сравниваем i-ый элемент массива res1 и j-ый элемент массива tempRes
         for(i=0; i<res1->len; i++)
         {
-            for(j=0; j<tempRes->len; j++)
+            if (tempRes->len > 0)
             {
-                if ( g_strcmp0( g_ptr_array_index(res1, i), g_ptr_array_index(tempRes, j) ) == 0 )
-                {   
-                    //Задаем FALSE, т.к. не знаем еще есть ли значение res1 в tempRes2
-                    duplex = FALSE;
-                    //Если во втором запасном массиве tempRes2 что-то есть, то проверяем, есть ли значение i-го элемента res1 в tempRes2
-                    if ( tempRes2->len != 0 )
-                    {
-                        for( k=0; k<tempRes2->len; k++ )
+                for(j=0; j<tempRes->len; j++)
+                {
+                    if ( g_strcmp0( g_ptr_array_index(res1, i), g_ptr_array_index(tempRes, j) ) == 0 )
+                    {   
+                        //g_print("==\n");
+                        //Задаем FALSE, т.к. не знаем еще есть ли значение res1 в tempRes2
+                        duplex = FALSE;
+                        //Если во втором запасном массиве tempRes2 что-то есть, то проверяем, есть ли значение i-го элемента res1 в tempRes2
+                        if ( tempRes2->len > 0 ) 
                         {
-                            if ( g_strcmp0( g_ptr_array_index(tempRes2, k), g_ptr_array_index(res1, i) ) == 0 )
-                                duplex = TRUE;
+                            //g_print("tempRes2 > 0\n");
+                            for( k=0; k<tempRes2->len; k++ )
+                            {
+                                if ( g_strcmp0( g_ptr_array_index(tempRes2, k), g_ptr_array_index(res1, i) ) == 0 )
+                                    duplex = TRUE;
+                            }
                             
                             if ( duplex == FALSE )
+                            {
+                                g_print("duplex!\n");
                                 g_ptr_array_add(tempRes2, g_ptr_array_index(res1, i));
+                            }
+                        }
+                        else
+                        {
+                            //g_print("tempRes2 == 0\n");
+                            g_ptr_array_add(tempRes2, g_ptr_array_index(res1, i));
                         }
                     }
-                    else
-                        g_ptr_array_add(tempRes2, g_ptr_array_index(res1, i));
                 }
             }
+            else
+                g_ptr_array_add(tempRes, g_ptr_array_index(res1, i));
         }
        
         //Очищаем временный массив и заново его инициализируем.
         if(res1->len > 0)
-        {
+         {
             g_ptr_array_free(tempRes, TRUE);
             tempRes = g_ptr_array_new();
         
@@ -333,7 +368,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                 g_ptr_array_add(tempRes, g_ptr_array_index(tempRes2, i));
             //Очищаем tempRes2
             tempRes2 = g_ptr_array_new();    
-            for(i=0; i<tempRes2->len; i++)
+            //for(i=0; i<tempRes2->len; i++)
                 //g_print("res1:\t%s\n", (gchar*)g_ptr_array_index(tempRes2, i));
         }
         //Очищаем и инициализиуер массив с результатами.
@@ -341,7 +376,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
         res1 = g_ptr_array_new();
         
         for(i=0; i<tempRes->len; i++)
-            //g_print("res1 #2:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
+            g_print("res1 #2:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
         //g_print("%s\n",str3);
         rc = sqlite3_exec(db, str3, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
@@ -353,28 +388,41 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
         //Сравниваем i-ый элемент массива res1 и j-ый элемент массива tempRes
         for(i=0; i<res1->len; i++)
         {
-            for(j=0; j<tempRes->len; j++)
+            if (tempRes->len > 0)
             {
-                if ( g_strcmp0( g_ptr_array_index(res1, i), g_ptr_array_index(tempRes, j) ) == 0 )
-                {   
-                    //Задаем FALSE, т.к. не знаем еще есть ли значение res1 в tempRes2
-                    duplex = FALSE;
-                    //Если во втором запасном массиве tempRes2 что-то есть, то проверяем, есть ли значение i-го элемента res1 в tempRes2
-                    if ( tempRes2->len != 0 )
-                    {
-                        for( k=0; k<tempRes2->len; k++ )
+                for(j=0; j<tempRes->len; j++)
+                {
+                    if ( g_strcmp0( g_ptr_array_index(res1, i), g_ptr_array_index(tempRes, j) ) == 0 )
+                    {   
+                        //g_print("==\n");
+                        //Задаем FALSE, т.к. не знаем еще есть ли значение res1 в tempRes2
+                        duplex = FALSE;
+                        //Если во втором запасном массиве tempRes2 что-то есть, то проверяем, есть ли значение i-го элемента res1 в tempRes2
+                        if ( tempRes2->len > 0 ) 
                         {
-                            if ( g_strcmp0( g_ptr_array_index(tempRes2, k), g_ptr_array_index(res1, i) ) == 0 )
-                                duplex = TRUE;
+                            //g_print("tempRes2 > 0\n");
+                            for( k=0; k<tempRes2->len; k++ )
+                            {
+                                if ( g_strcmp0( g_ptr_array_index(tempRes2, k), g_ptr_array_index(res1, i) ) == 0 )
+                                    duplex = TRUE;
+                            }
                             
                             if ( duplex == FALSE )
+                            {
+                                g_print("duplex!\n");
                                 g_ptr_array_add(tempRes2, g_ptr_array_index(res1, i));
+                            }
+                        }
+                        else
+                        {
+                            //g_print("tempRes2 == 0\n");
+                            g_ptr_array_add(tempRes2, g_ptr_array_index(res1, i));
                         }
                     }
-                    else
-                        g_ptr_array_add(tempRes2, g_ptr_array_index(res1, i));
                 }
             }
+            else
+                g_ptr_array_add(tempRes, g_ptr_array_index(res1, i));
         }
        
         //Очищаем временный массив и заново его инициализируем.
@@ -389,7 +437,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                 g_ptr_array_add(tempRes, g_ptr_array_index(tempRes2, i));
             //Очищаем tempRes2
             tempRes2 = g_ptr_array_new();    
-            for(i=0; i<tempRes2->len; i++)
+            //for(i=0; i<tempRes2->len; i++)
                 //g_print("res1:\t%s\n", (gchar*)g_ptr_array_index(tempRes2, i));
         }
         //Очищаем и инициализиуер массив с результатами.
@@ -397,7 +445,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
         res1 = g_ptr_array_new();
 
         for(i=0; i<tempRes->len; i++)
-            //g_print("res1 #3:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
+            g_print("res1 #3:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
         //g_print("%s\n",str4);
         rc = sqlite3_exec(db, str4, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
@@ -409,28 +457,41 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
         //Сравниваем i-ый элемент массива res1 и j-ый элемент массива tempRes
         for(i=0; i<res1->len; i++)
         {
-            for(j=0; j<tempRes->len; j++)
+            if (tempRes->len > 0)
             {
-                if ( g_strcmp0( g_ptr_array_index(res1, i), g_ptr_array_index(tempRes, j) ) == 0 )
-                {   
-                    //Задаем FALSE, т.к. не знаем еще есть ли значение res1 в tempRes2
-                    duplex = FALSE;
-                    //Если во втором запасном массиве tempRes2 что-то есть, то проверяем, есть ли значение i-го элемента res1 в tempRes2
-                    if ( tempRes2->len != 0 )
-                    {
-                        for( k=0; k<tempRes2->len; k++ )
+                for(j=0; j<tempRes->len; j++)
+                {
+                    if ( g_strcmp0( g_ptr_array_index(res1, i), g_ptr_array_index(tempRes, j) ) == 0 )
+                    {   
+                        //g_print("==\n");
+                        //Задаем FALSE, т.к. не знаем еще есть ли значение res1 в tempRes2
+                        duplex = FALSE;
+                        //Если во втором запасном массиве tempRes2 что-то есть, то проверяем, есть ли значение i-го элемента res1 в tempRes2
+                        if ( tempRes2->len > 0 ) 
                         {
-                            if ( g_strcmp0( g_ptr_array_index(tempRes2, k), g_ptr_array_index(res1, i) ) == 0 )
-                                duplex = TRUE;
+                            //g_print("tempRes2 > 0\n");
+                            for( k=0; k<tempRes2->len; k++ )
+                            {
+                                if ( g_strcmp0( g_ptr_array_index(tempRes2, k), g_ptr_array_index(res1, i) ) == 0 )
+                                    duplex = TRUE;
+                            }
                             
                             if ( duplex == FALSE )
+                            {
+                                g_print("duplex!\n");
                                 g_ptr_array_add(tempRes2, g_ptr_array_index(res1, i));
+                            }
+                        }
+                        else
+                        {
+                            //g_print("tempRes2 == 0\n");
+                            g_ptr_array_add(tempRes2, g_ptr_array_index(res1, i));
                         }
                     }
-                    else
-                        g_ptr_array_add(tempRes2, g_ptr_array_index(res1, i));
                 }
             }
+            else
+                g_ptr_array_add(tempRes, g_ptr_array_index(res1, i));
         }
        
         //Очищаем временный массив и заново его инициализируем.
@@ -445,7 +506,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                 g_ptr_array_add(tempRes, g_ptr_array_index(tempRes2, i));
             //Очищаем tempRes2
             tempRes2 = g_ptr_array_new();    
-            for(i=0; i<tempRes2->len; i++)
+            //for(i=0; i<tempRes2->len; i++)
                 //g_print("res1:\t%s\n", (gchar*)g_ptr_array_index(tempRes2, i));
         }
         //Очищаем и инициализиуер массив с результатами.
@@ -453,7 +514,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
         res1 = g_ptr_array_new();
         
         for(i=0; i<tempRes->len; i++)
-            //g_print("res1 #4:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
+            g_print("res1 #4:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
         //g_print("%s\n", str5);
         if( rc!=SQLITE_OK )
         {
@@ -464,28 +525,41 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
         //Сравниваем i-ый элемент массива res1 и j-ый элемент массива tempRes
         for(i=0; i<res1->len; i++)
         {
-            for(j=0; j<tempRes->len; j++)
+            if (tempRes->len > 0)
             {
-                if ( g_strcmp0( g_ptr_array_index(res1, i), g_ptr_array_index(tempRes, j) ) == 0 )
-                {   
-                    //Задаем FALSE, т.к. не знаем еще есть ли значение res1 в tempRes2
-                    duplex = FALSE;
-                    //Если во втором запасном массиве tempRes2 что-то есть, то проверяем, есть ли значение i-го элемента res1 в tempRes2
-                    if ( tempRes2->len != 0 )
-                    {
-                        for( k=0; k<tempRes2->len; k++ )
+                for(j=0; j<tempRes->len; j++)
+                {
+                    if ( g_strcmp0( g_ptr_array_index(res1, i), g_ptr_array_index(tempRes, j) ) == 0 )
+                    {   
+                        //g_print("==\n");
+                        //Задаем FALSE, т.к. не знаем еще есть ли значение res1 в tempRes2
+                        duplex = FALSE;
+                        //Если во втором запасном массиве tempRes2 что-то есть, то проверяем, есть ли значение i-го элемента res1 в tempRes2
+                        if ( tempRes2->len > 0 ) 
                         {
-                            if ( g_strcmp0( g_ptr_array_index(tempRes2, k), g_ptr_array_index(res1, i) ) == 0 )
-                                duplex = TRUE;
+                            //g_print("tempRes2 > 0\n");
+                            for( k=0; k<tempRes2->len; k++ )
+                            {
+                                if ( g_strcmp0( g_ptr_array_index(tempRes2, k), g_ptr_array_index(res1, i) ) == 0 )
+                                    duplex = TRUE;
+                            }
                             
                             if ( duplex == FALSE )
+                            {
+                                g_print("duplex!\n");
                                 g_ptr_array_add(tempRes2, g_ptr_array_index(res1, i));
+                            }
+                        }
+                        else
+                        {
+                            //g_print("tempRes2 == 0\n");
+                            g_ptr_array_add(tempRes2, g_ptr_array_index(res1, i));
                         }
                     }
-                    else
-                        g_ptr_array_add(tempRes2, g_ptr_array_index(res1, i));
                 }
             }
+            else
+                g_ptr_array_add(tempRes, g_ptr_array_index(res1, i));
         }
        
         //Очищаем временный массив и заново его инициализируем.
@@ -500,7 +574,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                 g_ptr_array_add(tempRes, g_ptr_array_index(tempRes2, i));
             //Очищаем tempRes2
             tempRes2 = g_ptr_array_new();    
-            for(i=0; i<tempRes2->len; i++)
+            //for(i=0; i<tempRes2->len; i++)
                 //g_print("res1:\t%s\n", (gchar*)g_ptr_array_index(tempRes2, i));
         }
         //Очищаем и инициализиуер массив с результатами.
@@ -508,7 +582,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
         res1 = g_ptr_array_new();
 
         for(i=0; i<tempRes->len; i++)
-            //g_print("res1 #5:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
+            g_print("res1 #5:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
         //g_print("%s\n",str6);
         rc = sqlite3_exec(db, str6, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
@@ -520,28 +594,41 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
         //Сравниваем i-ый элемент массива res1 и j-ый элемент массива tempRes
         for(i=0; i<res1->len; i++)
         {
-            for(j=0; j<tempRes->len; j++)
+            if (tempRes->len > 0)
             {
-                if ( g_strcmp0( g_ptr_array_index(res1, i), g_ptr_array_index(tempRes, j) ) == 0 )
-                {   
-                    //Задаем FALSE, т.к. не знаем еще есть ли значение res1 в tempRes2
-                    duplex = FALSE;
-                    //Если во втором запасном массиве tempRes2 что-то есть, то проверяем, есть ли значение i-го элемента res1 в tempRes2
-                    if ( tempRes2->len != 0 )
-                    {
-                        for( k=0; k<tempRes2->len; k++ )
+                for(j=0; j<tempRes->len; j++)
+                {
+                    if ( g_strcmp0( g_ptr_array_index(res1, i), g_ptr_array_index(tempRes, j) ) == 0 )
+                    {   
+                        //g_print("==\n");
+                        //Задаем FALSE, т.к. не знаем еще есть ли значение res1 в tempRes2
+                        duplex = FALSE;
+                        //Если во втором запасном массиве tempRes2 что-то есть, то проверяем, есть ли значение i-го элемента res1 в tempRes2
+                        if ( tempRes2->len > 0 ) 
                         {
-                            if ( g_strcmp0( g_ptr_array_index(tempRes2, k), g_ptr_array_index(res1, i) ) == 0 )
-                                duplex = TRUE;
+                            //g_print("tempRes2 > 0\n");
+                            for( k=0; k<tempRes2->len; k++ )
+                            {
+                                if ( g_strcmp0( g_ptr_array_index(tempRes2, k), g_ptr_array_index(res1, i) ) == 0 )
+                                    duplex = TRUE;
+                            }
                             
                             if ( duplex == FALSE )
+                            {
+                                g_print("duplex!\n");
                                 g_ptr_array_add(tempRes2, g_ptr_array_index(res1, i));
+                            }
+                        }
+                        else
+                        {
+                            //g_print("tempRes2 == 0\n");
+                            g_ptr_array_add(tempRes2, g_ptr_array_index(res1, i));
                         }
                     }
-                    else
-                        g_ptr_array_add(tempRes2, g_ptr_array_index(res1, i));
                 }
             }
+            else
+                g_ptr_array_add(tempRes, g_ptr_array_index(res1, i));
         }
        
         //Очищаем временный массив и заново его инициализируем.
@@ -556,7 +643,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                 g_ptr_array_add(tempRes, g_ptr_array_index(tempRes2, i));
             //Очищаем tempRes2
             tempRes2 = g_ptr_array_new();    
-            for(i=0; i<tempRes2->len; i++)
+            //for(i=0; i<tempRes2->len; i++)
                 //g_print("res1:\t%s\n", (gchar*)g_ptr_array_index(tempRes2, i));
         }
         //Очищаем и инициализиуер массив с результатами.
@@ -565,7 +652,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
 
         
         for(i=0; i<tempRes->len; i++)
-            //g_print("res1 #end:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
+            g_print("res1 #end:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
         
         //g_print("End\n");
         
@@ -579,6 +666,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
             //g_print("str1: %s\n", str1);
             
             index_of_store = 0;
+            g_print("#QUERY 1:\n");
             rc = sqlite3_exec(db, str1, callback2, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
         {
@@ -593,6 +681,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
             //g_print("str2: %s\n", str2);
 
             index_of_store++;
+            g_print("#QUERY 2:\n");
             rc = sqlite3_exec(db, str2, callback2, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
         {
@@ -607,6 +696,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
             //g_print("str3: %s\n", str3);
 
             index_of_store++;
+            g_print("#QUERY 3:\n");
             rc = sqlite3_exec(db, str3, callback2, 0, &zErrMsg);
             if( rc!=SQLITE_OK )
             {
@@ -621,6 +711,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
             //g_print("str4: %s\n", str4);
 
             index_of_store++;
+            g_print("#QUERY 4:\n");
             rc = sqlite3_exec(db, str4, callback2, 0, &zErrMsg);
             if( rc!=SQLITE_OK )
             {
@@ -635,6 +726,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
             //g_print("str5: %s\n", str5);
 
             index_of_store++;
+            g_print("#QUERY 5:\n");
             rc = sqlite3_exec(db, str5, callback2, 0, &zErrMsg);
             if( rc!=SQLITE_OK )
             {
@@ -649,6 +741,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
             //g_print("str6: %s\n", str6);
 
             index_of_store++;
+            g_print("#QUERY 6:\n");
             rc = sqlite3_exec(db, str6, callback2, 0, &zErrMsg);
             if( rc!=SQLITE_OK )
             {
@@ -659,8 +752,8 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
 
         }
 
-}
-
+} 
+ 
 
 
 static void clr_callback( GtkWidget *widget, GPtrArray *array )
@@ -705,6 +798,7 @@ void set_column_xu(GtkWidget *tree, const char *labelColumn[], int size)
   {
  
           renderer = gtk_cell_renderer_text_new ();
+          g_object_set(G_OBJECT(renderer), "alignment", PANGO_ALIGN_CENTER, NULL);
           column = gtk_tree_view_column_new_with_attributes (labelColumn[i], renderer,
                   "text", i,
                   NULL);
@@ -832,13 +926,30 @@ GtkWidget* tab1 ()
     gchar *base_defend4[4] = {"inc_decr_U_in_i_const_zveno","obriv_perekos_phase_defend","defend_from_kz",
     "max_i_defend"};
 
+    //Имена для столбцов таблицы-вывода
+    const gchar *input_entry_name_table[4]={"Модель", "Число фаз","Напряжение питающией сети,В", "Частота питающей сети,Гц"};
 
-    const gchar *input_entry_name_table[4]={"Модель", "число фаз","напряжение питающией сети,В", "частота питающей сети,Гц"};
-
-    const gchar *output_entry_name_table[12]={"Модель", "мощность", "число фаз", "диапазон регулирования напряжения", 
-    "дискретность регулирования напряжения", "диапазон регулирования частоты", "дискретность регулирования частоты",
-    "диапазон регулирования скорости в разомкнутой системе", "диапазон регулирования скорости в замкнутой системе",
-    "принцип управления", "способ модуляции", "тактовая частота ШИМ"};
+    const gchar *output_entry_name_table[19]={
+        "Модель",                                                   //0 
+        "Мощность, кВт\nmin",                                       //1
+        "Мощность, кВт\nmax",                                       //2
+        "Число фаз",                                                //3
+        "Диапазон регулирования напряжени, В\nmin",                 //4
+        "Диапазон регулирования напряжени, В\nmax",               //5
+        "Дискретность регулирования напряжения \nmin",                    //6
+        "Дискретность регулирования напряжения \nmax",                    //7
+        "Диапазон регулирования частоты\nmin",                           //8
+        "Диапазон регулирования частоты\nmax",                           //9
+        "Дискретность регулирования частоты \nmin",                       //0
+        "Дискретность регулирования частоты \nmax",                       //1
+        "Диапазон регулирования скорости в разомкнутой системе\nmin",    //2
+        "Диапазон регулирования скорости в разомкнутой системе\nmax",    //3
+        "Диапазон регулирования скорости в замкнутой системе\nmin",      //4
+        "Диапазон регулирования скорости в замкнутой системе\nmax",      //5
+        "Принцип управления",                                       //6
+        "Способ модуляции",                                         //7
+        "Тактовая частота ШИМ"                                      //8
+    };
  
     const gchar *work_name_table[7]={"Модель", "Задание частоты или технологической переменной",
     "Установки задания частоты или технологической переменной",
@@ -1151,21 +1262,28 @@ for (i=0; i<6; i++)
     }
     else if (i==1)
     {
-        tempStore = gtk_tree_store_new(12,
-                G_TYPE_STRING,
-                G_TYPE_STRING,
-                G_TYPE_STRING,
-                G_TYPE_STRING,
-                G_TYPE_STRING,
-                G_TYPE_STRING,
-                G_TYPE_STRING,
-                G_TYPE_STRING,
-                G_TYPE_STRING,
-                G_TYPE_STRING,
-                G_TYPE_STRING,
+        size = 19;
+        tempStore = gtk_tree_store_new(size,
+                G_TYPE_STRING,  //0
+                G_TYPE_STRING,  //1
+                G_TYPE_STRING,  //2
+                G_TYPE_STRING,  //3
+                G_TYPE_STRING,  //4
+                G_TYPE_STRING,  //5
+                G_TYPE_STRING,  //6
+                G_TYPE_STRING,  //7
+                G_TYPE_STRING,  //8
+                G_TYPE_STRING,  //9
+                G_TYPE_STRING,  //0
+                G_TYPE_STRING,  //1
+                G_TYPE_STRING,  //2
+                G_TYPE_STRING,  //3
+                G_TYPE_STRING,  //4
+                G_TYPE_STRING,  //5
+                G_TYPE_STRING,  //6
+                G_TYPE_STRING,  //7
                 G_TYPE_STRING);
         g_ptr_array_add(stores, tempStore);
-        size = 12;
         tableOut = setup_table_xu(tempStore, output_entry_name_table, size);
     }
     else if (i==2)
