@@ -10,6 +10,7 @@ int table_cnt, temptable;
 GPtrArray *res1;
 GPtrArray *stores;
 gboolean fst = TRUE;
+int index_of_store;
 
 static int callback(void *NotUsed, int argc, char **argv, char **azColName)
 {
@@ -18,15 +19,32 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName)
 
         for(i=0; i<argc; i++)
         {
-            g_ptr_array_add(res1, argv[i]);
-            g_print("CALLBACK:\t%s\n", (gchar*)g_ptr_array_index(res1, res1->len-1));
+            g_ptr_array_add(res1, g_strdup(argv[i]));
+            //g_print("CALLBACK:\t%s\n", (gchar*)g_ptr_array_index(res1, res1->len-1));
         }
      
         return 0;
 }
 
-static void sch_callback( GtkWidget *widget, GPtrArray *arr) 
+static int callback2(void *NotUsed, int argc, char **argv, char **azColName)
 {
+     int i;
+     NotUsed=0;
+     GPtrArray *results;
+     results = g_ptr_array_new();
+
+        for(i=0; i<argc; i++)
+        {
+            g_ptr_array_add(results, argv[i]);
+            //g_print("CALLBACK:\t%s\n", (gchar*)g_ptr_array_index(res1, res1->len-1));
+        }
+     
+        set_table_info_xu(g_ptr_array_index(stores, index_of_store), results);
+        return 0;
+}
+
+static void sch_callback( GtkWidget *widget, GPtrArray *arr) 
+{ 
     char *zErrMsg = 0;
     GPtrArray *tempRes, *tempRes2;
     int rc, i, j, k;
@@ -48,7 +66,7 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
     tempRes2 = g_ptr_array_new();
 
     if ( gtk_toggle_button_get_active(g_ptr_array_index(arr, 0)) == TRUE )
-    {
+     {
         //g_print("First if\n");
             temp = g_strdup("SELECT MODEL FROM input WHERE ");
             //g_print("Dup\n");
@@ -251,39 +269,32 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                 }
             }
         }
+        
         g_print("%s\n",str1);
-//        g_ptr_array_add(res1, "garfeild_vs_falg");
-//        g_ptr_array_add(res1, "Привет!");
         rc = sqlite3_exec(db, str1, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
         {
             fprintf(stderr, "SQL error: %s\n", zErrMsg);
         }
         g_free(str1);
-        //Копируем полученный массив в запасной tempRes и очищаем старый.
-        //for(i=0; i<res1->len; i++)
-            //g_ptr_array_add(tempRes, g_ptr_array_index(res1, i));
 
-        for(i=0; i<4; i++)
-            g_print("res1:\t%s\n", (gchar*)g_ptr_array_index(res1, i));
-        g_print("len: %d\n", res1->len);
-        //for(i=0; i<tempRes->len; i++)
-            //g_print("tempRes:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
-        //for(i=0; i<tempRes2->len; i++)
-            //g_print("tempRes2:\t%s\n", (gchar*)g_ptr_array_index(tempRes2, i));
-       
-        //g_ptr_array_free(res1, TRUE);
-        //res1 = g_ptr_array_new();
+        //Копируем полученный массив в запасной tempRes и очищаем старый.
+        for(i=0; i<res1->len; i++)
+            g_ptr_array_add(tempRes, g_ptr_array_index(res1, i));
+        g_ptr_array_free(res1, TRUE);
+        res1 = g_ptr_array_new();
         
+        for(i=0; i<tempRes->len; i++)
+            g_print("res1 #1:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
         g_print("%s\n",str2);
-//        g_ptr_array_add(res1, "garfeild_vs_falg");
         rc = sqlite3_exec(db, str2, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
         {
             fprintf(stderr, "SQL error: %s\n", zErrMsg);
         }
         g_free(str2);
-/*        //Сравниваем i-ый элемент массива res1 и j-ый элемент массива tempRes
+        
+        //Сравниваем i-ый элемент массива res1 и j-ый элемент массива tempRes
         for(i=0; i<res1->len; i++)
         {
             for(j=0; j<tempRes->len; j++)
@@ -309,76 +320,344 @@ static void sch_callback( GtkWidget *widget, GPtrArray *arr)
                 }
             }
         }
-
-        for(i=0; i<res1->len; i++)
-            g_print("res1:\t%s\n", (gchar*)g_ptr_array_index(res1, i));
-        for(i=0; i<tempRes->len; i++)
-            g_print("tempRes:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
-        for(i=0; i<tempRes2->len; i++)
-            g_print("tempRes2:\t%s\n", (gchar*)g_ptr_array_index(tempRes2, i));
+       
+        //Очищаем временный массив и заново его инициализируем.
+        if(res1->len > 0)
+        {
+            g_ptr_array_free(tempRes, TRUE);
+            tempRes = g_ptr_array_new();
         
-        g_ptr_array_free(tempRes, TRUE);
-        tempRes = g_ptr_array_new();
+        
+            //Записываем всё из массива tempRes2 в массив tempRes
+            for(i=0; i<tempRes2->len; i++)
+                g_ptr_array_add(tempRes, g_ptr_array_index(tempRes2, i));
+            //Очищаем tempRes2
+            tempRes2 = g_ptr_array_new();    
+            for(i=0; i<tempRes2->len; i++)
+                g_print("res1:\t%s\n", (gchar*)g_ptr_array_index(tempRes2, i));
+        }
+        //Очищаем и инициализиуер массив с результатами.
         g_ptr_array_free(res1, TRUE);
         res1 = g_ptr_array_new();
-
-        for(i=0; i<tempRes2->len; i++)
-            g_ptr_array_add(tempRes, g_ptr_array_index(tempRes2, i));
-        tempRes2 = g_ptr_array_new();
-*/
-        //g_ptr_array_free(res1, TRUE);
-        //res1 = g_ptr_array_new();
         
-        for(i=0; i<4; i++)
-            g_print("res1:\t%s\n", (gchar*)g_ptr_array_index(res1, i));
-        g_print("len: %d\n", res1->len);
-        
+        for(i=0; i<tempRes->len; i++)
+            g_print("res1 #2:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
         g_print("%s\n",str3);
-//        g_ptr_array_add(res1, "garfeild_vs_falg");
         rc = sqlite3_exec(db, str3, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
         {
             fprintf(stderr, "SQL error: %s\n", zErrMsg);
         }
         g_free(str3);
-
-        for(i=0; i<4; i++)
-            g_print("res1:\t%s\n", (gchar*)g_ptr_array_index(res1, i));
-        g_print("len: %d\n", res1->len);
         
+        //Сравниваем i-ый элемент массива res1 и j-ый элемент массива tempRes
+        for(i=0; i<res1->len; i++)
+        {
+            for(j=0; j<tempRes->len; j++)
+            {
+                if ( g_strcmp0( g_ptr_array_index(res1, i), g_ptr_array_index(tempRes, j) ) == 0 )
+                {   
+                    //Задаем FALSE, т.к. не знаем еще есть ли значение res1 в tempRes2
+                    duplex = FALSE;
+                    //Если во втором запасном массиве tempRes2 что-то есть, то проверяем, есть ли значение i-го элемента res1 в tempRes2
+                    if ( tempRes2->len != 0 )
+                    {
+                        for( k=0; k<tempRes2->len; k++ )
+                        {
+                            if ( g_strcmp0( g_ptr_array_index(tempRes2, k), g_ptr_array_index(res1, i) ) == 0 )
+                                duplex = TRUE;
+                            
+                            if ( duplex == FALSE )
+                                g_ptr_array_add(tempRes2, g_ptr_array_index(res1, i));
+                        }
+                    }
+                    else
+                        g_ptr_array_add(tempRes2, g_ptr_array_index(res1, i));
+                }
+            }
+        }
+       
+        //Очищаем временный массив и заново его инициализируем.
+        if(res1->len > 0)
+        {
+            g_ptr_array_free(tempRes, TRUE);
+            tempRes = g_ptr_array_new();
+        
+        
+            //Записываем всё из массива tempRes2 в массив tempRes
+            for(i=0; i<tempRes2->len; i++)
+                g_ptr_array_add(tempRes, g_ptr_array_index(tempRes2, i));
+            //Очищаем tempRes2
+            tempRes2 = g_ptr_array_new();    
+            for(i=0; i<tempRes2->len; i++)
+                g_print("res1:\t%s\n", (gchar*)g_ptr_array_index(tempRes2, i));
+        }
+        //Очищаем и инициализиуер массив с результатами.
+        g_ptr_array_free(res1, TRUE);
+        res1 = g_ptr_array_new();
+
+        for(i=0; i<tempRes->len; i++)
+            g_print("res1 #3:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
         g_print("%s\n",str4);
-//        g_ptr_array_add(res1, "garfeild_vs_falg");
         rc = sqlite3_exec(db, str4, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
         {
             fprintf(stderr, "SQL error: %s\n", zErrMsg);
         }
         g_free(str4);
-
-        for(i=0; i<4; i++)
-            g_print("res1:\t%s\n", (gchar*)g_ptr_array_index(res1, i));
-        g_print("len: %d\n", res1->len);
         
-        g_print("%s\n",str5);
-//        g_ptr_array_add(res1, "garfeild_vs_falg");
-        rc = sqlite3_exec(db, str5, callback, 0, &zErrMsg);
+        //Сравниваем i-ый элемент массива res1 и j-ый элемент массива tempRes
+        for(i=0; i<res1->len; i++)
+        {
+            for(j=0; j<tempRes->len; j++)
+            {
+                if ( g_strcmp0( g_ptr_array_index(res1, i), g_ptr_array_index(tempRes, j) ) == 0 )
+                {   
+                    //Задаем FALSE, т.к. не знаем еще есть ли значение res1 в tempRes2
+                    duplex = FALSE;
+                    //Если во втором запасном массиве tempRes2 что-то есть, то проверяем, есть ли значение i-го элемента res1 в tempRes2
+                    if ( tempRes2->len != 0 )
+                    {
+                        for( k=0; k<tempRes2->len; k++ )
+                        {
+                            if ( g_strcmp0( g_ptr_array_index(tempRes2, k), g_ptr_array_index(res1, i) ) == 0 )
+                                duplex = TRUE;
+                            
+                            if ( duplex == FALSE )
+                                g_ptr_array_add(tempRes2, g_ptr_array_index(res1, i));
+                        }
+                    }
+                    else
+                        g_ptr_array_add(tempRes2, g_ptr_array_index(res1, i));
+                }
+            }
+        }
+       
+        //Очищаем временный массив и заново его инициализируем.
+        if(res1->len > 0)
+        {
+            g_ptr_array_free(tempRes, TRUE);
+            tempRes = g_ptr_array_new();
+        
+        
+            //Записываем всё из массива tempRes2 в массив tempRes
+            for(i=0; i<tempRes2->len; i++)
+                g_ptr_array_add(tempRes, g_ptr_array_index(tempRes2, i));
+            //Очищаем tempRes2
+            tempRes2 = g_ptr_array_new();    
+            for(i=0; i<tempRes2->len; i++)
+                g_print("res1:\t%s\n", (gchar*)g_ptr_array_index(tempRes2, i));
+        }
+        //Очищаем и инициализиуер массив с результатами.
+        g_ptr_array_free(res1, TRUE);
+        res1 = g_ptr_array_new();
+        
+        for(i=0; i<tempRes->len; i++)
+            g_print("res1 #4:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
+        g_print("%s\n", str5);
         if( rc!=SQLITE_OK )
         {
             fprintf(stderr, "SQL error: %s\n", zErrMsg);
         }
         g_free(str5);
+        
+        //Сравниваем i-ый элемент массива res1 и j-ый элемент массива tempRes
+        for(i=0; i<res1->len; i++)
+        {
+            for(j=0; j<tempRes->len; j++)
+            {
+                if ( g_strcmp0( g_ptr_array_index(res1, i), g_ptr_array_index(tempRes, j) ) == 0 )
+                {   
+                    //Задаем FALSE, т.к. не знаем еще есть ли значение res1 в tempRes2
+                    duplex = FALSE;
+                    //Если во втором запасном массиве tempRes2 что-то есть, то проверяем, есть ли значение i-го элемента res1 в tempRes2
+                    if ( tempRes2->len != 0 )
+                    {
+                        for( k=0; k<tempRes2->len; k++ )
+                        {
+                            if ( g_strcmp0( g_ptr_array_index(tempRes2, k), g_ptr_array_index(res1, i) ) == 0 )
+                                duplex = TRUE;
+                            
+                            if ( duplex == FALSE )
+                                g_ptr_array_add(tempRes2, g_ptr_array_index(res1, i));
+                        }
+                    }
+                    else
+                        g_ptr_array_add(tempRes2, g_ptr_array_index(res1, i));
+                }
+            }
+        }
+       
+        //Очищаем временный массив и заново его инициализируем.
+        if(res1->len > 0)
+        {
+            g_ptr_array_free(tempRes, TRUE);
+            tempRes = g_ptr_array_new();
+        
+        
+            //Записываем всё из массива tempRes2 в массив tempRes
+            for(i=0; i<tempRes2->len; i++)
+                g_ptr_array_add(tempRes, g_ptr_array_index(tempRes2, i));
+            //Очищаем tempRes2
+            tempRes2 = g_ptr_array_new();    
+            for(i=0; i<tempRes2->len; i++)
+                g_print("res1:\t%s\n", (gchar*)g_ptr_array_index(tempRes2, i));
+        }
+        //Очищаем и инициализиуер массив с результатами.
+        g_ptr_array_free(res1, TRUE);
+        res1 = g_ptr_array_new();
 
+        for(i=0; i<tempRes->len; i++)
+            g_print("res1 #5:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
         g_print("%s\n",str6);
-//        g_ptr_array_add(res1, "garfeild_vs_falg");
         rc = sqlite3_exec(db, str6, callback, 0, &zErrMsg);
         if( rc!=SQLITE_OK )
         {
             fprintf(stderr, "SQL error: %s\n", zErrMsg);
         }
         g_free(str6);
+        
+        //Сравниваем i-ый элемент массива res1 и j-ый элемент массива tempRes
+        for(i=0; i<res1->len; i++)
+        {
+            for(j=0; j<tempRes->len; j++)
+            {
+                if ( g_strcmp0( g_ptr_array_index(res1, i), g_ptr_array_index(tempRes, j) ) == 0 )
+                {   
+                    //Задаем FALSE, т.к. не знаем еще есть ли значение res1 в tempRes2
+                    duplex = FALSE;
+                    //Если во втором запасном массиве tempRes2 что-то есть, то проверяем, есть ли значение i-го элемента res1 в tempRes2
+                    if ( tempRes2->len != 0 )
+                    {
+                        for( k=0; k<tempRes2->len; k++ )
+                        {
+                            if ( g_strcmp0( g_ptr_array_index(tempRes2, k), g_ptr_array_index(res1, i) ) == 0 )
+                                duplex = TRUE;
+                            
+                            if ( duplex == FALSE )
+                                g_ptr_array_add(tempRes2, g_ptr_array_index(res1, i));
+                        }
+                    }
+                    else
+                        g_ptr_array_add(tempRes2, g_ptr_array_index(res1, i));
+                }
+            }
+        }
+       
+        //Очищаем временный массив и заново его инициализируем.
+        if(res1->len > 0)
+        {
+            g_ptr_array_free(tempRes, TRUE);
+            tempRes = g_ptr_array_new();
+        
+        
+            //Записываем всё из массива tempRes2 в массив tempRes
+            for(i=0; i<tempRes2->len; i++)
+                g_ptr_array_add(tempRes, g_ptr_array_index(tempRes2, i));
+            //Очищаем tempRes2
+            tempRes2 = g_ptr_array_new();    
+            for(i=0; i<tempRes2->len; i++)
+                g_print("res1:\t%s\n", (gchar*)g_ptr_array_index(tempRes2, i));
+        }
+        //Очищаем и инициализиуер массив с результатами.
+        g_ptr_array_free(res1, TRUE);
+        res1 = g_ptr_array_new();
 
+        
+        for(i=0; i<tempRes->len; i++)
+            g_print("res1 #end:\t%s\n", (gchar*)g_ptr_array_index(tempRes, i));
+        
         g_print("End\n");
+        
+        for (i=0; i<tempRes->len; i++)
+         {
+            str1 = g_strconcat("SELECT MODEL, phase_number, U_in, freq_in FROM input WHERE model=\"", 
+                    g_ptr_array_index(tempRes, i),
+                    "\"",
+                    NULL
+                    );
+            g_print("str1: %s\n", str1);
+            
+            index_of_store = 0;
+            rc = sqlite3_exec(db, str1, callback2, 0, &zErrMsg);
+        if( rc!=SQLITE_OK )
+        {
+            fprintf(stderr, "SQL error: %s\n", zErrMsg);
+        }
+            
+            str2 = g_strconcat("SELECT model, power_min, power_max, phase_number, range_reg_U_min, range_reg_U_max, diskr_reg_U_min, diskr_reg_U_max, range_reg_f_min, range_reg_f_max, diskr_reg_f_min, diskr_reg_f_max, range_reg_v_razsys_min, range_reg_v_razsys_max, range_reg_v_zamsys_min, range_reg_v_zamsys_max, control_way, mod_way, takt_f FROM output WHERE model=\"", 
+                    g_ptr_array_index(tempRes, i),
+                    "\"",
+                    NULL
+                    );
+            g_print("str2: %s\n", str2);
 
+            index_of_store++;
+            rc = sqlite3_exec(db, str2, callback2, 0, &zErrMsg);
+        if( rc!=SQLITE_OK )
+        {
+            fprintf(stderr, "SQL error: %s\n", zErrMsg);
+        }
+            
+             str3 = g_strconcat("SELECT model, zad_freq_tp, ustan_zad_freq_tp, command_pusk_stop, pusk_stop_har, auto_pusk_stop_error, reg_techn_var FROM work_functions WHERE model=\"", 
+                    g_ptr_array_index(tempRes, i),
+                    "\"",
+                    NULL
+                    );
+            g_print("str3: %s\n", str3);
+
+            index_of_store++;
+            rc = sqlite3_exec(db, str3, callback2, 0, &zErrMsg);
+            if( rc!=SQLITE_OK )
+            {
+                fprintf(stderr, "SQL error: %s\n", zErrMsg);
+            }
+            
+             str4 = g_strconcat("SELECT model, defend_from_kz, max_i_defend, obriv_perekos_phase_defend, inc_decr_U_in_i_const_zveno FROM defend_functions4 WHERE model=\"", 
+                    g_ptr_array_index(tempRes, i),
+                    "\"",
+                    NULL
+                    );
+            g_print("str4: %s\n", str4);
+
+            index_of_store++;
+            rc = sqlite3_exec(db, str4, callback2, 0, &zErrMsg);
+            if( rc!=SQLITE_OK )
+            {
+                fprintf(stderr, "SQL error: %s\n", zErrMsg);
+            }
+            
+             str5 = g_strconcat("SELECT model, power_leave_MP_defend, teplo_defend  FROM defend_functions2 WHERE model=\"", 
+                    g_ptr_array_index(tempRes, i),
+                    "\"",
+                    NULL
+                    );
+            g_print("str5: %s\n", str5);
+
+            index_of_store++;
+            rc = sqlite3_exec(db, str5, callback2, 0, &zErrMsg);
+            if( rc!=SQLITE_OK )
+            {
+                fprintf(stderr, "SQL error: %s\n", zErrMsg);
+            }
+            
+             str6 = g_strconcat("SELECT model, k_U_out_depend_U_in, k_int_i_drive, k_int_torm_U_lim FROM korr WHERE model=\"", 
+                    g_ptr_array_index(tempRes, i),
+                    "\"",
+                    NULL
+                    );
+            g_print("str6: %s\n", str6);
+
+            index_of_store++;
+            rc = sqlite3_exec(db, str6, callback2, 0, &zErrMsg);
+            if( rc!=SQLITE_OK )
+            {
+                fprintf(stderr, "SQL error: %s\n", zErrMsg);
+            }
+            
+
+
+        }
 
 }
 
@@ -434,31 +713,19 @@ void set_column_xu(GtkWidget *tree, const char *labelColumn[], int size)
   }
 }
  
-/*void set_table_info(GPtrArray *results)
+void set_table_info_xu(GtkTreeStore *store, GPtrArray *results)
 {
     GtkTreeIter iter;
- 
+    int i;
+    g_print("*****************Setting table******************\n");   
     gtk_tree_store_append (store, &iter, NULL); 
-    gtk_tree_store_set (store, &iter,
-            MP_NAME, g_ptr_array_index(results, MP_NAME),
-            CORE_PERF, g_ptr_array_index(results ,CORE_PERF),                //1
-            CORE_DIGIT,  g_ptr_array_index(results, CORE_DIGIT),            //2
-            COUNT_TIMERS, g_ptr_array_index(results, COUNT_TIMERS),          //3
-            ASYNC_PORT_TYPE, g_ptr_array_index(results, ASYNC_PORT_TYPE),   //4
-            CASE_TYPE, g_ptr_array_index(results, CASE_TYPE),               //5
-            GUARD_TIMER, g_ptr_array_index(results, GUARD_TIMER),           //6
-            INTERFACE_RAM, g_ptr_array_index(results, INTERFACE_RAM),       //7
-            INTERFACE_DEBUG, g_ptr_array_index(results, INTERFACE_DEBUG),   //8
-            DMA, g_ptr_array_index(results, DMA),                           //9
-            PLL, g_ptr_array_index(results, PLL),                           //0
-            ADC_DIGIT, g_ptr_array_index(results, ADC_DIGIT),               //1
-            ADC_CHANNELS, g_ptr_array_index(results, ADC_CHANNELS),         //2
-            ADC_PERF, g_ptr_array_index(results, ADC_PERF),                 //3
-            RAM_COMMAND, g_ptr_array_index(results, RAM_COMMAND),           //4
-            RAM_DATA, g_ptr_array_index(results, RAM_DATA),                 //5
-//            OTHER, g_ptr_array_index(results, OTHER),                       //6
-            -1);
-}*/
+    for (i=0; i<results->len; i++)
+    {
+        g_print("%s\n", (gchar*) g_ptr_array_index(results, i));
+        //gtk_tree_store_append (store, &iter, NULL); 
+        gtk_tree_store_set (store, &iter, i, g_ptr_array_index(results, i), -1);
+    }
+}
 
 /*void set_table_info(GtkTreeStore *store, const char *names[], gboolean flag)
 {
@@ -559,7 +826,7 @@ GtkWidget* tab1 ()
     gchar *base_input[3] = {"phase_number","U_in","freq_in"};
     gchar *base_output[11] = {"power_","phase_number","range_reg_U_", "diskr_reg_U_", "range_reg_f_", "diskr_reg_f_",
     "range_reg_v_razsys_", "range_reg_v_zamsys_", "control_way", "mod_way", "takt_f"};
-    gchar *base_work[6] = {"zad_fraq_tp","ustan_zad_freq_tp", "command_pusk_stop", "pusk_stop_har",
+    gchar *base_work[6] = {"zad_freq_tp","ustan_zad_freq_tp", "command_pusk_stop", "pusk_stop_har",
     "auto_pusk_stop_error", "reg_techn_var"};
     gchar *base_defend2[2] = {"power_leave_MP_defend","teplo_defend"};
     gchar *base_defend4[4] = {"inc_decr_U_in_i_const_zveno","obriv_perekos_phase_defend","defend_from_kz",
@@ -589,6 +856,8 @@ GtkWidget* tab1 ()
     "Коррекция интенсивности торможения при\nпревышении напряжения на звене постоянного тока"};
 
 table = gtk_table_new (15, 3, FALSE);
+    gtk_table_set_row_spacings(GTK_TABLE(table), 5);
+    gtk_table_set_col_spacings(GTK_TABLE(table), 5);
 notebook = gtk_notebook_new();
 array = g_ptr_array_new ();
 res1 = g_ptr_array_new();
@@ -602,6 +871,8 @@ res1 = g_ptr_array_new();
             gtk_frame_set_label_widget(GTK_FRAME(frame), checkbutton);
             gtk_table_attach_defaults (GTK_TABLE (table), frame, 0, 3, 0, 1);
             table_in = gtk_table_new (1, 3, FALSE);
+            gtk_table_set_row_spacings(GTK_TABLE(table_in), 5);
+            gtk_table_set_col_spacings(GTK_TABLE(table_in), 5);
             gtk_widget_set_sensitive(GTK_WIDGET(table_in), FALSE);
             gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), FALSE);
             g_signal_connect (G_OBJECT (checkbutton), "toggled",
@@ -633,6 +904,8 @@ res1 = g_ptr_array_new();
             gtk_frame_set_label_widget(GTK_FRAME(frame), checkbutton);
             gtk_table_attach_defaults (GTK_TABLE (table), frame, 0, 3, 1, 4);
             table_in = gtk_table_new (4, 3, FALSE);
+            gtk_table_set_row_spacings(GTK_TABLE(table_in), 5);
+            gtk_table_set_col_spacings(GTK_TABLE(table_in), 5);
             gtk_widget_set_sensitive(GTK_WIDGET(table_in), FALSE);
             gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), FALSE);
             g_signal_connect (G_OBJECT (checkbutton), "toggled",
@@ -669,6 +942,8 @@ res1 = g_ptr_array_new();
                 gtk_frame_set_label_widget(GTK_FRAME(frame), checkbutton);
                 gtk_table_attach_defaults (GTK_TABLE (table), frame, 0, 3, 5, 7);
                 table_in = gtk_table_new (2, 3, FALSE);
+            gtk_table_set_row_spacings(GTK_TABLE(table_in), 5);
+            gtk_table_set_col_spacings(GTK_TABLE(table_in), 5);
                 gtk_widget_set_sensitive(GTK_WIDGET(table_in), FALSE);
                 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), FALSE);
                 g_signal_connect (G_OBJECT (checkbutton), "toggled",
@@ -683,8 +958,16 @@ res1 = g_ptr_array_new();
                     combo = gtk_combo_box_new_text();
                     gtk_widget_set_name (GTK_WIDGET(combo), base_work[k]);
                     g_ptr_array_add (array, (gpointer) combo);
+                    if(g_strcmp0(work_name[k], "Пуско-тормозная характеристика" ) == 0) 
+                    {
+                    gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "S-образная/Линейная");
+                    gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "Другая");
+                    }
+                      else
+                      {
                     gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "есть");
                     gtk_combo_box_append_text(GTK_COMBO_BOX(combo), "нет");
+                      }
                     checkbutton = gtk_check_button_new_with_label (work_name[k]);
                     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), TRUE);
                     g_signal_connect (G_OBJECT (checkbutton), "toggled",
@@ -705,6 +988,8 @@ res1 = g_ptr_array_new();
                 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), TRUE);
                 gtk_table_attach_defaults (GTK_TABLE (table), frame, 0, 3, 7, 9);
                 table_in = gtk_table_new (2, 2, FALSE);
+            gtk_table_set_row_spacings(GTK_TABLE(table_in), 5);
+            gtk_table_set_col_spacings(GTK_TABLE(table_in), 5);
                 gtk_widget_set_sensitive(GTK_WIDGET(table_in), FALSE);
                 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), FALSE);
                 g_signal_connect (G_OBJECT (checkbutton), "toggled",
@@ -738,6 +1023,8 @@ res1 = g_ptr_array_new();
                 gtk_frame_set_label_widget(GTK_FRAME(frame), checkbutton);
                 gtk_table_attach_defaults (GTK_TABLE (table), frame, 0, 3, 9, 11);
                 table_in = gtk_table_new (1, 2, FALSE);
+            gtk_table_set_row_spacings(GTK_TABLE(table_in), 5);
+            gtk_table_set_col_spacings(GTK_TABLE(table_in), 5);
                 gtk_widget_set_sensitive(GTK_WIDGET(table_in), FALSE);
                 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), FALSE);
                 g_signal_connect (G_OBJECT (checkbutton), "toggled",
@@ -769,6 +1056,8 @@ res1 = g_ptr_array_new();
                 gtk_frame_set_label_widget(GTK_FRAME(frame), checkbutton);
                 gtk_table_attach_defaults (GTK_TABLE (table), frame, 0, 3, 11, 13);
                 table_in = gtk_table_new (2, 2, FALSE);
+            gtk_table_set_row_spacings(GTK_TABLE(table_in), 5);
+            gtk_table_set_col_spacings(GTK_TABLE(table_in), 5);
                 gtk_widget_set_sensitive(GTK_WIDGET(table_in), FALSE);
                 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), FALSE);
                 g_signal_connect (G_OBJECT (checkbutton), "toggled",
