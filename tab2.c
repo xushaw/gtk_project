@@ -189,8 +189,10 @@ GtkWidget* createEntry(GPtrArray *entries, GPtrArray *all, const gchar *name, co
     
     gtk_container_add(GTK_CONTAINER(_leftAlign), GTK_WIDGET(_label));
     
-    gtk_box_pack_start(GTK_BOX(_vbox), _leftAlign, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(_vbox), _entry, FALSE, FALSE, 0);
+    //gtk_box_pack_start(GTK_BOX(_vbox), _leftAlign, TRUE, TRUE, 0);
+    //gtk_box_pack_start(GTK_BOX(_vbox), _entry, TRUE, TRUE, 0);
+    gtk_container_add(GTK_CONTAINER(_vbox), _leftAlign);
+    gtk_container_add(GTK_CONTAINER(_vbox), _entry);
 
     g_signal_connect(G_OBJECT(_label), "toggled",
             G_CALLBACK(toggle_action), (gpointer) _entry);
@@ -220,8 +222,10 @@ GtkWidget* createComboBox(GPtrArray *comboboxes, GPtrArray *all, const gchar *na
     
     gtk_container_add(GTK_CONTAINER(_leftAlign), GTK_WIDGET(_label));
     
-    gtk_box_pack_start(GTK_BOX(_vbox), _leftAlign, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(_vbox), _combobox, FALSE, FALSE, 0);
+    //gtk_box_pack_start(GTK_BOX(_vbox), _leftAlign, FALSE, FALSE, 0);
+    //gtk_box_pack_start(GTK_BOX(_vbox), _combobox, FALSE, FALSE, 0);
+    gtk_container_add(GTK_CONTAINER(_vbox), _leftAlign);
+    gtk_container_add(GTK_CONTAINER(_vbox), _combobox);
 
     g_signal_connect(G_OBJECT(_label), "toggled",
             G_CALLBACK(toggle_action), (gpointer) _combobox);
@@ -251,6 +255,7 @@ GtkWidget* createFrame(GPtrArray *entries, GPtrArray *all, const gchar name[], c
     }
 
     gtk_container_add(GTK_CONTAINER(_frame), GTK_WIDGET(_vbox));
+    gtk_container_set_border_width(GTK_CONTAINER(_frame), 5);
     
     g_signal_connect(G_OBJECT(_label), "toggled",
             G_CALLBACK(toggle_action), (gpointer) _vbox);
@@ -487,7 +492,7 @@ GtkWidget* tab2()
         //g_print("BUTTON: Created\n");
     }
     
-    for (i=0; i<3; i++) {
+    for (i=1; i<2; i++) {
         if (i==1)   {
             gtk_table_attach_defaults(GTK_TABLE(tableBox), GTK_WIDGET(createFrame(input, all, "АЦП", namesACP, namesFromBaseACP, 3)), 1, 2, 0, 3 );
 
@@ -525,6 +530,7 @@ GtkWidget* tab2()
             G_CALLBACK(entry_print2), (gpointer)input);
     
    gtk_container_set_border_width(GTK_CONTAINER(tableBox), 5);
+
 
    return tableBox;
 }

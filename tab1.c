@@ -985,7 +985,7 @@ res1 = g_ptr_array_new();
                     entry = gtk_entry_new ();
                     gtk_widget_set_name (GTK_WIDGET(entry), base_input[m]);
                     g_ptr_array_add (array, (gpointer) entry);
-                    vbox = gtk_vbox_new (FALSE, 0);
+                    vbox = gtk_vbox_new (FALSE, 5);
                     checkbutton = gtk_check_button_new_with_label (input_entry_name[m]);
                     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), TRUE);
                     g_signal_connect (G_OBJECT (checkbutton), "toggled",
@@ -1024,7 +1024,7 @@ res1 = g_ptr_array_new();
                     entry = gtk_entry_new ();
                     g_ptr_array_add (array, (gpointer) entry);
                     gtk_widget_set_name (GTK_WIDGET(entry), base_output[k]);
-                    vbox = gtk_vbox_new (FALSE, 0);
+                    vbox = gtk_vbox_new (FALSE, 5);
                     checkbutton = gtk_check_button_new_with_label (output_entry_name[k]);
                     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), TRUE);
                     g_signal_connect (G_OBJECT (checkbutton), "toggled",
@@ -1034,7 +1034,7 @@ res1 = g_ptr_array_new();
                     gtk_table_attach_defaults (GTK_TABLE (table_in), vbox, 0+m, 1+m, 0+n, 1+n);
                     k++;
                 }
-            }
+            } 
 
             if (j==5) //work
             {
@@ -1057,7 +1057,7 @@ res1 = g_ptr_array_new();
                 for(m=0; m<2; m++)
                 for(n=0; n<3; n++)
                 {
-                    hbox = gtk_hbox_new (FALSE, 0);
+                    hbox = gtk_hbox_new (FALSE, 5);
                     combo = gtk_combo_box_new_text();
                     gtk_widget_set_name (GTK_WIDGET(combo), base_work[k]);
                     g_ptr_array_add (array, (gpointer) combo);
@@ -1082,7 +1082,7 @@ res1 = g_ptr_array_new();
                 }
             }
             if (j==7) //defend4
-            {
+            { 
                 frame = gtk_frame_new(NULL);
                 checkbutton = gtk_check_button_new_with_label (defend_title[0]);
          //       gtk_widget_set_name (GTK_WIDGET(checkbutton), defend_title[0]);
@@ -1102,8 +1102,8 @@ res1 = g_ptr_array_new();
                 k=0;
                 for(m=0; m<2; m++)
                 for(n=0; n<2; n++)
-                {
-                    hbox = gtk_hbox_new (FALSE, 0);
+                 {
+                    hbox = gtk_hbox_new (FALSE, 50);
                     combo = gtk_combo_box_new_text();
                     gtk_widget_set_name (GTK_WIDGET(combo), base_defend4[k]);
                     g_ptr_array_add (array, (gpointer) combo);
@@ -1120,7 +1120,7 @@ res1 = g_ptr_array_new();
                 }
             }
             if (j==9) //defend2
-            {
+            { 
                 frame = gtk_frame_new(NULL);
                 checkbutton = gtk_check_button_new_with_label (defend_title[1]);
                 g_ptr_array_add (array, (gpointer) checkbutton);
@@ -1136,8 +1136,8 @@ res1 = g_ptr_array_new();
             gtk_container_set_border_width(GTK_CONTAINER(frame), 5);
                 gtk_container_add (GTK_CONTAINER(frame), table_in);
                 for(m=0; m<2; m++)
-                {
-                    hbox = gtk_hbox_new (FALSE, 0);
+                 {
+                    hbox = gtk_hbox_new (FALSE, 5);
                     combo = gtk_combo_box_new_text();
                     g_ptr_array_add (array, (gpointer) combo);
                     gtk_widget_set_name (GTK_WIDGET(combo), base_defend2[m]);
@@ -1154,7 +1154,7 @@ res1 = g_ptr_array_new();
             }
 
             if (j==11) //korr
-            {
+            { 
                 frame = gtk_frame_new(NULL);
                 checkbutton = gtk_check_button_new_with_label ("Режимы коррекции");
                 g_ptr_array_add (array, (gpointer) checkbutton);
@@ -1174,8 +1174,8 @@ res1 = g_ptr_array_new();
                 for(n=0; n<2; n++)
                 if (n!=1 || m!=1)
                 
-                {
-                    hbox = gtk_hbox_new (FALSE, 0);
+                 {
+                    hbox = gtk_hbox_new (FALSE, 5);
                     combo = gtk_combo_box_new_text();
                     g_ptr_array_add (array, (gpointer) combo);
                     gtk_widget_set_name (GTK_WIDGET(combo), base_korr[k]);
@@ -1342,7 +1342,6 @@ gtk_box_pack_start(GTK_BOX (bbox), sch_button, TRUE, FALSE, 0);
 gtk_button_box_set_layout(GTK_BUTTON_BOX(bbox), GTK_BUTTONBOX_END);
 gtk_table_attach_defaults (GTK_TABLE (table), bbox, 2, 3, 13, 14);
 gtk_table_attach_defaults(GTK_TABLE(table), notebook, 0, 3, 14, 15);
-gtk_container_set_border_width(GTK_CONTAINER(table), 5);
 //gtk_table_attach_defaults (GTK_TABLE (table), hbox, 0, 3, 12, 13);
     
 return table;
