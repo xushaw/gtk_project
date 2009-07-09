@@ -6,6 +6,7 @@
 #include <glib.h>
 #include <glib/gprintf.h>
 #include "tab2.h"
+#include "gui.h"
 
 /* garfeild.c */
 
@@ -146,6 +147,7 @@ void input_clear(GtkWidget *gw, GPtrArray *input)
     }
 }
 
+/*
 void toggle_action(GtkWidget *checkButton, GtkWidget *widget)
 {
     gboolean val;
@@ -161,6 +163,7 @@ void toggle_action(GtkWidget *checkButton, GtkWidget *widget)
 
 
 }
+*/
 
 void entry_enter(GtkWidget *gw, GtkWidget *button)
 {
@@ -168,6 +171,7 @@ void entry_enter(GtkWidget *gw, GtkWidget *button)
 }
 
 /* Create some widgets */
+/*
 GtkWidget* createEntry(GPtrArray *entries, GPtrArray *all, const gchar *name, const gchar *wname)
 {
     GtkWidget *_entry;
@@ -261,7 +265,7 @@ GtkWidget* createFrame(GPtrArray *entries, GPtrArray *all, const gchar name[], c
             G_CALLBACK(toggle_action), (gpointer) _vbox);
     return _frame;
 }
-
+*/
 
 /* table */
 void set_column(GtkWidget *tree, const char *labelColumn[])
